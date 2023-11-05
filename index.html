@@ -17,7 +17,7 @@
     <div style="display: flex;">
         <div id='map' style='width: 95vw; height: 80vh;'></div>
         <div>
-            <button id="fly">flyTo</button>
+            <button id="fly">Go</button>
             <p id="animationDuration"></p>
         </div>
     </div>
@@ -41,26 +41,28 @@
         let nextPosition = 1;
  
         document.getElementById('fly').addEventListener('click', () => {
-            if(nextPosition > 7)
-            {
-                nextPosition = 0;
-            }
-            const target = testRoute[nextPosition];
+            setInterval(function(){ 
+                if(nextPosition > 7)
+                {
+                    nextPosition = 0;
+                }
+                const target = testRoute[nextPosition];
 
-            map.easeTo({
-                ...target, // Fly to the selected target
-                zoom: 21,
-                pitch: 85,
-                duration: 1000,
-                screenSpeed: 0.1,
-                essential: true
-            });
+                map.easeTo({
+                    ...target, // Fly to the selected target
+                    zoom: 21,
+                    pitch: 85,
+                    duration: 1000,
+                    easing: t => t,
+                    essential: true
+                });
 
-            document.getElementById('info3').innerHTML =
-            'aktuelle Zielkoordinaten:' + 
-            JSON.stringify(target);
+                document.getElementById('info3').innerHTML =
+                'aktuelle Zielkoordinaten:' + 
+                JSON.stringify(target);
 
-            nextPosition++;
+                nextPosition++;    
+            }, 1000);
         });
 
         // // eslint-disable-next-line no-undef
