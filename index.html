@@ -1,173 +1,39 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>Basic 3D World</title>
-    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <head>
+        <title>Basic 3D World</title>
+        <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 
-    <script src='https://api.mapbox.com/mapbox-gl-js/v3.0.0-beta.1/mapbox-gl.js'></script>
-    <link href='https://api.mapbox.com/mapbox-gl-js/v3.0.0-beta.1/mapbox-gl.css' rel='stylesheet' />
-    <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
+        <script src='https://api.mapbox.com/mapbox-gl-js/v3.0.0-beta.1/mapbox-gl.js'></script>
+        <link href='https://api.mapbox.com/mapbox-gl-js/v3.0.0-beta.1/mapbox-gl.css' rel='stylesheet' />
+        <!-- <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script> -->
+        <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+        <!-- <script src="https://cdn.jsdelivr.net/gh/jscastro76/threebox@v.2.2.2/dist/threebox.min.js" type="text/javascript"></script> -->
 
-    <script src="./testRoute.js"></script>
-    
-    <!-- <script src="https://cdn.jsdelivr.net/gh/jscastro76/threebox@v.2.2.2/dist/threebox.min.js" type="text/javascript"></script> -->
+        <script src="./js/readCredentials.js"></script>
+        <script src="./js/connect.js"></script>
+        <script src="./js/testRoute.js"></script>
+        <script src="./js/mqttHandler.js"></script>
 
-</head>
-<body>
-    <div style="display: flex;">
-        <div id='map' style='width: 95vw; height: 80vh;'></div>
-        <div>
-            <button id="fly">Go</button>
-            <p id="animationDuration"></p>
+        <!-- Main Entry -->
+        <script src="./js/main.js"></script>
+
+    </head>
+    <body style="margin: 0;">
+        <div id='map' style='width: 100vw; height: 100vh;'></div>
+        <div style="
+        position: fixed;
+        top: 1rem;
+        left: 1rem;
+        background-color: white;
+        padding: 0.2rem;">
+            <pre id="info1"></pre>
+            <pre id="info2"></pre>
+            <pre id="info3"></pre>
+            <div>
+                <button id="fly">Testkoordinate weiter</button>
+                <p id="animationDuration"></p>
+            </div>
         </div>
-    </div>
-    <pre id="info1"></pre>
-    <pre id="info2"></pre>
-    <pre id="info3"></pre>
-
-    <script>
-        mapboxgl.accessToken = 'pk.eyJ1IjoidHJhbGxmYXp6eiIsImEiOiJjbG84aWcyNHAwMWQ0MnFuYmF2bWx5ZnR6In0.XLYQX90EcczbrDe8HK-dXA';
-        const map = new mapboxgl.Map({
-            container: 'map',
-            center: [10.006742457554765, 53.54106874310412],
-            zoom: 21,
-            pitch: 85,
-            bearing: -80, 
-            profile: 'mapbox/cycling',
-            // antialising für custom layers; sehr performancelastig
-            antialias: true
-        });
-
-        let nextPosition = 1;
- 
-        document.getElementById('fly').addEventListener('click', () => {
-            setInterval(function(){ 
-                if(nextPosition > 7)
-                {
-                    nextPosition = 0;
-                }
-                const target = testRoute[nextPosition];
-
-                map.easeTo({
-                    ...target, // Fly to the selected target
-                    zoom: 21,
-                    pitch: 85,
-                    duration: 1000,
-                    easing: t => t,
-                    essential: true
-                });
-
-                document.getElementById('info3').innerHTML =
-                'aktuelle Zielkoordinaten:' + 
-                JSON.stringify(target);
-
-                nextPosition++;    
-            }, 1000);
-        });
-
-        // // eslint-disable-next-line no-undef
-        // const tb = (window.tb = new Threebox(
-        //     map,
-        //     map.getCanvas().getContext('webgl'),
-        //     {
-        //         defaultLights: true
-        //     }
-        // ));
-
-        // lade GL 3 Standard Style
-        map.on('style.load', () => {
-          map.setConfigProperty('basemap', 'lightPreset', 'dusk');
-
-        //   map.addLayer({
-        //     id: 'custom-threebox-model_house',
-        //     type: 'custom',
-        //     renderingMode: '3d',
-        //     onAdd: function () {
-        //         // Creative Commons License attribution:  Metlife Building model by https://sketchfab.com/NanoRay
-        //         // https://sketchfab.com/3d-models/metlife-building-32d3a4a1810a4d64abb9547bb661f7f3
-        //         const scale = 3.2;
-        //         const options = {
-        //             obj: 'https://docs.mapbox.com/mapbox-gl-js/assets/metlife-building.gltf',
-        //             type: 'gltf',
-        //             scale: { x: scale, y: scale, z: 2.7 },
-        //             units: 'meters',
-        //             rotation: { x: 90, y: -90, z: 0 }
-        //         };
-
-        //         tb.loadObj(options, (model) => {
-        //             model.setCoords([10.006742457554765, 53.54106874310412]);
-        //             model.setRotation({ x: 0, y: 0, z: 241 });
-        //             tb.add(model);
-        //         });
-        //     },
-
-        //     render: function () {
-        //         tb.update();
-        //     }
-        //     });
-
-            // 3D Ampel
-            // * title:	LowPoly Traffic Light - Low Poly Free !
-            // * source:	https://sketchfab.com/3d-models/lowpoly-traffic-light-low-poly-free-0098d2e06af641a2b74b42dffc11daf3
-            // * author:	yAncioso (https://sketchfab.com/yAncioso)
-            map.addLayer({
-            id: 'custom_layer',
-            type: 'custom',
-            renderingMode: '3d',
-                onAdd: function (map, mbxContext) {
-
-                    window.tb = new Threebox(
-                        map,
-                        mbxContext,
-                        { defaultLights: true }
-                    );
-
-                    var options = {
-                        obj: 'scene.gltf',
-                        type: 'gltf',
-                        scale: 0.3,
-                        units: 'meters',
-                        rotation: { x: 90, y: 270, z: 0 }
-                    }
-
-                    tb.loadObj(options, function (model) {
-                        model.setCoords([10.006742457554765, 53.54106874310412]);
-                        tb.add(model);
-                    })
-
-                },
-                render: function (gl, matrix) {
-                    tb.update();
-                }
-            });
-
-        });
-
-        // zeige Koordinaten
-        map.on('mousemove', (e) => {
-            document.getElementById('info1').innerHTML =
-            'DOM Mausposition: ' +
-            JSON.stringify(e.point) +
-            '<br />Mausposition: ' +
-            JSON.stringify(e.lngLat.wrap());
-        });
-
-        map.on('move', function() {
-            const camera = map.getFreeCameraOptions();
-            const cameraPosition = camera._position.toLngLat();
-
-            document.getElementById('info2').innerHTML =
-            'Kameraposition:\t' +
-            cameraPosition +
-            '<br />Fokuspunkt:\t' +
-            map.getCenter() +
-            '<br />aktueller Zoom: ' + 
-            map.getZoom() + 
-            '<br />aktueller Winkel: ' + 
-            map.getPitch() +
-            '<br />aktueller Kameragradzahl: ' + 
-            map.getBearing();
-        });
-    </script>
-</body>
+    </body>
 </html>
