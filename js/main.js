@@ -23,6 +23,72 @@ window.onload = async (event) => {
 
 function displayMap(map)
 {
+    // Add 1st 3D Building On Button Click
+    const button = document.getElementById('building1');
+    button.addEventListener('click', () => {
+        // Load GLTF model using Three.js
+        map.addLayer({
+                id: 'custom-threebox-model1',
+                type: 'custom',
+                renderingMode: '3d',
+                onAdd: function () {
+                    // Creative Commons License attribution:  Metlife Building model by https://sketchfab.com/NanoRay
+                    // https://sketchfab.com/3d-models/metlife-building-32d3a4a1810a4d64abb9547bb661f7f3
+                    const scale = 3.2;
+                    const options = {
+                        obj: 'https://docs.mapbox.com/mapbox-gl-js/assets/metlife-building.gltf',
+                        type: 'gltf',
+                        scale: { x: scale, y: scale, z: 2.7 },
+                        units: 'meters',
+                        rotation: { x: 90, y: -90, z: 0 }
+                    };
+        
+                    tb.loadObj(options, (model) => {
+                        model.setCoords([10.006742457554765, 53.54106874310412]);
+                        model.setRotation({ x: 0, y: 0, z: 241 });
+                        tb.add(model);
+                    });
+                },
+        
+                render: function () {
+                    tb.update();
+                }
+        });
+    });
+
+    // Add 2nd 3D Building On Button Click
+    const button2 = document.getElementById('building2');
+    button2.addEventListener('click', () => {
+        // Load GLTF model using Three.js
+        map.addLayer({
+                id: 'custom-threebox-model2',
+                type: 'custom',
+                renderingMode: '3d',
+                onAdd: function () {
+                    // Creative Commons License attribution:  Metlife Building model by https://sketchfab.com/NanoRay
+                    // https://sketchfab.com/3d-models/metlife-building-32d3a4a1810a4d64abb9547bb661f7f3
+                    const scale = 3.2;
+                    const options = {
+                        obj: 'https://docs.mapbox.com/mapbox-gl-js/assets/metlife-building.gltf',
+                        type: 'gltf',
+                        scale: { x: scale, y: scale, z: 2.7 },
+                        units: 'meters',
+                        rotation: { x: 90, y: -90, z: 0 }
+                    };
+        
+                    tb.loadObj(options, (model) => {
+                        model.setCoords([10.005742457554765, 53.54206874310412]);
+                        model.setRotation({ x: 0, y: 0, z: 241 });
+                        tb.add(model);
+                    });
+                },
+        
+                render: function () {
+                    tb.update();
+                }
+        });
+    });
+
     let nextPosition = 1;
     document.getElementById('fly').addEventListener('click', () => {
         if(nextPosition > 7)
@@ -45,19 +111,19 @@ function displayMap(map)
         nextPosition++;    
     });
 
-    // // eslint-disable-next-line no-undef
-    // const tb = (window.tb = new Threebox(
-    //     map,
-    //     map.getCanvas().getContext('webgl'),
-    //     {
-    //         defaultLights: true
-    //     }
-    // ));
+    // eslint-disable-next-line no-undef
+    const tb = (window.tb = new Threebox(
+        map,
+        map.getCanvas().getContext('webgl'),
+        {
+            defaultLights: true
+        }
+    ));
 
     // lade GL 3 Standard Style
     map.on('style.load', () => {
       map.setConfigProperty('basemap', 'lightPreset', 'dusk');
-
+    
     //   map.addLayer({
     //     id: 'custom-threebox-model1',
     //     type: 'custom',
