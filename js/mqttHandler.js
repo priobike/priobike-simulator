@@ -11,7 +11,36 @@ function mqttHandler(client)
         });
     });
     
-    client.on('message', (topic, message) => {
-        console.log(`Received message on topic ${topic}: ${message.toString()}`);
+    client.on('message', (receivedTopic, message) => {
+        console.log(`Received message on topic ${receivedTopic}: ${message.toString()}`);
+        if(receivedTopic === "simulation") {
+            handleMessage(message);
+        }
     });
+
+    client.publish(topic, "ein test");
+}
+
+function handleMessage(message)
+{
+    let json = {};
+    try {
+        json = JSON.parse(message.toString());   
+    } catch (error) {
+        console.log(error);
+        return;
+    }
+    if(json.type === "PairRequest") {
+        pairRequest(json.deviceID);
+    } else if(json.type === "NextCoordinate") {
+
+    }
+}
+
+function pairRequest(deviceID)
+{
+    if(!connected) {
+        alert(deviceID);
+        document.getElementById("connect").style.display = "block";
+    }
 }

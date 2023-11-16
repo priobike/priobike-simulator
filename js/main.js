@@ -1,21 +1,24 @@
+let connected = false;
+let connectedDeviceID;
+
 window.onload = async (event) => {
     const credJSON = await readCreadentials();
     const client = connectToMQTTBroker(credJSON.mqttUsername, credJSON.mqttPassword);
     mqttHandler(client);
 
-    mapboxgl.accessToken = credJSON.mapBoxToken;
-    const map = new mapboxgl.Map({
-        container: 'map',
-        center: [10.007901555262777, 53.54071265251261],
-        zoom: 21,
-        pitch: 85,
-        bearing: -80, 
-        profile: 'mapbox/cycling',
-        // antialising für custom layers; sehr performancelastig
-        // antialias: true
-    });
+    // mapboxgl.accessToken = credJSON.mapBoxToken;
+    // const map = new mapboxgl.Map({
+    //     container: 'map',
+    //     center: [10.007901555262777, 53.54071265251261],
+    //     zoom: 21,
+    //     pitch: 85,
+    //     bearing: -80, 
+    //     profile: 'mapbox/cycling',
+    //     // antialising für custom layers; sehr performancelastig
+    //     // antialias: true
+    // });
 
-    displayMap(map);
+    // displayMap(map);
 };
 
 function displayMap(map)
