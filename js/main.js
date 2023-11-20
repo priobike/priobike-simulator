@@ -1,9 +1,16 @@
 let connected = false;
-let connecting = false;
-let connectedDeviceID = '';
+let connectedDeviceID = 0;
+let connectedDeviceName = '';
+let disconnectTimer;
 
-window.onload = async (event) => {
-    const credJSON = await readCreadentials();
+
+window.onload = (event) => {
+    // mapbox token von priobike: pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA
+    const credJSON = JSON.parse(`{
+        "mapBoxToken":"pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA",
+        "mqttUsername":"simulator",
+        "mqttPassword":"Qe6irlBho9JJXbWHQQ1PB6qxHjtAHEJ9"
+    }`);
     const client = connectToMQTTBroker(credJSON.mqttUsername, credJSON.mqttPassword);
     mqttHandler(client);
 

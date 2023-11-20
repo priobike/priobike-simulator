@@ -1,3 +1,5 @@
+let connectionRequestCounter = 0;
+
 function mqttHandler(client)
 {   
     const topic = "simulation";
@@ -18,7 +20,7 @@ function mqttHandler(client)
         handleMessage(message);
     });
 
-    client.publish(topic, "ein test");
+    // client.publish(topic, "ein test");
 }
 
 function handleMessage(message)
@@ -32,7 +34,7 @@ function handleMessage(message)
     }
 
     if(json.type === "PairRequest") {
-        pairRequest(json.deviceID);
+        pairRequest(json.deviceID, json.deviceName);
     } else if(json.type === "StopRide") {
         stopRide(json.deviceID);
     } else if(json.type === "NextCoordinate") {
@@ -40,64 +42,79 @@ function handleMessage(message)
     }
 }
 
-function pairRequest(deviceID)
+function pairRequest(deviceID, deviceName)
 {
-    if(connected || connecting) {
+    if(connected) {
         return;
     }
-    connecting = true;
-    console.log("PairRequest from: " + deviceID);
-    document.getElementById("messages").innerHTML = '<div id="connect"><h3>Verbindungsanfrage von ' + deviceID + '</h3><button class="mt-2" id="acceptPairBtn">Akzeptieren</button></div>';
-    
-    let waiting = true;
-    const button = document.getElementById("acceptPairBtn");
-    button.addEventListener('click', function handler() {
-        waiting = false;
-        this.removeEventListener('click', handler);
-        document.getElementById("connect").remove();
-        pair(deviceID);
-    });
-    
-    // wait 10s until user clicks pairing button
-    setTimeout(function handler() {
-        if(waiting) {
-            console.log('Pairing Request aborted');
-            button.removeEventListener('click', handler);
-            document.getElementById("connect").remove();
-            connecting = false;
-        }
-    }, 10000);
+    console.log("PairRequest from: " + deviceName + ", deviceID: " + deviceID);
+
+    connectionRequestCounter++;
+    const messageID = 'message' + connectionRequestCounter;
+    const html = `
+        <h3>Verbindungsanfrage von ` + deviceName + `</h3>
+        <p>Verbindungsanfrage</p>
+        <button onclick="pair(` + deviceID + `, '` + deviceName + `', ` + messageID + `)">accept</button>
+        <button onclick="removeMessage('` + messageID + `')">decline</button>`;
+    createPopupMessage(messageID, html);
 }
 
-function pair(deviceID)
+function pair(deviceID, deviceName)
 {
     connected = true;
     connectedDeviceID = deviceID;
-    console.log("Connected to " + deviceID);
+    connectedDeviceName = deviceName;
+    console.log("Connected to " + deviceName + ", deviceID: " + deviceID);
 
-    document.getElementById("messages").innerHTML = '<div id="connectSuccess"><h3>Verbindung zu ' + deviceID + ' aufgebaut</h3></div>';
-    setTimeout(function handler() {
-        document.getElementById("connectSuccess").remove();
-    }, 3000);
+    removeAllMessages();
 
-    connecting = false;
+    // gib "Verbunden" Statusmeldung
+    const messageID = 'connected';
+    const html = `
+        <h3>` + deviceName + `</h3>
+        <p>Verbunden</p>`;
+    createPopupMessage(messageID, html);
+
+    startLogoutTimer(deviceID);
+}
+
+// melde automatisch nach 60s ab wenn User keine Nachricht geschickt hat
+function startLogoutTimer(deviceID) {
+    disconnectTimer = setTimeout(function() {
+      console.log('Automatic Logoff');
+      stopRide(deviceID);
+    }, 60000);
+}
+
+function resetLogoutTimer(deviceID) {
+    clearTimeout(disconnectTimer);
+    startLogoutTimer(deviceID);
 }
 
 function stopRide(deviceID)
 {
-    if(!connected || connectedDeviceID !== deviceID) {
+    if(!connected || connectedDeviceID != deviceID) {
         return;
     }
+
     connected = false;
-    connectedDeviceID = '';
+    connectedDeviceID = 0;
+    connectedDeviceName = '';
+    disconnectTimer = 0;
     console.log("Connection Closed");
-    document.getElementById("messages").innerHTML = '<div id="connectClose"><h3>Verbindung zu ' + deviceID + ' getrennt</h3></div>';
-    setTimeout(function handler() {
-        document.getElementById("connectClose").remove();
-    }, 3000);
+
+    removeAllMessages();
+
+    // gib "Getrennt" Statusmeldung
+    const messageID = 'disconnected';
+    const html = '<h3>Verbindung getrennt</h3>';
+    createPopupMessage(messageID, html);
 }
 
 function nextCoordinate(deviceID)
 {
-    
+    if(connectedDeviceID != deviceID) {
+        return
+    }
+    resetLogoutTimer(deviceID);
 }
