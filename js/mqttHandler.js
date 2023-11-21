@@ -1,6 +1,6 @@
 let connectionRequestCounter = 0;
 
-function mqttHandler(client)
+function mqttHandler()
 {   
     const topic = "simulation";
     
@@ -19,8 +19,6 @@ function mqttHandler(client)
         console.log(`Received message on topic ${receivedTopic}: ${message.toString()}`);
         handleMessage(message);
     });
-
-    // client.publish(topic, "ein test");
 }
 
 function handleMessage(message)
@@ -38,7 +36,7 @@ function handleMessage(message)
     } else if(json.type === "StopRide") {
         stopRide(json.deviceID);
     } else if(json.type === "NextCoordinate") {
-        nextCoordinate(json.deviceID);
+        nextCoordinate(json.deviceID, json.longitude, json.latitude, json.bearing);
     }
 }
 
@@ -65,6 +63,9 @@ function pair(deviceID, deviceName)
     connectedDeviceID = deviceID;
     connectedDeviceName = deviceName;
     console.log("Connected to " + deviceName + ", deviceID: " + deviceID);
+
+    // gib Rückmeldung an App das verbunden wurde
+    client.publish("simulation", '{"type":"PairConfirm", "deviceID":"' + connectedDeviceID + '"}');
 
     removeAllMessages();
 
@@ -111,10 +112,14 @@ function stopRide(deviceID)
     createPopupMessage(messageID, html);
 }
 
-function nextCoordinate(deviceID)
+function nextCoordinate(deviceID, longitude, latitude, bearing)
 {
     if(connectedDeviceID != deviceID) {
         return
     }
+
+    // setze timer zurück da nun wieder Aktivität
     resetLogoutTimer(deviceID);
+
+    // TODO: Funktion aufrufen, die die Koordinaten verarbeitet
 }
