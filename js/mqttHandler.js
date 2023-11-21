@@ -121,5 +121,5 @@ function nextCoordinate(deviceID, longitude, latitude, bearing)
     // setze timer zurück da nun wieder Aktivität
     resetLogoutTimer(deviceID);
 
-    // TODO: Funktion aufrufen, die die Koordinaten verarbeitet
+    moveToHandler(longitude, latitude, bearing);
 }

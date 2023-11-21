@@ -1,4 +1,4 @@
-function moveToHandler(map, coordinate_x, coordinate_y, bearing_int)
+function moveToHandler(coordinate_x, coordinate_y, bearing_int)
 {
     const target = {center: [coordinate_x,coordinate_y],
                     bearing: bearing_int}

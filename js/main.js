@@ -9,12 +9,16 @@ const credJSON = JSON.parse(`{
     "mqttUsername":"simulator",
     "mqttPassword":"Qe6irlBho9JJXbWHQQ1PB6qxHjtAHEJ9"
 }`);
-const client = connectToMQTTBroker(credJSON.mqttUsername, credJSON.mqttPassword);
-mqttHandler();
+
+let map;
+let client;
 
 window.onload = (event) => {
+    client = connectToMQTTBroker(credJSON.mqttUsername, credJSON.mqttPassword);
+    mqttHandler();
+
     mapboxgl.accessToken = credJSON.mapBoxToken;
-    const map = new mapboxgl.Map({
+    map = new mapboxgl.Map({
         container: 'map',
         center: [10.007901555262777, 53.54071265251261],
         zoom: 21,
@@ -108,7 +112,7 @@ function displayMap(map)
 
         document.getElementById('info3').innerHTML = 'aktuelle Zielkoordinaten:' + JSON.stringify(target);
 
-        nextPosition++;    
+        nextPosition++;
     });
 
     // eslint-disable-next-line no-undef
