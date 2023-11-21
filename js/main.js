@@ -105,14 +105,7 @@ function displayMap(map)
         }
         const target = testRoute[nextPosition];
 
-        map.easeTo({
-            ...target, // Fly to the selected target
-            zoom: 21,
-            pitch: 85,
-            duration: 1500,
-            easing: t => t,
-            essential: true
-        });
+        moveToHandler(map, target["center"][0],target["center"][1],target["bearing"])
 
         document.getElementById('info3').innerHTML = 'aktuelle Zielkoordinaten:' + JSON.stringify(target);
 
