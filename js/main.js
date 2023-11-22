@@ -108,7 +108,7 @@ function displayMap(map)
         }
         const target = testRoute[nextPosition];
 
-        moveToHandler(map, target["center"][0],target["center"][1],target["bearing"])
+        moveToHandler(target["center"][0],target["center"][1],target["bearing"])
 
         document.getElementById('info3').innerHTML = 'aktuelle Zielkoordinaten:' + JSON.stringify(target);
 
@@ -169,12 +169,14 @@ function displayMap(map)
     map.on('move', function() {
         const camera = map.getFreeCameraOptions();
         const cameraPosition = camera._position.toLngLat();
-
+        
         document.getElementById('info2').innerHTML =
         'Kameraposition:\t' +
         cameraPosition +
         '<br />Fokuspunkt:\t' +
         map.getCenter() +
+        '<br />Differenz CamPos Fokuspunkt:\t' +
+        (map.getCenter()["lng"]-cameraPosition["lng"]) + "   " + (map.getCenter()["lat"]-cameraPosition["lat"])
         '<br />aktueller Zoom: ' + 
         map.getZoom() + 
         '<br />aktueller Winkel: ' + 
