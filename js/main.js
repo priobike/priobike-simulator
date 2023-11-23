@@ -106,7 +106,7 @@ function displayMap(map)
         {
             nextPosition = 0;
         }
-        const target = testRoute[nextPosition];
+        const target = testRoute2[nextPosition];
 
         moveToHandler(target["center"][0],target["center"][1],target["bearing"])
 
@@ -169,19 +169,22 @@ function displayMap(map)
     map.on('move', function() {
         const camera = map.getFreeCameraOptions();
         const cameraPosition = camera._position.toLngLat();
-        
+
         document.getElementById('info2').innerHTML =
-        'Kameraposition:\t' +
-        cameraPosition +
-        '<br />Fokuspunkt:\t' +
-        map.getCenter() +
-        '<br />Differenz CamPos Fokuspunkt:\t' +
-        (map.getCenter()["lng"]-cameraPosition["lng"]) + "   " + (map.getCenter()["lat"]-cameraPosition["lat"])
-        '<br />aktueller Zoom: ' + 
-        map.getZoom() + 
-        '<br />aktueller Winkel: ' + 
-        map.getPitch() +
-        '<br />aktueller Kameragradzahl: ' + 
-        map.getBearing();
+            'Kameraposition:\t' +
+            cameraPosition +
+            '<br />Fokuspunkt:\t' +
+            map.getCenter() +
+            '<br />Differenz CamPos Fokuspunkt:\t' +
+            calculateDistance(map.getCenter()["lat"], map.getCenter()["lng"],cameraPosition["lat"], cameraPosition["lng"])+"\t"+
+            '<br />aktueller Zoom: ' + 
+            map.getZoom() + 
+            '<br />aktueller Winkel: ' + 
+            map.getPitch() +
+            '<br />aktueller Kameragradzahl: ' + 
+            map.getBearing() +
+            '<br />Differenz CamPos Fokuspunkt:\t' +
+            calculateDistance(testRoute2[nextPosition]["center"][1], testRoute2[nextPosition]["center"][0],cameraPosition["lat"], cameraPosition["lng"])
+        ;
     });
 }
