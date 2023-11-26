@@ -65,7 +65,7 @@ function pair(deviceID, deviceName)
     console.log("Connected to " + deviceName + ", deviceID: " + deviceID);
 
     // gib Rückmeldung an App das verbunden wurde
-    client.publish("simulation", '{"type":"PairConfirm", "deviceID":"' + connectedDeviceID + '"}');
+    client.publish("simulation", '{"type":"PairStart", "deviceID":"' + connectedDeviceID + '"}');
 
     removeAllMessages();
 
