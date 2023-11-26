@@ -98,6 +98,9 @@ function stopRide(deviceID)
         return;
     }
 
+    // gib Rückmeldung an App das Verbindung getrennt wurde
+    client.publish("simulation", '{"type":"StopRide", "deviceID":"' + connectedDeviceID + '"}');
+
     connected = false;
     connectedDeviceID = 0;
     connectedDeviceName = '';
