@@ -1,5 +1,5 @@
 let connected = false;
-let connectedDeviceID = 0;
+let connectedDeviceID = '';
 let connectedDeviceName = '';
 let disconnectTimer;
 

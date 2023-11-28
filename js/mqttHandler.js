@@ -52,7 +52,7 @@ function pairRequest(deviceID, deviceName)
     const html = `
         <h3>Verbindungsanfrage von ` + deviceName + `</h3>
         <p>Verbindungsanfrage</p>
-        <button onclick="pair(` + deviceID + `, '` + deviceName + `', ` + messageID + `)">accept</button>
+        <button onclick="pair('` + deviceID + `', '` + deviceName + `', ` + messageID + `)">accept</button>
         <button onclick="removeMessage('` + messageID + `')">decline</button>`;
     createPopupMessage(messageID, html);
 }
@@ -94,7 +94,7 @@ function resetLogoutTimer(deviceID) {
 
 function stopRide(deviceID)
 {
-    if(!connected || connectedDeviceID != deviceID) {
+    if(!connected || connectedDeviceID !== deviceID) {
         return;
     }
 
@@ -102,7 +102,7 @@ function stopRide(deviceID)
     client.publish("simulation", '{"type":"StopRide", "deviceID":"' + connectedDeviceID + '"}');
 
     connected = false;
-    connectedDeviceID = 0;
+    connectedDeviceID = '';
     connectedDeviceName = '';
     disconnectTimer = 0;
     console.log("Connection Closed");
@@ -117,7 +117,7 @@ function stopRide(deviceID)
 
 function nextCoordinate(deviceID, longitude, latitude, bearing)
 {
-    if(connectedDeviceID != deviceID) {
+    if(connectedDeviceID !== deviceID) {
         return
     }
 
