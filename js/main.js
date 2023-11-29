@@ -2,6 +2,8 @@ let connected = false;
 let connectedDeviceID = '';
 let connectedDeviceName = '';
 let disconnectTimer;
+let currentSignalColorIndex = 0;
+const signalColors = ['red', 'yellow', 'green'];
 
 // mapbox token von priobike: pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA
 const credJSON = JSON.parse(`{
@@ -28,8 +30,32 @@ window.onload = (event) => {
         // antialising für custom layers; sehr performancelastig
         // antialias: true
     });
-
+    tb = (window.tb = new Threebox(
+        map,
+        map.getCanvas().getContext('webgl'),
+        {
+            defaultLights: true
+        }
+    ));
+    
     displayMap(map);
+
+    const signalColor = signalColors[currentSignalColorIndex];
+    const signalLayerId = 'custom-threebox-signal';
+    loadTrafficSignalModel(map,signalColor,signalLayerId);
+
+    const changeLightButton = document.getElementById('changeLight');
+    changeLightButton.addEventListener('click', () => {
+        // Update the current index for the next click
+        currentSignalColorIndex = (currentSignalColorIndex + 1) % signalColors.length;
+        
+        const currentColor = signalColors[currentSignalColorIndex];
+
+        // Change the signal color
+        changeSignalColor(map, currentColor, signalLayerId);
+
+        
+    });
 };
 
 function displayMap(map)
