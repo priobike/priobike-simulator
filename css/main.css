@@ -19,12 +19,40 @@ body {
 #messages{
     display: flex;
     flex-direction: column;
+    row-gap: 1rem;
+
     position: fixed;
     top: 1rem;
-    left: 80vw;
-    background-color: gray;
+    right: 1rem;
+    padding: 0;
+}
+
+.message {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    padding: 0 1rem 0 1rem;
+
+    background-color: #efefef;
     border-radius: 10px;
-    padding: 0.5rem;
+    padding: 1rem;
+    list-style-type: none;
+}
+
+.pair-buttons {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+}
+
+.pair-buttons button {
+    border: none;
+    color: #050505;
+    cursor: pointer;
+}
+
+.material-symbols-outlined.md-36 {
+    font-size: 36px;
 }
 
 .mt-2 {

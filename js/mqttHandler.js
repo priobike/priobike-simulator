@@ -1,9 +1,9 @@
 let connectionRequestCounter = 0;
 
 function mqttHandler()
-{   
+{
     const topic = "simulation";
-    
+
     client.on('connect', () => {
         console.log('Connected to MQTT broker');
         client.subscribe(topic, (err) => {
@@ -14,7 +14,7 @@ function mqttHandler()
             }
         });
     });
-    
+
     client.on('message', (receivedTopic, message) => {
         console.log(`Received message on topic ${receivedTopic}: ${message.toString()}`);
         handleMessage(message);
@@ -25,7 +25,7 @@ function handleMessage(message)
 {
     let json = {};
     try {
-        json = JSON.parse(message.toString());   
+        json = JSON.parse(message.toString());
     } catch (error) {
         console.error("Could not parse JSON");
         return;
@@ -50,10 +50,18 @@ function pairRequest(deviceID, deviceName)
     connectionRequestCounter++;
     const messageID = 'message' + connectionRequestCounter;
     const html = `
-        <h3>Verbindungsanfrage von ` + deviceName + `</h3>
-        <p>Verbindungsanfrage</p>
-        <button onclick="pair('` + deviceID + `', '` + deviceName + `', ` + messageID + `)">accept</button>
-        <button onclick="removeMessage('` + messageID + `')">decline</button>`;
+        <div class="pair-text">
+            <h3>Verbindungsanfrage von ` + deviceName + `</h3>
+            <p>Verbindungsanfrage</p>
+        </div>
+        <div class="pair-buttons">
+            <button onclick="pair('` + deviceID + `', '` + deviceName + `', ` + messageID + `)" aria-label="Accept pair request">
+                <span class="material-symbols-outlined md-36">check</span>
+            </button>
+            <button onclick="removeMessage('` + messageID + `')" aria-label="Decline pair request">
+                <span class="material-symbols-outlined md-36">close</span>
+            </button>
+        </div>`;
     createPopupMessage(messageID, html);
 }
 
