@@ -126,6 +126,35 @@ function displayMap(map)
         });
     });
 
+    // Füge eine leere Linie zur Karte hinzu
+    map.on('load', function() {
+        map.addSource('line', {
+          type: 'geojson',
+          data: {
+            type: 'Feature',
+            geometry: {
+              type: 'LineString',
+              coordinates: []
+            }
+          }
+        });
+        map.addLayer({
+          id: 'line',
+          type: 'line',
+          source: 'line',
+          layout: {
+            'line-join': 'round',
+            'line-cap': 'round'
+          },
+          paint: {
+            'line-color': '#888',
+            'line-width': 8
+          }
+        });
+      });
+
+    
+    // Fly By Clicking Button
     let nextPosition = 1;
     document.getElementById('fly').addEventListener('click', () => {
         if(nextPosition > 7)

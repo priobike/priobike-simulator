@@ -1,22 +1,48 @@
+var coordinates = [];
+
 function moveToHandler(coordinate_x, coordinate_y, bearing_int)
 {
-    // movmentVector = calculateXYFokuspointOffset(coordinate_x,coordinate_y,bearing_int)
-    // newLngLat = forMovementgetLngLat(coordinate_x,coordinate_y, movmentVector[0],movmentVector[1]) 
-    
-    winkelImBogenmaß = bearing_int * (Math.PI / 180)
-    newLngLat = getFinalLatLong(coordinate_y,coordinate_x,0.031615522014283345,bearing_int,6371)
-    
-    const target = {center: [newLngLat[1],newLngLat[0]],
-                    bearing: bearing_int}
+  //console.log("Add coordiate"+coordinates.length);
+  //console.log(coordinates);
+  var newCoordinate = [coordinate_x,coordinate_y];
 
-    map.easeTo({
-        ...target, // Fly to the selected target
-        zoom: 21,
-        pitch: 85,
-        duration: 1500,
-        easing: t => t,
-        essential: true
-    });
+
+  // Eigentliche Fokuspunkt berechung ab hier
+
+  winkelImBogenmaß = bearing_int * (Math.PI / 180);
+  newLngLat = getFinalLatLong(coordinate_y,coordinate_x,0.031615522014283345,bearing_int,6371);
+  
+  const target = {center: [newLngLat[1],newLngLat[0]],
+                  bearing: bearing_int};
+
+  //target = {center: [coordinate_x,coordinate_y],bearing: bearing_int}
+
+  // Füge der line, die Direction hinzu
+  newDirectionVektor = getFinalLatLong(coordinate_y,coordinate_x,0.002615522014283345,bearing_int,6371);
+  var newDirectionCoordinate = [newDirectionVektor[1],newDirectionVektor[0]];
+  
+  // UNCOMMENT for line on Map! (Füge die neuen Koordinaten hinzu)
+  // coordinates.push(newCoordinate);
+  // coordinates.push(newDirectionCoordinate);
+  // coordinates.push(newCoordinate);
+
+  // Aktualisiere die Linie
+  map.getSource('line').setData({
+    type: 'Feature',
+    geometry: {
+      type: 'LineString',
+      coordinates: coordinates
+    }
+  });
+
+  map.easeTo({
+      ...target, // Fly to the selected target
+      zoom: 21,
+      pitch: 85,
+      duration: 1500,
+      easing: t => t,
+      essential: true
+  });
 }
 
 function degreesToRadians(degrees) {
@@ -102,3 +128,4 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
 
     return distance;
 }
+
