@@ -4,6 +4,9 @@ let connectedDeviceName = '';
 let disconnectTimer;
 let currentSignalColorIndex = 0;
 const signalColors = ['red', 'yellow', 'green'];
+let signalColor = 'red';
+let signalLayerId = '';
+let timestamp;
 
 // mapbox token von priobike: pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA
 const credJSON = JSON.parse(`{
@@ -40,20 +43,27 @@ window.onload = (event) => {
     
     displayMap(map);
 
-    const signalColor = signalColors[currentSignalColorIndex];
-    const signalLayerId = 'custom-threebox-signal';
+    const signalLayerIdPrefix = 'custom-threebox-signal-';
+    signalColor = signalColors[currentSignalColorIndex];
+    //signalLayerId = `${signalLayerIdPrefix}${signalColor}`;
+    timestamp = new Date().getTime();
+    signalLayerId = `${signalLayerIdPrefix}${timestamp}`;
+    //const signalLayerId = 'custom-threebox-signal';
     loadTrafficSignalModel(map,signalColor,signalLayerId);
 
     const changeLightButton = document.getElementById('changeLight');
     changeLightButton.addEventListener('click', () => {
+        signalLayerId = `${signalLayerIdPrefix}${timestamp}`;
         // Update the current index for the next click
         currentSignalColorIndex = (currentSignalColorIndex + 1) % signalColors.length;
         
         const currentColor = signalColors[currentSignalColorIndex];
-
+        const newTimestamp = new Date().getTime();
+        //const newSignalLayerId = `${signalLayerIdPrefix}${currentSignalColorIndex}`;
+        const newSignalLayerId = `${signalLayerIdPrefix}${newTimestamp}`;
         // Change the signal color
-        changeSignalColor(map, currentColor, signalLayerId);
-
+        changeSignalColor(map, currentColor, newSignalLayerId, signalLayerId);
+        timestamp = newTimestamp;
         
     });
 };

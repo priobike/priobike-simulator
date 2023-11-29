@@ -30,29 +30,21 @@ function addLayer(map, tb, signalColor, signalLayerId) {
 
 function loadTrafficSignalModel(map, signalColor, signalLayerId) {
     
-    const scale = 1.0; 
-    const options = {
-        obj: `../3dModells/trafficlight_${signalColor}.gltf`,
-        type: 'gltf',
-        scale: { x: scale, y: scale, z: scale },
-        units: 'meters',
-        rotation: { x: 90, y: 180, z: 0 }
-    };
-
     map.on('style.load', () => {
         addLayer(map, tb, signalColor, signalLayerId);
     });
 }
 
-function changeSignalColor(map, signalColor, signalLayerId) {
+function changeSignalColor(map, signalColor, newSignalLayerId, signalLayerId) {
     const allLayers = map.getStyle().layers;
     const signalLayer = map.getLayer(signalLayerId);
     const layerExists = allLayers.some(layer => layer.id === signalLayerId);
     //if(layerExists){
         map.removeLayer(signalLayerId);
-        map.on('style.load', () => {
-            addLayer(map, tb, signalColor, signalLayerId);
-        });
+        addLayer(map, tb, signalColor, newSignalLayerId);
+        // map.on('style.load', () => {
+        //     addLayer(map, tb, signalColor, newSignalLayerId);
+        // });
 
 //     } else {
 //         console.error(`Layer '${signalLayerId}' does not exist in the map's style.`);
