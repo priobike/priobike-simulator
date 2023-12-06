@@ -16,12 +16,10 @@ const credJSON = JSON.parse(`{
 }`);
 
 let map;
-let client;
+const client = connectToMQTTBroker(credJSON.mqttUsername, credJSON.mqttPassword);
+mqttHandler();
 
 window.onload = (event) => {
-    client = connectToMQTTBroker(credJSON.mqttUsername, credJSON.mqttPassword);
-    mqttHandler();
-
     mapboxgl.accessToken = credJSON.mapBoxToken;
     map = new mapboxgl.Map({
         container: 'map',
