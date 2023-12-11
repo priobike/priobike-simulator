@@ -27,7 +27,7 @@ window.onload = (event) => {
         center: [10.007901555262777, 53.54071265251261],
         zoom: 21,
         pitch: 85,
-        bearing: -80, 
+        bearing: -80,
         profile: 'mapbox/cycling',
         // antialising für custom layers; sehr performancelastig
         // antialias: true
@@ -39,15 +39,15 @@ window.onload = (event) => {
             defaultLights: true
         }
     ));
-    
+
     displayMap(map);
 
     createPopupMessage(
         "startMessage",
-        `
-            <h3>Zur Zeit ist kein Ger&auml;t verbunden</h3>
-            <p>Um eine Verbindungsanfrage zu stellen, gehe in der App unter "Beta Features" auf "Mit der Simulation verbinden" um eine Anfrage zu stellen.</p>
-        `
+        `<div class="pair-text">
+            <span class="header">Zur Zeit ist kein Ger&auml;t verbunden</span>
+            <span class="subtext">Um eine Verbindungsanfrage zu stellen, gehe in der App unter "Beta Features" auf "Mit der Simulation verbinden" um eine Anfrage zu stellen.</span>
+        </div>`
     );
 
     const signalLayerIdPrefix = 'custom-threebox-signal-';
@@ -63,7 +63,7 @@ window.onload = (event) => {
         signalLayerId = `${signalLayerIdPrefix}${timestamp}`;
         // Update the current index for the next click
         currentSignalColorIndex = (currentSignalColorIndex + 1) % signalColors.length;
-        
+
         const currentColor = signalColors[currentSignalColorIndex];
         const newTimestamp = new Date().getTime();
         //const newSignalLayerId = `${signalLayerIdPrefix}${currentSignalColorIndex}`;
@@ -71,7 +71,7 @@ window.onload = (event) => {
         // Change the signal color
         changeSignalColor(map, currentColor, newSignalLayerId, signalLayerId);
         timestamp = newTimestamp;
-        
+
     });
 };
 
@@ -96,14 +96,14 @@ function displayMap(map)
                         units: 'meters',
                         rotation: { x: 90, y: -90, z: 0 }
                     };
-        
+
                     tb.loadObj(options, (model) => {
                         model.setCoords([10.006742457554765, 53.54106874310412]);
                         model.setRotation({ x: 0, y: 0, z: 241 });
                         tb.add(model);
                     });
                 },
-        
+
                 render: function () {
                     tb.update();
                 }
@@ -129,14 +129,14 @@ function displayMap(map)
                         units: 'meters',
                         rotation: { x: 90, y: -90, z: 0 }
                     };
-        
+
                     tb.loadObj(options, (model) => {
                         model.setCoords([10.005742457554765, 53.54206874310412]);
                         model.setRotation({ x: 0, y: 0, z: 241 });
                         tb.add(model);
                     });
                 },
-        
+
                 render: function () {
                     tb.update();
                 }
@@ -170,7 +170,7 @@ function displayMap(map)
         });
       });
 
-    
+
     // Fly By Clicking Button
     let nextPosition = 1;
     document.getElementById('fly').addEventListener('click', () => {
@@ -199,7 +199,7 @@ function displayMap(map)
     // lade GL 3 Standard Style
     map.on('style.load', () => {
       map.setConfigProperty('basemap', 'lightPreset', 'dusk');
-    
+
     //   map.addLayer({
     //     id: 'custom-threebox-model1',
     //     type: 'custom',
@@ -249,11 +249,11 @@ function displayMap(map)
             map.getCenter() +
             '<br />Differenz CamPos Fokuspunkt:\t' +
             calculateDistance(map.getCenter()["lat"], map.getCenter()["lng"],cameraPosition["lat"], cameraPosition["lng"])+"\t"+
-            '<br />aktueller Zoom: ' + 
-            map.getZoom() + 
-            '<br />aktueller Winkel: ' + 
+            '<br />aktueller Zoom: ' +
+            map.getZoom() +
+            '<br />aktueller Winkel: ' +
             map.getPitch() +
-            '<br />aktueller Kameragradzahl: ' + 
+            '<br />aktueller Kameragradzahl: ' +
             map.getBearing() +
             '<br />Differenz CamPos Fokuspunkt:\t' +
             calculateDistance(testRoute2[nextPosition]["center"][1], testRoute2[nextPosition]["center"][0],cameraPosition["lat"], cameraPosition["lng"])

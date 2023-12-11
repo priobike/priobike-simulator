@@ -16,27 +16,48 @@ body {
     padding: 0.2rem;
 }
 
-#messages{
+#messages {
+    position: fixed;
+    top: 1rem;
+    right: 0;
+    padding: 0;
+    margin: 0;
     display: flex;
     flex-direction: column;
     row-gap: 1rem;
+}
 
-    position: fixed;
-    top: 1rem;
-    right: 1rem;
-    padding: 0;
+#messages > * {
+    grid-column: 1 / 1;
+    grid-row: 1 / 1;
 }
 
 .message {
     display: flex;
     flex-direction: row;
-    gap: 10px;
+    gap: 20px;
+    width: 25rem;
     padding: 0 1rem 0 1rem;
 
-    background-color: #efefef;
-    border-radius: 10px;
-    padding: 1rem;
+
+    background-color: #f6f6f6;
+    border-radius: 10px 0 0 10px;
+    padding: 1.4rem;
     list-style-type: none;
+}
+
+.pair-text span {
+    display: block;
+}
+
+.pair-text .header {
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.pair-text .subtext {
+    color: #7c7c7c;
+    font-weight: 400;
 }
 
 .pair-buttons {
@@ -48,9 +69,17 @@ body {
 .pair-buttons button {
     border: none;
     color: #050505;
+    background-color: unset;
     cursor: pointer;
 }
 
+.pair-buttons .btn-secondary {
+    color: #7c7c7c;
+}
+
+.material-symbols-outlined.md-28 {
+    font-size: 28px;
+}
 .material-symbols-outlined.md-36 {
     font-size: 36px;
 }

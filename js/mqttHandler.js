@@ -3,7 +3,7 @@ let client;
 function mqttHandler()
 {
     client = connectToMQTTBroker(credJSON.mqttUsername, credJSON.mqttPassword);
-    
+
     const topic = "simulation";
 
     client.on('connect', () => {
@@ -60,15 +60,15 @@ function pairRequest(deviceID, deviceName)
     const messageID = 'message' + connectionRequestCounter;
     const html = `
         <div class="pair-text">
-            <h3>Verbindungsanfrage von ` + deviceName + `</h3>
-            <p>Verbindungsanfrage</p>
+            <span class="header">` + deviceName + ` (` + deviceID + `)</span>
+            <span class="subtext">Verbindungsanfrage</span>
         </div>
         <div class="pair-buttons">
+            <button onclick="removeMessage('` + messageID + `')" aria-label="Decline pair request" class="btn-secondary">
+                <span class="material-symbols-outlined md-28">close</span>
+            </button>
             <button onclick="pair('` + deviceID + `', '` + deviceName + `', ` + messageID + `)" aria-label="Accept pair request">
                 <span class="material-symbols-outlined md-36">check</span>
-            </button>
-            <button onclick="removeMessage('` + messageID + `')" aria-label="Decline pair request">
-                <span class="material-symbols-outlined md-36">close</span>
             </button>
         </div>`;
     createPopupMessage(messageID, html);
@@ -90,9 +90,15 @@ function pair(deviceID, deviceName)
     // gib "Verbunden" Statusmeldung
     const messageID = 'connected';
     const html = `
-        <h3>` + deviceName + `</h3>
-        <p>Verbunden</p>
-        <button onclick="stopRide('` + deviceID + `')">Verbindung beenden</button>`;
+        <div class="pair-text">
+            <span class="header">` + deviceName + `</span>
+            <span class="subtext">Verbunden</span>
+        </div>
+        <div class="pair-buttons">
+            <button onclick="stopRide('` + deviceID + `')" aria-label="Close connection">
+                <span class="material-symbols-outlined md-28">close</span>
+            </button>
+        </div>`;
     createPopupMessage(messageID, html);
 
     startLogoutTimer(deviceID);
