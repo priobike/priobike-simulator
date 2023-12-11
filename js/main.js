@@ -18,7 +18,6 @@ const credJSON = JSON.parse(`{
 }`);
 
 let map;
-const client = connectToMQTTBroker(credJSON.mqttUsername, credJSON.mqttPassword);
 mqttHandler();
 
 window.onload = (event) => {

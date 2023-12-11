@@ -1,5 +1,9 @@
+let client;
+
 function mqttHandler()
 {
+    client = connectToMQTTBroker(credJSON.mqttUsername, credJSON.mqttPassword);
+    
     const topic = "simulation";
 
     client.on('connect', () => {
