@@ -1,10 +1,16 @@
 function createPopupMessage(id, html)
 {
+    const messageContainer = document.getElementById("messages")
+    // maximal 4 pairrequests gleichzeitig
+    if(messageContainer.getElementsByTagName('li').length == 4) {
+        messageContainer.removeChild(messageContainer.lastChild);
+    }
+
     const newMessage = document.createElement('li');
     newMessage.className = 'message';
     newMessage.id = id;
     newMessage.innerHTML = html;
-    document.getElementById("messages").appendChild(newMessage);
+    messageContainer.prepend(newMessage);
 }
 
 function removeMessage(id)

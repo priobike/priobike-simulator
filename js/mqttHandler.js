@@ -1,5 +1,3 @@
-let connectionRequestCounter = 0;
-
 function mqttHandler()
 {
     const topic = "simulation";
@@ -37,6 +35,8 @@ function handleMessage(message)
         stopRide(json.deviceID);
     } else if(json.type === "NextCoordinate") {
         nextCoordinate(json.deviceID, json.longitude, json.latitude, json.bearing);
+    } else if(json.type === "TrafficLight") {
+        nextTrafficLight(json.deviceID, json.tlID, json.longitude, json.latitude, json.bearing, json.state);
     }
 }
 
@@ -47,7 +47,12 @@ function pairRequest(deviceID, deviceName)
     }
     console.log("PairRequest from: " + deviceName + ", deviceID: " + deviceID);
 
+    // entferne die "Zur Zeit ist kein Gerät verbunden Nachricht initial"
+    if(connectionRequestCounter == 0) {
+        removeAllMessages();
+    }
     connectionRequestCounter++;
+
     const messageID = 'message' + connectionRequestCounter;
     const html = `
         <div class="pair-text">
@@ -76,12 +81,14 @@ function pair(deviceID, deviceName)
     client.publish("simulation", '{"type":"PairStart", "deviceID":"' + connectedDeviceID + '"}');
 
     removeAllMessages();
+    connectionRequestCounter = 0;
 
     // gib "Verbunden" Statusmeldung
     const messageID = 'connected';
     const html = `
         <h3>` + deviceName + `</h3>
-        <p>Verbunden</p>`;
+        <p>Verbunden</p>
+        <button onclick="stopRide('` + deviceID + `')">Verbindung beenden</button>`;
     createPopupMessage(messageID, html);
 
     startLogoutTimer(deviceID);
@@ -106,14 +113,14 @@ function stopRide(deviceID)
         return;
     }
 
-    // gib Rückmeldung an App das Verbindung getrennt wurde
-    client.publish("simulation", '{"type":"StopRide", "deviceID":"' + connectedDeviceID + '"}');
-
     connected = false;
     connectedDeviceID = '';
     connectedDeviceName = '';
     disconnectTimer = 0;
     console.log("Connection Closed");
+
+    // gib Rückmeldung an App das Verbindung getrennt wurde
+    client.publish("simulation", '{"type":"StopRide", "deviceID":"' + connectedDeviceID + '"}');
 
     removeAllMessages();
 
@@ -125,7 +132,7 @@ function stopRide(deviceID)
 
 function nextCoordinate(deviceID, longitude, latitude, bearing)
 {
-    if(connectedDeviceID !== deviceID) {
+    if(!connected || connectedDeviceID !== deviceID) {
         return
     }
 
@@ -133,4 +140,17 @@ function nextCoordinate(deviceID, longitude, latitude, bearing)
     resetLogoutTimer(deviceID);
 
     moveToHandler(longitude, latitude, bearing);
+}
+
+function nextTrafficLight(deviceID, tlID, longitude, latitude, bearing, state)
+{
+    if(!connected || connectedDeviceID !== deviceID) {
+        return
+    }
+
+    // setze timer zurück da nun wieder Aktivität
+    resetLogoutTimer(deviceID);
+
+    // TODO: rufe traffic light funktion auf, die die ampel darstellt
+    // setTrafficLight(tlID, longitude, latitude, bearing, state);
 }

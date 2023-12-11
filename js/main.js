@@ -2,6 +2,8 @@ let connected = false;
 let connectedDeviceID = '';
 let connectedDeviceName = '';
 let disconnectTimer;
+let connectionRequestCounter = 0;
+
 let currentSignalColorIndex = 0;
 const signalColors = ['red', 'yellow', 'green'];
 let signalColor = 'red';
@@ -40,6 +42,14 @@ window.onload = (event) => {
     ));
     
     displayMap(map);
+
+    createPopupMessage(
+        "startMessage",
+        `
+            <h3>Zur Zeit ist kein Ger&auml;t verbunden</h3>
+            <p>Um eine Verbindungsanfrage zu stellen, gehe in der App unter "Beta Features" auf "Mit der Simulation verbinden" um eine Anfrage zu stellen.</p>
+        `
+    );
 
     const signalLayerIdPrefix = 'custom-threebox-signal-';
     signalColor = signalColors[currentSignalColorIndex];
