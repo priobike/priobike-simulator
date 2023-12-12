@@ -7,25 +7,27 @@ function addLayer(map, tb, signalColor, signalLayerId) {
         rotation: { x: 90, y: 180, z: 0 }
     };
 
-    map.addLayer({
-        id: signalLayerId,
-        type: 'custom',
-        renderingMode: '3d',
-        onAdd: function (map, mbxContext) {
-            window.tb = new Threebox(
-                map,
-                mbxContext,
-                { defaultLights: true }
-            );
-            tb.loadObj(newModelOptions, (model) => {
-                model.setCoords([10.006742457554765, 53.54106874310412]);
-                tb.add(model);
-            });
-        },
-        render: function (gl, matrix) {
-            tb.update();
-        }
-    });
+    if (!map.getLayer(signalLayerId)) {
+        map.addLayer({
+            id: signalLayerId,
+            type: 'custom',
+            renderingMode: '3d',
+            onAdd: function (map, mbxContext) {
+                window.tb = new Threebox(
+                    map,
+                    mbxContext,
+                    { defaultLights: true }
+                );
+                tb.loadObj(newModelOptions, (model) => {
+                    model.setCoords([10.006742457554765, 53.54106874310412]);
+                    tb.add(model);
+                });
+            },
+            render: function (gl, matrix) {
+                tb.update();
+            }
+        });
+    }
 }
 
 function loadTrafficSignalModel(map, signalColor, signalLayerId) {
@@ -36,19 +38,12 @@ function loadTrafficSignalModel(map, signalColor, signalLayerId) {
 }
 
 function changeSignalColor(map, signalColor, newSignalLayerId, signalLayerId) {
-    const allLayers = map.getStyle().layers;
-    const signalLayer = map.getLayer(signalLayerId);
-    const layerExists = allLayers.some(layer => layer.id === signalLayerId);
-    //if(layerExists){
-        map.removeLayer(signalLayerId);
         addLayer(map, tb, signalColor, newSignalLayerId);
-        // map.on('style.load', () => {
-        //     addLayer(map, tb, signalColor, newSignalLayerId);
-        // });
-
-//     } else {
-//         console.error(`Layer '${signalLayerId}' does not exist in the map's style.`);
-//     }
+        setTimeout(() => {
+            if (map.getLayer(signalLayerId)) {
+                map.removeLayer(signalLayerId);
+            }
+        }, 500);
 }
 
 
