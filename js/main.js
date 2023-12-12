@@ -52,9 +52,7 @@ window.onload = (event) => {
 
     const signalLayerIdPrefix = 'custom-threebox-signal-';
     signalColor = signalColors[currentSignalColorIndex];
-    //signalLayerId = `${signalLayerIdPrefix}${signalColor}`;
-    timestamp = new Date().getTime();
-    signalLayerId = `${signalLayerIdPrefix}${timestamp}`;
+    signalLayerId = createLayerID();
     //const signalLayerId = 'custom-threebox-signal';
     loadTrafficSignalModel(map,signalColor,signalLayerId);
 
@@ -65,13 +63,24 @@ window.onload = (event) => {
         currentSignalColorIndex = (currentSignalColorIndex + 1) % signalColors.length;
 
         const currentColor = signalColors[currentSignalColorIndex];
-        const newTimestamp = new Date().getTime();
-        //const newSignalLayerId = `${signalLayerIdPrefix}${currentSignalColorIndex}`;
-        const newSignalLayerId = `${signalLayerIdPrefix}${newTimestamp}`;
+        const newSignalLayerId = createLayerID();
         // Change the signal color
         changeSignalColor(map, currentColor, newSignalLayerId, signalLayerId);
-        timestamp = newTimestamp;
-
+    });
+    const mockData = [
+        { type: "TrafficLight",deviceID:"178be",tlID:"hamburg/328_36",longitude:"9.9507419",latitude:"53.5558168"},
+        { type: "TrafficLightChange", deviceID:"178be",tlID:"hamburg/328_36",state:"red" },
+    ];
+    mockData.forEach(data => {
+        if (data.type === "TrafficLight") {
+            map.on('load', function() {
+                createTrafficLight(map, data.tlID, data.longitude, data.latitude);
+            });
+        } else if (data.type === "TrafficLightChange") {
+            map.on('load', function() {
+                updateTrafficLight(map, data.tlID, data.state);
+            });
+        }
     });
 };
 
