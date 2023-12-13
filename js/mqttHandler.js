@@ -40,7 +40,9 @@ function handleMessage(message)
     } else if(json.type === "NextCoordinate") {
         nextCoordinate(json.deviceID, json.longitude, json.latitude, json.bearing);
     } else if(json.type === "TrafficLight") {
-        nextTrafficLight(json.deviceID, json.tlID, json.longitude, json.latitude, json.bearing, json.state);
+        trafficLight(json.deviceID, json.tlID, json.longitude, json.latitude);
+    } else if(json.type === "TrafficLightChange") {
+        trafficLightChange(json.deviceID, json.tlID, json.state);
     }
 }
 
@@ -143,7 +145,7 @@ function stopRide(deviceID)
 function nextCoordinate(deviceID, longitude, latitude, bearing)
 {
     if(!connected || connectedDeviceID !== deviceID) {
-        return
+        return;
     }
 
     // setze timer zurück da nun wieder Aktivität
@@ -152,15 +154,26 @@ function nextCoordinate(deviceID, longitude, latitude, bearing)
     moveToHandler(longitude, latitude, bearing);
 }
 
-function nextTrafficLight(deviceID, tlID, longitude, latitude, bearing, state)
+function trafficLight(deviceID, tlID, longitude, latitude)
 {
     if(!connected || connectedDeviceID !== deviceID) {
-        return
+        return;
     }
 
     // setze timer zurück da nun wieder Aktivität
     resetLogoutTimer(deviceID);
 
-    // TODO: rufe traffic light funktion auf, die die ampel darstellt
-    // setTrafficLight(tlID, longitude, latitude, bearing, state);
+    createTrafficLight(map, tlID, longitude, latitude);
+}
+
+function trafficLightChange(deviceID, tlID, state)
+{
+    if(!connected || connectedDeviceID !== deviceID) {
+        return;
+    }
+
+    // setze timer zurück da nun wieder Aktivität
+    resetLogoutTimer(deviceID);
+
+    updateTrafficLight(map, tlID, state);
 }
