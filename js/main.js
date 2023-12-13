@@ -44,7 +44,7 @@ window.onload = (event) => {
 
     createPopupMessage(
         "startMessage",
-        `<div class="pair-text">
+        `<div class="message-text">
             <span class="header">Zur Zeit ist kein Ger&auml;t verbunden</span>
             <span class="subtext">Um eine Verbindungsanfrage zu stellen, gehe in der App unter "Beta Features" auf "Mit der Simulation verbinden" um eine Anfrage zu stellen.</span>
         </div>`

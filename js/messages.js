@@ -22,3 +22,9 @@ function removeAllMessages()
 {
     document.getElementById('messages').replaceChildren();
 }
+
+
+function expand(){
+    const messageContainer = document.getElementById("messages")
+    messageContainer.classList.toggle("stacked")
+}

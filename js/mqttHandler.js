@@ -59,7 +59,7 @@ function pairRequest(deviceID, deviceName)
 
     const messageID = 'message' + connectionRequestCounter;
     const html = `
-        <div class="pair-text">
+        <div class="message-text">
             <span class="header">` + deviceName + ` (` + deviceID + `)</span>
             <span class="subtext">Verbindungsanfrage</span>
         </div>
@@ -90,7 +90,7 @@ function pair(deviceID, deviceName)
     // gib "Verbunden" Statusmeldung
     const messageID = 'connected';
     const html = `
-        <div class="pair-text">
+        <div class="message-text">
             <span class="header">` + deviceName + `</span>
             <span class="subtext">Verbunden</span>
         </div>
