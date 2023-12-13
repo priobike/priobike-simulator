@@ -9,13 +9,14 @@ function createPopupMessage(id, html) {
     newMessage.className = 'message';
     newMessage.id = id;
     newMessage.innerHTML = html;
+    newMessage.onclick = function () { expand(); };
     messageContainer.prepend(newMessage);
 
     document.getElementById("empty-message").style.display = "none";
 }
 
 function removeMessage(id) {
-    // TODO nur die neusten 3 nachrichten
+    // TODO nur die neusten 3 nachrichten?
     document.getElementById(id).remove();
 
     if(document.getElementsByClassName("message").length == 0){
@@ -33,6 +34,7 @@ function removeAllMessages() {
 }
 
 function expand() {
+    // TODO minimize button?
     const messageContainer = document.getElementById("messages")
     messageContainer.classList.toggle("stacked")
 }
