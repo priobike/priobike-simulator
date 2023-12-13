@@ -37,7 +37,6 @@ body {
     flex-direction: row;
     gap: 20px;
     width: 25rem;
-    padding: 0 1rem 0 1rem;
 
     background-color: #f6f6f6;
     border-radius: 10px 0 0 10px;
@@ -48,14 +47,20 @@ body {
 /* TODO: evtl animation keyframes einfügen sodass alles nach oben und opacity */
 .stacked .message {
     position: absolute;
-    top: 0px;
-    right: 0px;
+    top: 0;
+    right: 0;
 }
 .stacked .message:not(:first-child:nth-last-child(2)) {
     /* only show the "layered-notification-effect" if there are actually multiple notifications (not just one)*/
     /* ":first-child:nth-last-child(2)" would equal ":only-2-childs" (instead of ":only-child") because the base notification "no messages" is always there*/
+
+    box-shadow: 0 3px 4px -2px rgba(0, 0, 0, 0.1),  /*shadow behind first element*/
+                8px 8px 0 0 #e3e3e3,                /*"second" notification*/
+                18px 16px 0 0 #cdcdcd,              /*"third" notification*/
+                0 21px 5px -8px rgba(0, 0, 0, 0.1); /*shadow behind "last element"*/
     /* possible todo: show more or less shadows depending on number of notifications */
-    box-shadow: 0 3px 4px -2px rgba(0, 0, 0, 0.1), 0 10px 0 -4px #e3e3e3, 0 21px 0 -10px #cdcdcd, 0 21px 5px -8px rgba(0, 0, 0, 0.1);
+
+    cursor: pointer;
 }
 .stacked .message:not(:first-of-type){
     /* hide all other notifications (except for the first one) if the notifications are stacked */
