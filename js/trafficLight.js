@@ -1,5 +1,6 @@
 const signalLayerIdPrefix = 'custom-threebox-signal-';
 var trafficLights = {}; //the dictionary stores the tlID and the corresponding layerId and coords.
+
 function addLayer(map, tb, signalColor, signalLayerId, coords) {
     const newModelOptions = {
         obj: `../3dModells/trafficlight_${signalColor}.gltf`,
@@ -32,6 +33,7 @@ function addLayer(map, tb, signalColor, signalLayerId, coords) {
     }
 }
 
+//A test to see if the traffic lights on the initial page can be loaded.
 function loadTrafficSignalModel(map, signalColor, signalLayerId) {
     
     map.on('style.load', () => {
@@ -40,6 +42,7 @@ function loadTrafficSignalModel(map, signalColor, signalLayerId) {
     });
 }
 
+//A test to see if the color of traffic lights on the initial page can be switched.
 function changeSignalColor(map, signalColor, newSignalLayerId, signalLayerId) {
     const coords = [10.006742457554765, 53.54106874310412];
     addLayer(map, tb, signalColor, newSignalLayerId, coords);
@@ -49,6 +52,7 @@ function changeSignalColor(map, signalColor, newSignalLayerId, signalLayerId) {
         }
     }, 500);
 }
+//create layerID using timestamp
 function createLayerID(){
     const Timestamp = new Date().getTime();
     const signalLayerId = `${signalLayerIdPrefix}${Timestamp}`;
@@ -67,7 +71,7 @@ function createTrafficLight(map, tlID, longitude, latitude){
         signalLayerId: signalLayerId,
         coords: coords,
     }
-    console.log("trafficLights[tlID]:" + trafficLights[tlID].signalLayerId + trafficLights[tlID].coords);
+    //console.log("trafficLights[tlID]:" + trafficLights[tlID].signalLayerId + trafficLights[tlID].coords);
     addLayer(map, tb, 'grey', signalLayerId, coords);
 }
 //data.type === "TrafficLightChange"

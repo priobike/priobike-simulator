@@ -59,21 +59,7 @@ window.onload = (event) => {
         // Change the signal color
         changeSignalColor(map, currentColor, newSignalLayerId, signalLayerId);
     });
-    const mockData = [
-        { type: "TrafficLight",deviceID:"178be",tlID:"hamburg/328_36",longitude:"9.9507419",latitude:"53.5558168"},
-        { type: "TrafficLightChange", deviceID:"178be",tlID:"hamburg/328_36",state:"red" },
-    ];
-    mockData.forEach(data => {
-        if (data.type === "TrafficLight") {
-            map.on('load', function() {
-                createTrafficLight(map, data.tlID, data.longitude, data.latitude);
-            });
-        } else if (data.type === "TrafficLightChange") {
-            map.on('load', function() {
-                updateTrafficLight(map, data.tlID, data.state);
-            });
-        }
-    });
+
 };
 
 function displayMap(map)
