@@ -79,16 +79,19 @@ function updateTrafficLight(map, tlID, state){
     console.log("Updating traffic light:", tlID, state);
     var oldTrafficLight = trafficLights[tlID];
     var newSignalLayerId = createLayerID();
+    console.log("old traffic light:" + tlID + " " + state + " "+ coords);
     var coords = oldTrafficLight.coords;
     addLayer(map, tb, state, newSignalLayerId, coords);
+    delete trafficLights[tlID]; 
     setTimeout(() => {
         if (oldTrafficLight && map.getLayer(oldTrafficLight.signalLayerId)) {
             map.removeLayer(oldTrafficLight.signalLayerId);
-            delete trafficLights[tlID]; 
+            
         }
     }, 500);
     trafficLights[tlID] = {
         signalLayerId: newSignalLayerId,
         coords: coords,
     }
+    console.log("new traffic light:" + tlID + " " + state + " " + coords);
 }
