@@ -34,7 +34,13 @@ function removeAllMessages() {
 }
 
 function expand() {
-    // TODO minimize button?
-    const messageContainer = document.getElementById("messages")
-    messageContainer.classList.toggle("stacked")
+    const messageContainer = document.getElementById("messages");
+    messageContainer.classList.toggle("stacked");
+}
+
+function onCloseClick(event) {
+    event.stopPropagation(); //prevents message stack from closing when request is declined (click is not propagated to parent div)
+
+    const targetMessage = event.target.parentNode.dataset.messageId;
+    removeMessage(targetMessage);
 }

@@ -66,7 +66,7 @@ function pairRequest(deviceID, deviceName)
             <span class="subtext">Verbindungsanfrage</span>
         </div>
         <div class="pair-buttons">
-            <button onclick="removeMessage('` + messageID + `')" aria-label="Decline pair request" class="btn-secondary">
+            <button onclick="onCloseClick(event)" data-message-id='` + messageID + `' aria-label="Decline pair request" class="btn-secondary">
                 <span class="material-symbols-outlined md-28">close</span>
             </button>
             <button onclick="pair('` + deviceID + `', '` + deviceName + `', ` + messageID + `)" aria-label="Accept pair request">
