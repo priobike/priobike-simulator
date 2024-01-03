@@ -43,13 +43,27 @@ body {
     background-color: #f6f6f6;
     border-radius: 10px 0 0 10px;
     padding: 1.4rem;
+
+    transition: background-color 0.3s;
 }
 #minimizeMessages {
     width: 100%;
+    padding-top: 0.8rem;
+    padding-bottom: 0.8rem;
     border: 0;
 }
 #minimizeMessages:hover {
     background-color: #dadada;
+}
+
+#minimizeMessages .minimizeText {
+    font-family: unset; /*reset font (should use same font as body)*/
+    font-weight: 600;
+    font-size: 1rem;
+    align-self: center;
+}
+#minimizeMessages .icon {
+    margin-left: auto;
 }
 
 /* TODO: evtl animation keyframes einfügen sodass alles nach oben und opacity */
@@ -76,7 +90,6 @@ body {
 }
 .stacked #minimizeMessages {
     display: none;
-    /*    hover*/
 }
 
 .message-text span {

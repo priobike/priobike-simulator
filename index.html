@@ -37,7 +37,6 @@
                 <p id="animationDuration"></p>
             </div>
             <div><button id="changeLight">Ampelfarben</button></div>
-            <div><button onclick="expand()">Expand/stack notifications</button></div>
         </div>
         <ul id="messages" class="stacked">
             <li id="empty-message">
@@ -47,7 +46,10 @@
                 </div>
             </li>
             <li>
-                <button id="minimizeMessages" onclick="expand()">Minimize messages</button>
+                <button id="minimizeMessages" onclick="expand()">
+                    <span class="minimizeText">Minimize messages</span>
+                    <span class="icon material-symbols-outlined md-28">collapse_content</span>
+                </button>
             </li>
         </ul>
     </body>
