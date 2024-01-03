@@ -59,8 +59,8 @@ function pairRequest(deviceID, deviceName)
     }
     console.log("PairRequest from: " + deviceName + ", deviceID: " + deviceID);
 
-    // entferne die "Zur Zeit ist kein Gerät verbunden Nachricht initial"
-    if(connectionRequestCounter == 0) {
+    // remove the "Zur Zeit ist kein Gerät verbunden" message initially
+    if(connectionRequestCounter === 0) {
         removeAllMessages();
     }
     connectionRequestCounter++;

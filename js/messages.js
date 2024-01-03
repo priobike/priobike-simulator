@@ -17,6 +17,7 @@ function createPopupMessage(id, html) {
     document.getElementById("empty-message").style.display = "none";
 }
 
+// removes a message by its id and shows the empty-notification if necessary
 function removeMessage(id) {
     document.getElementById(id).remove();
 
@@ -25,6 +26,7 @@ function removeMessage(id) {
     }
 }
 
+// delete all messages and show empty-notification
 function removeAllMessages() {
     const elements = document.getElementsByClassName("message");
     while(elements.length > 0){
@@ -34,6 +36,7 @@ function removeAllMessages() {
     document.getElementById("empty-message").style.display = "flex";
 }
 
+// expand the message stack (by toggling the ".stacked" css-class)
 function expand() {
     const messageContainer = document.getElementById("messages");
 
@@ -43,8 +46,10 @@ function expand() {
     }
 }
 
+// prevents message stack from closing when request is declined (click is not propagated to parent div)
+// and then calls the removeMessage function with the id of the message to be deleted
 function onCloseClick(event) {
-    event.stopPropagation(); //prevents message stack from closing when request is declined (click is not propagated to parent div)
+    event.stopPropagation();
 
     const targetMessage = event.target.parentNode.dataset.messageId;
     removeMessage(targetMessage);
