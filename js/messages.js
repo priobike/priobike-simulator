@@ -20,7 +20,7 @@ function createPopupMessage(id, html) {
 function removeMessage(id) {
     document.getElementById(id).remove();
 
-    if(document.getElementsByClassName("message").length == 0){
+    if(document.getElementsByClassName("message").length === 0){
         document.getElementById("empty-message").style.display = "flex";
     }
 }
@@ -36,7 +36,11 @@ function removeAllMessages() {
 
 function expand() {
     const messageContainer = document.getElementById("messages");
-    messageContainer.classList.toggle("stacked");
+
+    // only expand if there is actually more than 1 message
+    if(document.getElementsByClassName("message").length > 1){
+        messageContainer.classList.toggle("stacked");
+    }
 }
 
 function onCloseClick(event) {
