@@ -40,9 +40,15 @@ function handleMessage(message)
     } else if(json.type === "NextCoordinate") {
         nextCoordinate(json.deviceID, json.longitude, json.latitude, json.bearing);
     } else if(json.type === "TrafficLight") {
-        trafficLight(json.deviceID, json.tlID, json.longitude, json.latitude);
+        trafficLight(json.deviceID, json.tlID, json.longitude, json.latitude, json.bearing);
     } else if(json.type === "TrafficLightChange") {
         trafficLightChange(json.deviceID, json.tlID, json.state);
+    } else if(json.type === "FirstCoordinate") {
+        firstCoordinate(json.deviceID, json.longitude, json.latitude, json.bearing);
+    } else if(json.type === "CameraHeading") {
+        cameraHeading(json.deviceID, json.heading);
+    } else {
+        console.log("Invalid Message");
     }
 }
 
@@ -154,7 +160,7 @@ function nextCoordinate(deviceID, longitude, latitude, bearing)
     moveToHandler(longitude, latitude, bearing);
 }
 
-function trafficLight(deviceID, tlID, longitude, latitude)
+function trafficLight(deviceID, tlID, longitude, latitude, bearing)
 {
     if(!connected || connectedDeviceID !== deviceID) {
         return;
@@ -163,7 +169,7 @@ function trafficLight(deviceID, tlID, longitude, latitude)
     // setze timer zurück da nun wieder Aktivität
     resetLogoutTimer(deviceID);
 
-    createTrafficLight(map, tlID, longitude, latitude);
+    createTrafficLight(map, tlID, longitude, latitude, bearing);
 }
 
 function trafficLightChange(deviceID, tlID, state)
@@ -176,4 +182,35 @@ function trafficLightChange(deviceID, tlID, state)
     resetLogoutTimer(deviceID);
 
     updateTrafficLight(map, tlID, state);
+}
+
+function firstCoordinate(deviceID, longitude, latitude, bearing)
+{
+    if(!connected || connectedDeviceID !== deviceID) {
+        return;
+    }
+
+    // setze timer zurück da nun wieder Aktivität
+    resetLogoutTimer(deviceID);
+
+    map.flyTo({
+        center: [longitude, latitude],
+        bearing: bearing,
+        zoom: 21,
+        pitch: 85,
+        duration: 5000,
+        essential: true
+    });
+}
+
+function cameraHeading(deviceID, heading)
+{
+    if(!connected || connectedDeviceID !== deviceID) {
+        return;
+    }
+
+    // setze timer zurück da nun wieder Aktivität
+    resetLogoutTimer(deviceID);
+
+    // TODO: turn to camera 
 }
