@@ -1,13 +1,13 @@
 const signalLayerIdPrefix = 'custom-threebox-signal-';
 var trafficLights = {}; //the dictionary stores the tlID and the corresponding layerId and coords.
 
-function addLayer(map, tb, signalColor, signalLayerId, coords) {
+function addLayer(map, tb, signalColor, signalLayerId, coords, bearing) {
     const newModelOptions = {
         obj: `../3dModells/trafficlight_${signalColor}.gltf`,
         type: 'gltf',
         scale: { x: 1.0, y: 1.0, z: 1.0 },
         units: 'meters',
-        rotation: { x: 90, y: 180, z: 0 }
+        rotation: { x: 90, y: bearing, z: 0 }
     };
 
     if (!map.getLayer(signalLayerId)) {
@@ -38,14 +38,14 @@ function loadTrafficSignalModel(map, signalColor, signalLayerId) {
     
     map.on('style.load', () => {
         const coords = [10.006742457554765, 53.54106874310412];
-        addLayer(map, tb, signalColor, signalLayerId, coords);
+        addLayer(map, tb, signalColor, signalLayerId, coords, 180);
     });
 }
 
 //A test to see if the color of traffic lights on the initial page can be switched.
 function changeSignalColor(map, signalColor, newSignalLayerId, signalLayerId) {
     const coords = [10.006742457554765, 53.54106874310412];
-    addLayer(map, tb, signalColor, newSignalLayerId, coords);
+    addLayer(map, tb, signalColor, newSignalLayerId, coords, 180);
     setTimeout(() => {
         if (map.getLayer(signalLayerId)) {
             map.removeLayer(signalLayerId);
@@ -64,34 +64,36 @@ function createTrafficLight(map, tlID, longitude, latitude, bearing){
         console.error("tb is not defined.");
         return;
     }
-    console.log("Creating traffic light:", tlID, longitude, latitude, bearing);
+    console.log("Creating traffic light:", tlID, longitude, latitude);
     var signalLayerId = createLayerID();
     var coords = [longitude, latitude];
     trafficLights[tlID] = {
         signalLayerId: signalLayerId,
         coords: coords,
+        bearing: bearing,
     }
     //console.log("trafficLights[tlID]:" + trafficLights[tlID].signalLayerId + trafficLights[tlID].coords);
-    addLayer(map, tb, 'grey', signalLayerId, coords);
+    addLayer(map, tb, 'grey', signalLayerId, coords, bearing);
 }
 //data.type === "TrafficLightChange"
 function updateTrafficLight(map, tlID, state){
     console.log("Updating traffic light:", tlID, state);
     var oldTrafficLight = trafficLights[tlID];
     var newSignalLayerId = createLayerID();
-    console.log("old traffic light:" + tlID + " " + state + " "+ coords);
+    
     var coords = oldTrafficLight.coords;
-    addLayer(map, tb, state, newSignalLayerId, coords);
+    var bearing = oldTrafficLight.bearing;
+    console.log("Change traffic light:", bearing);
+    addLayer(map, tb, state, newSignalLayerId, coords, bearing);
     delete trafficLights[tlID]; 
     setTimeout(() => {
         if (oldTrafficLight && map.getLayer(oldTrafficLight.signalLayerId)) {
             map.removeLayer(oldTrafficLight.signalLayerId);
-            
         }
     }, 500);
     trafficLights[tlID] = {
         signalLayerId: newSignalLayerId,
         coords: coords,
+        bearing: bearing,
     }
-    console.log("new traffic light:" + tlID + " " + state + " " + coords);
 }
