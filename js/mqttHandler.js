@@ -40,7 +40,7 @@ function handleMessage(message)
     } else if(json.type === "NextCoordinate") {
         nextCoordinate(json.deviceID, json.longitude, json.latitude, json.bearing);
     } else if(json.type === "TrafficLight") {
-        trafficLight(json.deviceID, json.tlID, json.longitude, json.latitude);
+        trafficLight(json.deviceID, json.tlID, json.longitude, json.latitude, json.bearing);
     } else if(json.type === "TrafficLightChange") {
         trafficLightChange(json.deviceID, json.tlID, json.state);
     }
@@ -154,7 +154,7 @@ function nextCoordinate(deviceID, longitude, latitude, bearing)
     moveToHandler(longitude, latitude, bearing);
 }
 
-function trafficLight(deviceID, tlID, longitude, latitude)
+function trafficLight(deviceID, tlID, longitude, latitude, bearing)
 {
     if(!connected || connectedDeviceID !== deviceID) {
         return;
@@ -162,8 +162,7 @@ function trafficLight(deviceID, tlID, longitude, latitude)
 
     // setze timer zurück da nun wieder Aktivität
     resetLogoutTimer(deviceID);
-
-    createTrafficLight(map, tlID, longitude, latitude);
+    createTrafficLight(map, tlID, longitude, latitude, bearing);
 }
 
 function trafficLightChange(deviceID, tlID, state)
