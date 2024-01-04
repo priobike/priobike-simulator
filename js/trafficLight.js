@@ -59,12 +59,12 @@ function createLayerID(){
     return signalLayerId;
 }
 //data.type === "TrafficLight"
-function createTrafficLight(map, tlID, longitude, latitude){
+function createTrafficLight(map, tlID, longitude, latitude, bearing){
     if (!window.tb) {
         console.error("tb is not defined.");
         return;
     }
-    console.log("Creating traffic light:", tlID, longitude, latitude);
+    console.log("Creating traffic light:", tlID, longitude, latitude, bearing);
     var signalLayerId = createLayerID();
     var coords = [longitude, latitude];
     trafficLights[tlID] = {
