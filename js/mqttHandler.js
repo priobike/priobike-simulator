@@ -214,3 +214,9 @@ function cameraHeading(deviceID, heading)
 
     // TODO: turn to camera 
 }
+
+// TODO: Minimap
+// TODO: Route zeichnen
+// TODO: von nextcoordinate das bearing durch heading ersetzen
+// TODO: Ampeln kleiner
+// TODO: 
