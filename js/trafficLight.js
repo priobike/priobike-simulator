@@ -64,7 +64,7 @@ function createTrafficLight(map, tlID, longitude, latitude, bearing){
         console.error("tb is not defined.");
         return;
     }
-    console.log("Creating traffic light:", "tlID: " + tlID + "longitude: " + longitude + "latitude: " + latitude + "bearing: " + bearing);
+    console.log("Creating traffic light:", tlID, longitude, latitude);
     var signalLayerId = createLayerID();
     var coords = [longitude, latitude];
     trafficLights[tlID] = {

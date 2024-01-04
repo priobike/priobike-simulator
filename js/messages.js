@@ -1,8 +1,10 @@
 function createPopupMessage(id, html) {
     const messageContainer = document.getElementById("messages")
-    // maximal 4 pairrequests gleichzeitig
-    if(messageContainer.getElementsByTagName('li').length == 4) {
-        messageContainer.removeChild(messageContainer.lastChild);
+    const elements = document.getElementsByClassName("message");
+
+    // only show the latest 3 messages
+    if(elements.length >= 3) {
+        messageContainer.removeChild(elements.item(elements.length-1))
     }
 
     const newMessage = document.createElement('li');
@@ -15,15 +17,16 @@ function createPopupMessage(id, html) {
     document.getElementById("empty-message").style.display = "none";
 }
 
+// removes a message by its id and shows the empty-notification if necessary
 function removeMessage(id) {
-    // TODO nur die neusten 3 nachrichten?
     document.getElementById(id).remove();
 
-    if(document.getElementsByClassName("message").length == 0){
+    if(document.getElementsByClassName("message").length === 0){
         document.getElementById("empty-message").style.display = "flex";
     }
 }
 
+// delete all messages and show empty-notification
 function removeAllMessages() {
     const elements = document.getElementsByClassName("message");
     while(elements.length > 0){
@@ -33,8 +36,21 @@ function removeAllMessages() {
     document.getElementById("empty-message").style.display = "flex";
 }
 
+// expand the message stack (by toggling the ".stacked" css-class)
 function expand() {
-    // TODO minimize button?
-    const messageContainer = document.getElementById("messages")
-    messageContainer.classList.toggle("stacked")
+    const messageContainer = document.getElementById("messages");
+
+    // only expand if there is actually more than 1 message
+    if(document.getElementsByClassName("message").length > 1){
+        messageContainer.classList.toggle("stacked");
+    }
+}
+
+// prevents message stack from closing when request is declined (click is not propagated to parent div)
+// and then calls the removeMessage function with the id of the message to be deleted
+function onCloseClick(event) {
+    event.stopPropagation();
+
+    const targetMessage = event.target.parentNode.dataset.messageId;
+    removeMessage(targetMessage);
 }

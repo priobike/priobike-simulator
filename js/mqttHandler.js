@@ -43,6 +43,12 @@ function handleMessage(message)
         trafficLight(json.deviceID, json.tlID, json.longitude, json.latitude, json.bearing);
     } else if(json.type === "TrafficLightChange") {
         trafficLightChange(json.deviceID, json.tlID, json.state);
+    } else if(json.type === "FirstCoordinate") {
+        firstCoordinate(json.deviceID, json.longitude, json.latitude, json.bearing);
+    } else if(json.type === "CameraHeading") {
+        cameraHeading(json.deviceID, json.heading);
+    } else {
+        console.log("Invalid Message");
     }
 }
 
@@ -53,8 +59,8 @@ function pairRequest(deviceID, deviceName)
     }
     console.log("PairRequest from: " + deviceName + ", deviceID: " + deviceID);
 
-    // entferne die "Zur Zeit ist kein Gerät verbunden Nachricht initial"
-    if(connectionRequestCounter == 0) {
+    // remove the "Zur Zeit ist kein Gerät verbunden" message initially
+    if(connectionRequestCounter === 0) {
         removeAllMessages();
     }
     connectionRequestCounter++;
@@ -66,7 +72,7 @@ function pairRequest(deviceID, deviceName)
             <span class="subtext">Verbindungsanfrage</span>
         </div>
         <div class="pair-buttons">
-            <button onclick="removeMessage('` + messageID + `')" aria-label="Decline pair request" class="btn-secondary">
+            <button onclick="onCloseClick(event)" data-message-id='` + messageID + `' aria-label="Decline pair request" class="btn-secondary">
                 <span class="material-symbols-outlined md-28">close</span>
             </button>
             <button onclick="pair('` + deviceID + `', '` + deviceName + `', ` + messageID + `)" aria-label="Accept pair request">
@@ -162,6 +168,7 @@ function trafficLight(deviceID, tlID, longitude, latitude, bearing)
 
     // setze timer zurück da nun wieder Aktivität
     resetLogoutTimer(deviceID);
+
     createTrafficLight(map, tlID, longitude, latitude, bearing);
 }
 
@@ -175,4 +182,35 @@ function trafficLightChange(deviceID, tlID, state)
     resetLogoutTimer(deviceID);
 
     updateTrafficLight(map, tlID, state);
+}
+
+function firstCoordinate(deviceID, longitude, latitude, bearing)
+{
+    if(!connected || connectedDeviceID !== deviceID) {
+        return;
+    }
+
+    // setze timer zurück da nun wieder Aktivität
+    resetLogoutTimer(deviceID);
+
+    map.flyTo({
+        center: [longitude, latitude],
+        bearing: bearing,
+        zoom: 21,
+        pitch: 85,
+        duration: 5000,
+        essential: true
+    });
+}
+
+function cameraHeading(deviceID, heading)
+{
+    if(!connected || connectedDeviceID !== deviceID) {
+        return;
+    }
+
+    // setze timer zurück da nun wieder Aktivität
+    resetLogoutTimer(deviceID);
+
+    // TODO: turn to camera 
 }
