@@ -254,11 +254,16 @@ function displayMap(map)
         zoom: 11
     });
 
+    const marker = new mapboxgl.Marker({ color: 'black', rotation: 0 })
+        .setLngLat([10.007901555262777, 53.54071265251261])
+        .addTo(minimap);
+
     // on map move, update the minimap
     map.on('move', function() {
         minimap.setCenter(map.getCenter());
-        minimap.setZoom(13);
+        minimap.setZoom(16);
         minimap.setBearing(map.getBearing());
-        minimap.setPitch(30);
+        minimap.setPitch(10);
+        marker.setLngLat(map.getCenter());
     });
 }

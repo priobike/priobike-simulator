@@ -45,8 +45,8 @@ function handleMessage(message)
         trafficLightChange(json.deviceID, json.tlID, json.state);
     } else if(json.type === "FirstCoordinate") {
         firstCoordinate(json.deviceID, json.longitude, json.latitude, json.bearing);
-    } else if(json.type === "CameraHeading") {
-        cameraHeading(json.deviceID, json.heading);
+    } else if(Array.isArray(json) && json[0].type === "RouteDataStart") {
+        routeDataStart(json[0].deviceID, json.slice(1));
     } else {
         console.log("Invalid Message");
     }
@@ -203,7 +203,7 @@ function firstCoordinate(deviceID, longitude, latitude, bearing)
     });
 }
 
-function cameraHeading(deviceID, heading)
+function routeDataStart(deviceID, route)
 {
     if(!connected || connectedDeviceID !== deviceID) {
         return;
@@ -212,11 +212,22 @@ function cameraHeading(deviceID, heading)
     // setze timer zurück da nun wieder Aktivität
     resetLogoutTimer(deviceID);
 
-    // TODO: turn to camera 
+    // Sortiere, falls indexe nicht in der richtigen Reihenfolge sind
+    route.sort(function(a, b) {
+        return a.index - b.index;
+    });
+    
+    // nur Koordinaten als array
+    const coordinates = route.map(function(item) {
+        return {
+            "lon": item.lon,
+            "lat": item.lat
+        };
+    });
+
+    console.log(coordinates);
 }
 
 // TODO: Minimap
 // TODO: Route zeichnen
-// TODO: von nextcoordinate das bearing durch heading ersetzen
 // TODO: Ampeln kleiner
-// TODO: 
