@@ -246,4 +246,19 @@ function displayMap(map)
             calculateDistance(testRoute2[nextPosition]["center"][1], testRoute2[nextPosition]["center"][0],cameraPosition["lat"], cameraPosition["lng"])
         ;
     });
+
+    // Initalize the minimap with starting values
+    var minimap = new mapboxgl.Map({
+        container: 'minimap', 
+        center: [10.008, 53.541], 
+        zoom: 11
+    });
+
+    // on map move, update the minimap
+    map.on('move', function() {
+        minimap.setCenter(map.getCenter());
+        minimap.setZoom(13);
+        minimap.setBearing(map.getBearing());
+        minimap.setPitch(30);
+    });
 }
