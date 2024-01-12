@@ -1,5 +1,16 @@
 var coordinates = [];
 
+var recivedRoute = [];
+
+function recivedRouteHandler(recivedRoute){
+  // recivedRoute = [[lgn1,lat1],[lgn2,lat2], ...];
+  console.log("recivedRouteHandler");
+  console.log(recivedRoute);
+  // um Route direkt anzuzeigen
+  
+  //coordinates = recivedRoute;
+}
+
 function moveToHandler(coordinate_x, coordinate_y, bearing_int)
 {
   //console.log("Add coordiate"+coordinates.length);
@@ -22,9 +33,9 @@ function moveToHandler(coordinate_x, coordinate_y, bearing_int)
   var newDirectionCoordinate = [newDirectionVektor[1],newDirectionVektor[0]];
   
   // UNCOMMENT for line on Map! (Füge die neuen Koordinaten hinzu)
-  // coordinates.push(newCoordinate);
-  // coordinates.push(newDirectionCoordinate);
-  // coordinates.push(newCoordinate);
+  coordinates.push(newCoordinate);
+  coordinates.push(newDirectionCoordinate);
+  coordinates.push(newCoordinate);
 
   // Aktualisiere die Linie
   map.getSource('line').setData({
