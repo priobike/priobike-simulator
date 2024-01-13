@@ -1,35 +1,88 @@
 var coordinates = [];
 
 var recivedRoute = [];
+distanzBei30KPH = 0.008321900879120575
 
-function recivedRouteHandler(recivedRoute){
-  // recivedRoute = [[lgn1,lat1],[lgn2,lat2], ...];
-  console.log("recivedRouteHandler");
-  console.log(recivedRoute);
+let base_point = [10.008684549052646,53.5387102609356] // [lng,lat]
+let base_point_index = 1;
+
+let target_Point = [10.008684549052646,53.5387102609356] // [lng,lat]
+let target_Point_index = 1;
+
+function recivedRouteHandler(recivedRouteUnParsed){
+  recivedRoute = [];
   // um Route direkt anzuzeigen
-  
+  for (let index = 1; index < 50; index++){
+    new mapboxgl.Marker().setLngLat([recivedRouteUnParsed[index].lon, recivedRouteUnParsed[index].lat]).addTo(map);
+    recivedRoute.push([recivedRouteUnParsed[index].lon, recivedRouteUnParsed[index].lat]);
+  }
   //coordinates = recivedRoute;
+  base_point_index = 1;
+  base_point = recivedRoute[base_point_index];
+  console.log(recivedRoute);
+
+  target_Point_index = 2;
+  target_Point = recivedRoute[target_Point_index];
 }
 
-function moveToHandler(coordinate_x, coordinate_y, bearing_int)
+function moveToHandler(coordinate_long, coordinate_lat, bearing_int)
 {
-  //console.log("Add coordiate"+coordinates.length);
-  //console.log(coordinates);
-  var newCoordinate = [coordinate_x,coordinate_y];
+  var newCoordinate = [coordinate_long,coordinate_lat];
 
+  // bestimmung des punktes mit geringster distanz zum gps punkt
+  vglDistanzBasePoint = Math.abs(calculateDistance(coordinate_lat,coordinate_long,base_point[1],base_point[0]));
+
+  var start_index = base_point_index - 2;
+  //check ob base point noch zu klein
+  if (start_index < 1) {
+    start_index = 1;
+  }
+  
+  // TODO 50 
+  for (let index = start_index; index < recivedRoute.length; index++) {
+    dist_for = Math.abs(calculateDistance(coordinate_lat,coordinate_long,recivedRoute[index][1],recivedRoute[index][0]));
+    if (vglDistanzBasePoint > dist_for) {
+      console.log("neuer basepoint: " + index);
+      base_point = recivedRoute[index];
+      base_point_index = index;
+      break;
+    }
+    if (index > base_point_index + 2) {
+      break
+    }
+    console.log("base_point_index: " + base_point_index + "index: " + index + " dist_for: " + dist_for + " vglDistanzBasePoint: " + vglDistanzBasePoint);
+  }
+
+  // bestimmung ob vor oder nach basepoint
+  var bearingNow = calculateBearing(base_point[1],base_point[0],coordinate_lat,coordinate_long);
+  var bearingMinus = calculateBearing(base_point[1],base_point[0],recivedRoute[base_point_index-1][1],recivedRoute[base_point_index-1][0]);
+  var bearingPlus = calculateBearing(base_point[1],base_point[0],recivedRoute[base_point_index+1][1],recivedRoute[base_point_index+1][0]);
+
+  // welches bearing ist näher am aktuellen bearing
+  var bearingDiffMinus = Math.abs(bearingNow - bearingMinus);
+  var bearingDiffPlus = Math.abs(bearingNow - bearingPlus);
+
+  target_Point_index = base_point_index;
+  // check ob nach dem Base Pointer
+  if (bearingDiffMinus > bearingDiffPlus) {
+    console.log("nach dem Base Pointer ----------------");
+    target_Point_index = base_point_index + 1;
+  }
+  target_Point = recivedRoute[target_Point_index];
+
+  // bearing berechnung
+  var bearing_used = calculateBearing(coordinate_lat,coordinate_long,target_Point[1],target_Point[0]);
 
   // Eigentliche Fokuspunkt berechung ab hier
-
-  winkelImBogenmaß = bearing_int * (Math.PI / 180);
-  newLngLat = getFinalLatLong(coordinate_y,coordinate_x,0.031615522014283345,bearing_int,6371);
+  newLngLat = getFinalLatLong(coordinate_lat,coordinate_long,0.031615522014283345,bearing_used,6371);
   
   const target = {center: [newLngLat[1],newLngLat[0]],
-                  bearing: bearing_int};
+                  bearing: bearing_used};
 
   //target = {center: [coordinate_x,coordinate_y],bearing: bearing_int}
 
   // Füge der line, die Direction hinzu
-  newDirectionVektor = getFinalLatLong(coordinate_y,coordinate_x,0.002615522014283345,bearing_int,6371);
+  newDirectionVektor = getFinalLatLong(coordinate_lat,coordinate_long,0.002615522014283345,bearing_used,6371);
   var newDirectionCoordinate = [newDirectionVektor[1],newDirectionVektor[0]];
   
   // UNCOMMENT for line on Map! (Füge die neuen Koordinaten hinzu)
@@ -46,6 +99,7 @@ function moveToHandler(coordinate_x, coordinate_y, bearing_int)
     }
   });
 
+  console.log("Aktueller Target Point: " + target_Point_index + " " + target_Point);
   map.easeTo({
       ...target, // Fly to the selected target
       zoom: 21,
@@ -138,5 +192,19 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
     const distance = earthRadiusKm * c; // Distance in kilometers
 
     return distance;
+}
+
+function calculateBearing(startLat, startLng, destLat, destLng){
+  startLat = deg2rad(startLat);
+  startLng = deg2rad(startLng);
+  destLat = deg2rad(destLat);
+  destLng = deg2rad(destLng);
+
+  y = Math.sin(destLng - startLng) * Math.cos(destLat);
+  x = Math.cos(startLat) * Math.sin(destLat) -
+        Math.sin(startLat) * Math.cos(destLat) * Math.cos(destLng - startLng);
+  brng = Math.atan2(y, x);
+  brng = rad2deg(brng);
+  return (brng);
 }
 
