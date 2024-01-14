@@ -222,5 +222,5 @@ function routeDataStart(deviceID, route)
         };
     });
 
-    console.log(coordinates);
+    recivedRouteHandler(coordinates);
 }
