@@ -112,12 +112,12 @@ function pair(deviceID, deviceName)
     startLogoutTimer(deviceID);
 }
 
-// melde automatisch nach 60s ab wenn User keine Nachricht geschickt hat
+// melde automatisch nach 90s ab wenn User keine Nachricht geschickt hat
 function startLogoutTimer(deviceID) {
     disconnectTimer = setTimeout(function() {
       console.log('Automatic Logoff');
       stopRide(deviceID);
-    }, 60000);
+    }, 90000);
 }
 
 function resetLogoutTimer(deviceID) {
@@ -148,50 +148,50 @@ function stopRide(deviceID)
     createPopupMessage(messageID, html);
 }
 
-function nextCoordinate(deviceID, longitude, latitude, bearing)
+function checkConnectionStatusAndResetTimer(deviceID)
 {
     if(!connected || connectedDeviceID !== deviceID) {
-        return;
+        return false;
     }
 
     // setze timer zurück da nun wieder Aktivität
     resetLogoutTimer(deviceID);
+    return true;
+}
+
+function nextCoordinate(deviceID, longitude, latitude, bearing)
+{
+    if(!checkConnectionStatusAndResetTimer(deviceID)) {
+        return;
+    }
 
     moveToHandler(longitude, latitude, bearing);
 }
 
 function trafficLight(deviceID, tlID, longitude, latitude, bearing)
 {
-    if(!connected || connectedDeviceID !== deviceID) {
+    if(!checkConnectionStatusAndResetTimer(deviceID)) {
         return;
     }
-
-    // setze timer zurück da nun wieder Aktivität
-    resetLogoutTimer(deviceID);
 
     createTrafficLight(map, tlID, longitude, latitude, bearing);
 }
 
 function trafficLightChange(deviceID, tlID, state)
 {
-    if(!connected || connectedDeviceID !== deviceID) {
+    if(!checkConnectionStatusAndResetTimer(deviceID)) {
         return;
     }
-
-    // setze timer zurück da nun wieder Aktivität
-    resetLogoutTimer(deviceID);
 
     updateTrafficLight(map, tlID, state);
 }
 
+// erste Koordinate die geschickt wird soll über smoothe flyTo-Funktion erfolgen
 function firstCoordinate(deviceID, longitude, latitude, bearing)
 {
-    if(!connected || connectedDeviceID !== deviceID) {
+    if(!checkConnectionStatusAndResetTimer(deviceID)) {
         return;
     }
-
-    // setze timer zurück da nun wieder Aktivität
-    resetLogoutTimer(deviceID);
 
     map.flyTo({
         center: [longitude, latitude],
@@ -205,12 +205,9 @@ function firstCoordinate(deviceID, longitude, latitude, bearing)
 
 function routeDataStart(deviceID, route)
 {
-    if(!connected || connectedDeviceID !== deviceID) {
+    if(!checkConnectionStatusAndResetTimer(deviceID)) {
         return;
     }
-
-    // setze timer zurück da nun wieder Aktivität
-    resetLogoutTimer(deviceID);
 
     // Sortiere, falls indexe nicht in der richtigen Reihenfolge sind
     route.sort(function(a, b) {
@@ -225,10 +222,5 @@ function routeDataStart(deviceID, route)
         };
     });
 
-    console.log(coordinates);
     recivedRouteHandler(coordinates);
 }
-
-// TODO: Minimap
-// TODO: Route zeichnen
-// TODO: Ampeln kleiner
