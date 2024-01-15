@@ -18,6 +18,7 @@ const credJSON = JSON.parse(`{
 }`);
 
 let map;
+let minimap;
 mqttHandler();
 
 window.onload = (event) => {
@@ -32,6 +33,14 @@ window.onload = (event) => {
         // antialising für custom layers; sehr performancelastig
         // antialias: true
     });
+
+    // Initalize the minimap with starting values
+    var minimap = new mapboxgl.Map({
+        container: 'minimap', 
+        center: [10.008, 53.541], 
+        zoom: 11
+    });
+
     tb = (window.tb = new Threebox(
         map,
         map.getCanvas().getContext('webgl'),
@@ -40,7 +49,7 @@ window.onload = (event) => {
         }
     ));
 
-    displayMap(map);
+    displayMap(map,minimap);
 
     const signalLayerIdPrefix = 'custom-threebox-signal-';
     signalColor = signalColors[currentSignalColorIndex];
@@ -77,7 +86,7 @@ window.onload = (event) => {
     </svg>`;
 };
 
-function displayMap(map)
+function displayMap(map,minimap)
 {
     // Add 1st 3D Building On Button Click
     const button = document.getElementById('building1');
@@ -172,6 +181,33 @@ function displayMap(map)
         });
       });
 
+    // Füge eine leere Linie zur Minimap hinzu
+    minimap.on('load', function() {
+        map.addSource('minimap_line', {
+            type: 'geojson',
+            data: {
+              type: 'Feature',
+              geometry: {
+                type: 'LineString',
+                coordinates: []
+              }
+            }
+          });
+          map.addLayer({
+            id: 'minimap_line',
+            type: 'line',
+            source: 'minimap_line',
+            layout: {
+              'line-join': 'round',
+              'line-cap': 'round'
+            },
+            paint: {
+              'line-color': '#888',
+              'line-width': 8
+            }
+          });
+    });
+
 
     // Fly By Clicking Button
     let nextPosition = 1;
@@ -262,12 +298,6 @@ function displayMap(map)
         ;
     });
 
-    // Initalize the minimap with starting values
-    var minimap = new mapboxgl.Map({
-        container: 'minimap', 
-        center: [10.008, 53.541], 
-        zoom: 11
-    });
 
     const marker = new mapboxgl.Marker({ color: 'black', rotation: 0 })
         .setLngLat([10.007901555262777, 53.54071265251261])
