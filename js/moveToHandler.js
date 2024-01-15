@@ -70,8 +70,20 @@ function moveToHandler(coordinate_long, coordinate_lat, bearing_int)
   }
   target_Point = recivedRoute[target_Point_index];
 
+
+
   // bearing berechnung
   var bearing_used = calculateBearing(coordinate_lat,coordinate_long,target_Point[1],target_Point[0]);
+
+  if(calculateDistance(target_Point[1],target_Point[0],coordinate_lat,coordinate_long) < distanzBei30KPH){
+    bearing_used = calculateBearing(coordinate_lat,coordinate_long,recivedRoute[target_Point_index+1][1],recivedRoute[target_Point_index+1][0]);
+  }
+
+  // check if bearing diverges too much from send bearing (indicating not detected point passed)
+  if (Math.abs(bearing_used - bearing_int > 160)) {
+    bearing_used = bearing_int;
+    console.log("Bearing diverges too much from send bearing (indicating not detected point passed) bearing calc: "+ bearing_used + " bearing send: " + bearing_int);
+  }
 
   // Eigentliche Fokuspunkt berechung ab hier
   newLngLat = getFinalLatLong(coordinate_lat,coordinate_long,0.031615522014283345,bearing_used,6371);
