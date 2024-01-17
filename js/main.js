@@ -183,7 +183,7 @@ function displayMap(map,minimap)
 
     // Füge eine leere Linie zur Minimap hinzu
     minimap.on('load', function() {
-        map.addSource('minimap_line', {
+        minimap.addSource('minimap_line', {
             type: 'geojson',
             data: {
               type: 'Feature',
@@ -193,7 +193,7 @@ function displayMap(map,minimap)
               }
             }
           });
-          map.addLayer({
+          minimap.addLayer({
             id: 'minimap_line',
             type: 'line',
             source: 'minimap_line',
