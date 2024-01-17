@@ -1,11 +1,11 @@
 const signalLayerIdPrefix = 'custom-threebox-signal-';
 var trafficLights = {}; //the dictionary stores the tlID and the corresponding layerId and coords.
-
-function addLayer(map, tb, signalColor, signalLayerId, coords, bearing) {
+let sportscycleModel;
+function addLayer(map, tb, obj, signalLayerId, coords, bearing) {
     const newModelOptions = {
-        obj: `../3dModells/trafficlight_${signalColor}.gltf`,
+        obj: obj,
         type: 'gltf',
-        scale: { x: 1.0, y: 1.0, z: 1.0 },
+        scale: { x: 0.5, y: 0.5, z: 0.5 },
         units: 'meters',
         rotation: { x: 90, y: bearing, z: 0 }
     };
@@ -22,6 +22,9 @@ function addLayer(map, tb, signalColor, signalLayerId, coords, bearing) {
                     { defaultLights: true }
                 );
                 tb.loadObj(newModelOptions, (model) => {
+                    if(obj == `../3dModells/sportscycle.gltf`){
+                        sportscycleModel = model;
+                    }
                     model.setCoords(coords);
                     tb.add(model);
                 });
@@ -32,20 +35,34 @@ function addLayer(map, tb, signalColor, signalLayerId, coords, bearing) {
         });
     }
 }
+function loadCycleModel(map, coords, bearing) {
+    console.log("Load Cycle Model, coords + bearing:", coords, bearing);
+    var obj = `../3dModells/sportscycle.gltf`;
+    var signalLayerId = createLayerID();
+    map.on('style.load', () => {
+        addLayer(map, tb, obj, signalLayerId, coords, bearing);
+    });
+}
+function moveCycleModel(coords, bearing){
+    console.log("update Cycle Model, coords + bearing:", coords, bearing);
+    sportscycleModel.setCoords(coords);
+    sportscycleModel.setRotation({ x: 0, y: 0 , z: -bearing});
+}
 
 //A test to see if the traffic lights on the initial page can be loaded.
 function loadTrafficSignalModel(map, signalColor, signalLayerId) {
-    
+    var obj = `../3dModells/trafficlight_${signalColor}.gltf`;
     map.on('style.load', () => {
         const coords = [10.006742457554765, 53.54106874310412];
-        addLayer(map, tb, signalColor, signalLayerId, coords, 180);
+        addLayer(map, tb, obj, signalLayerId, coords, 180);
     });
 }
 
 //A test to see if the color of traffic lights on the initial page can be switched.
 function changeSignalColor(map, signalColor, newSignalLayerId, signalLayerId) {
     const coords = [10.006742457554765, 53.54106874310412];
-    addLayer(map, tb, signalColor, newSignalLayerId, coords, 180);
+    var obj = `../3dModells/trafficlight_${signalColor}.gltf`;
+    addLayer(map, tb, obj, newSignalLayerId, coords, 180);
     setTimeout(() => {
         if (map.getLayer(signalLayerId)) {
             map.removeLayer(signalLayerId);
@@ -64,6 +81,7 @@ function createTrafficLight(map, tlID, longitude, latitude, bearing){
         console.error("tb is not defined.");
         return;
     }
+    var obj = `../3dModells/trafficlight_grey.gltf`;
     console.log("Creating traffic light:", tlID, longitude, latitude);
     var signalLayerId = createLayerID();
     var coords = [longitude, latitude];
@@ -73,13 +91,14 @@ function createTrafficLight(map, tlID, longitude, latitude, bearing){
         bearing: bearing,
     }
     //console.log("trafficLights[tlID]:" + trafficLights[tlID].signalLayerId + trafficLights[tlID].coords);
-    addLayer(map, tb, 'grey', signalLayerId, coords, bearing);
+    addLayer(map, tb, obj, signalLayerId, coords, bearing);
 }
 //data.type === "TrafficLightChange"
 function updateTrafficLight(map, tlID, state){
     console.log("Updating traffic light:", tlID, state);
     var oldTrafficLight = trafficLights[tlID];
     var newSignalLayerId = createLayerID();
+    var obj = `../3dModells/trafficlight_${state}.gltf`;
     
     var coords = oldTrafficLight.coords;
     var bearing = oldTrafficLight.bearing;

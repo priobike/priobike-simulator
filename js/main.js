@@ -41,6 +41,10 @@ window.onload = (event) => {
     ));
 
     displayMap(map);
+    const camera = map.getFreeCameraOptions();
+    const cameraPosition = camera._position.toLngLat();
+    const coords = [cameraPosition.lng, cameraPosition.lat];
+    loadCycleModel(map, coords, map.getBearing());
 
     const signalLayerIdPrefix = 'custom-threebox-signal-';
     signalColor = signalColors[currentSignalColorIndex];
@@ -243,7 +247,9 @@ function displayMap(map)
     map.on('move', function() {
         const camera = map.getFreeCameraOptions();
         const cameraPosition = camera._position.toLngLat();
-
+        const cameraBearing = map.getBearing();
+        const coords = [cameraPosition.lng, cameraPosition.lat];
+        moveCycleModel(coords,cameraBearing);
         document.getElementById('info2').innerHTML =
             'Kameraposition:\t' +
             cameraPosition +
@@ -258,8 +264,8 @@ function displayMap(map)
             '<br />aktueller Kameragradzahl: ' +
             map.getBearing() +
             '<br />Differenz CamPos Fokuspunkt:\t' +
-            calculateDistance(testRoute2[nextPosition]["center"][1], testRoute2[nextPosition]["center"][0],cameraPosition["lat"], cameraPosition["lng"])
-        ;
+            calculateDistance(testRoute2[nextPosition]["center"][1], testRoute2[nextPosition]["center"][0],cameraPosition["lat"], cameraPosition["lng"]);
+
     });
 
     // Initalize the minimap with starting values
