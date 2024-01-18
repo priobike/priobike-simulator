@@ -12,17 +12,28 @@ let target_Point_index = 1;
 function recivedRouteHandler(recivedRouteUnParsed){
   recivedRoute = [];
   // um Route direkt anzuzeigen
-  for (let index = 1; index < 50; index++){
-    new mapboxgl.Marker().setLngLat([recivedRouteUnParsed[index].lon, recivedRouteUnParsed[index].lat]).addTo(map);
-    recivedRoute.push([recivedRouteUnParsed[index].lon, recivedRouteUnParsed[index].lat]);
+  for (let index = 1; index < recivedRouteUnParsed.length; index++){
+    try {
+      new mapboxgl.Marker().setLngLat([recivedRouteUnParsed[index].lon, recivedRouteUnParsed[index].lat]).addTo(map);
+      recivedRoute.push([recivedRouteUnParsed[index].lon, recivedRouteUnParsed[index].lat]);
+    }
+    // Falls das Datenformat einen Fehler hat
+    catch (error) {
+      console.log("Fehler beim parsen der Route"+ error);
+      break;
+    }
   }
-  //coordinates = recivedRoute;
+  
   base_point_index = 1;
   base_point = recivedRoute[base_point_index];
   console.log(recivedRoute);
 
   target_Point_index = 2;
   target_Point = recivedRoute[target_Point_index];
+
+  // zeige die Route im Simulator an
+  // coordinates = recivedRoute.slice();
+  // update_map_lines();
 }
 
 function moveToHandler(coordinate_long, coordinate_lat, bearing_int)
@@ -35,13 +46,13 @@ function moveToHandler(coordinate_long, coordinate_lat, bearing_int)
     // bestimmung des punktes mit geringster distanz zum gps punkt
     vglDistanzBasePoint = Math.abs(calculateDistance(coordinate_lat,coordinate_long,base_point[1],base_point[0]));
 
-    var start_index = base_point_index - 2;
+    var start_index = base_point_index - 1;
     //check ob base point noch zu klein
     if (start_index < 1) {
       start_index = 1;
     }
     
-    // TODO 50 
+    // suche nach neuem basepoint
     for (let index = start_index; index < recivedRoute.length; index++) {
       dist_for = Math.abs(calculateDistance(coordinate_lat,coordinate_long,recivedRoute[index][1],recivedRoute[index][0]));
       if (vglDistanzBasePoint > dist_for) {
@@ -50,10 +61,6 @@ function moveToHandler(coordinate_long, coordinate_lat, bearing_int)
         base_point_index = index;
         break;
       }
-      if (index > base_point_index + 2) {
-        break
-      }
-      console.log("base_point_index: " + base_point_index + "index: " + index + " dist_for: " + dist_for + " vglDistanzBasePoint: " + vglDistanzBasePoint);
     }
 
     // bestimmung ob vor oder nach basepoint
@@ -105,13 +112,34 @@ function moveToHandler(coordinate_long, coordinate_lat, bearing_int)
   newDirectionVektor = getFinalLatLong(coordinate_lat,coordinate_long,0.002615522014283345,bearing_used,6371);
   var newDirectionCoordinate = [newDirectionVektor[1],newDirectionVektor[0]];
   
-  // UNCOMMENT for line on Map! (Füge die neuen Koordinaten hinzu)
+  // UNCOMMENT FOR DEBUGGING adds Line with Direction to Map
   coordinates.push(newCoordinate);
   coordinates.push(newDirectionCoordinate);
   coordinates.push(newCoordinate);
+  update_map_lines();
 
+  console.log("Aktueller Target Point: " + target_Point_index + " " + target_Point);
+  map.easeTo({
+      ...target, // Fly to the selected target
+      zoom: 21,
+      pitch: 85,
+      duration: 1500,
+      easing: t => t,
+      essential: true
+  });
+}
+
+function update_map_lines() {
   // Aktualisiere die Linie
   map.getSource('line').setData({
+    type: 'Feature',
+    geometry: {
+      type: 'LineString',
+      coordinates: coordinates
+    }
+  });
+  // Aktualisiere die Kontrast Linie
+  map.getSource('contrast_line').setData({
     type: 'Feature',
     geometry: {
       type: 'LineString',
@@ -125,15 +153,12 @@ function moveToHandler(coordinate_long, coordinate_lat, bearing_int)
       coordinates: coordinates
     }
   });
-
-  console.log("Aktueller Target Point: " + target_Point_index + " " + target_Point);
-  map.easeTo({
-      ...target, // Fly to the selected target
-      zoom: 21,
-      pitch: 85,
-      duration: 1500,
-      easing: t => t,
-      essential: true
+  minimap.getSource('minimap_contrast_line').setData({
+    type: 'Feature',
+    geometry: {
+      type: 'LineString',
+      coordinates: coordinates
+    }
   });
 }
 

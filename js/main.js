@@ -35,7 +35,7 @@ window.onload = (event) => {
     });
 
     // Initalize the minimap with starting values
-    var minimap = new mapboxgl.Map({
+    minimap = new mapboxgl.Map({
         container: 'minimap', 
         center: [10.008, 53.541], 
         zoom: 11
@@ -153,61 +153,110 @@ function displayMap(map,minimap)
                 }
         });
     });
-
-    // Füge eine leere Linie zur Karte hinzu
     map.on('load', function() {
+        // Füge eine leere Linie zur Karte hinzu als Kontrastlinie
+        map.addSource('contrast_line', {
+            type: 'geojson',
+            data: {
+                type: 'Feature',
+                geometry: {
+                type: 'LineString',
+                coordinates: []
+                }
+            }
+            });
+        map.addLayer({
+            id: 'contrast_line',
+            type: 'line',
+            source: 'contrast_line',
+            layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+            },
+            paint: {
+                'line-color': '#000000',
+                'line-width': 7
+            }
+        });
+
+    
+        // Füge eine leere Linie zur Karte hinzu
         map.addSource('line', {
-          type: 'geojson',
-          data: {
+            type: 'geojson',
+            data: {
             type: 'Feature',
             geometry: {
-              type: 'LineString',
-              coordinates: []
+                type: 'LineString',
+                coordinates: []
             }
-          }
+            }
         });
         map.addLayer({
-          id: 'line',
-          type: 'line',
-          source: 'line',
-          layout: {
+            id: 'line',
+            type: 'line',
+            source: 'line',
+            layout: {
             'line-join': 'round',
             'line-cap': 'round'
-          },
-          paint: {
-            'line-color': '#888',
-            'line-width': 8
-          }
+            },
+            paint: {
+            'line-color': '#6495ED',
+            'line-width': 6
+            }
         });
-      });
+    });
 
-    // Füge eine leere Linie zur Minimap hinzu
     minimap.on('load', function() {
+        // Füge eine leere Linie zur Minimap hinzu als Kontrastlinie (muss vor der kleineren Linie initailisiert werden)
+        minimap.addSource('minimap_contrast_line', {
+            type: 'geojson',
+            data: {
+            type: 'Feature',
+            geometry: {
+                type: 'LineString',
+                coordinates: []
+            }
+            }
+        });
+        minimap.addLayer({
+            id: 'minimap_contrast_line',
+            type: 'line',
+            source: 'minimap_contrast_line',
+            layout: {
+            'line-join': 'round',
+            'line-cap': 'round'
+            },
+            paint: {
+            'line-color': '#000000',
+            'line-width': 8
+            }
+        });
+    
+        // Füge eine leere Linie zur Minimap hinzu
         minimap.addSource('minimap_line', {
             type: 'geojson',
             data: {
-              type: 'Feature',
-              geometry: {
+                type: 'Feature',
+                geometry: {
                 type: 'LineString',
                 coordinates: []
-              }
+                }
             }
-          });
-          minimap.addLayer({
+            });
+            minimap.addLayer({
             id: 'minimap_line',
             type: 'line',
             source: 'minimap_line',
             layout: {
-              'line-join': 'round',
-              'line-cap': 'round'
+                'line-join': 'round',
+                'line-cap': 'round'
             },
             paint: {
-              'line-color': '#888',
-              'line-width': 8
+                'line-color': '#6495ED',  //intensives blau
+                'line-width': 7
             }
-          });
+            });
     });
-
 
     // Fly By Clicking Button
     let nextPosition = 1;
