@@ -65,12 +65,36 @@ body {
 
     transition: background-color 0.3s;
 }
+
+#messages.stacked .message:not(:first-of-type){
+    animation: hideItems 700ms forwards;
+    animation-timing-function: ease;
+}
+#messages .message:not(:first-of-type){
+    animation: showItems 1s forwards;
+    animation-timing-function: ease;
+}
+
+.message:first-of-type {
+    z-index: 4;
+}
+.message:nth-of-type(2) {
+    z-index: 3;
+}
+.message:nth-of-type(3) {
+    z-index: 2;
+}
+.message:nth-of-type(4) {
+    z-index: 1;
+}
+
 #minimizeMessages {
     width: 100%;
     padding-top: 0.8rem;
     padding-bottom: 0.8rem;
     border: 0;
 }
+
 #minimizeMessages:hover {
     background-color: #dadada;
 }
@@ -85,11 +109,8 @@ body {
     margin-left: auto;
 }
 
-/* TODO: evtl animation keyframes einfügen sodass alles nach oben und opacity */
 .stacked .message {
-    position: absolute;
-    top: 0;
-    right: 0;
+    position: relative;
 }
 .stacked .message:not(:first-child:nth-last-child(3)) {
     /* only show the "layered-notification-effect" if there are actually multiple notifications (not just one)*/
@@ -103,10 +124,7 @@ body {
 
     cursor: pointer;
 }
-.stacked .message:not(:first-of-type){
-    /* hide all other notifications (except for the first one) if the notifications are stacked */
-    display: none;
-}
+
 .stacked #minimizeMessages {
     display: none;
 }
@@ -155,4 +173,42 @@ body {
 
 .hidden {
     display: none;
+}
+
+@keyframes hideItems{
+    0%{
+        margin-top: 0;
+        box-shadow: none;
+    }
+    30%{
+        opacity: 1;
+    }
+    60%{
+        opacity: 0;
+        transform: scale(0.98);
+    }
+    80%{
+        transform: scale(0.5);
+        box-shadow: none;
+    }
+    100%{
+        opacity: 0;
+        transform: scale(0);
+        margin-top: -25%;
+    }
+}
+@keyframes showItems{
+    100%{
+        opacity: 1;
+        margin-top: 0;
+        transform: scale(1);
+    }
+    10%{
+        opacity: 0;
+    }
+    0%{
+        opacity: 0;
+        transform: scale(0.95);
+        margin-top: -25%;
+    }
 }
