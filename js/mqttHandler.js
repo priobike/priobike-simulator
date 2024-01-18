@@ -208,11 +208,6 @@ function routeDataStart(deviceID, route)
     if(!checkConnectionStatusAndResetTimer(deviceID)) {
         return;
     }
-
-    // Sortiere, falls indexe nicht in der richtigen Reihenfolge sind
-    route.sort(function(a, b) {
-        return a.index - b.index;
-    });
     
     // nur Koordinaten als array
     const coordinates = route.map(function(item) {

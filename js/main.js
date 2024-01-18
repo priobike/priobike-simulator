@@ -18,6 +18,7 @@ const credJSON = JSON.parse(`{
 }`);
 
 let map;
+let minimap;
 mqttHandler();
 
 window.onload = (event) => {
@@ -66,7 +67,7 @@ window.onload = (event) => {
 
     // replace minimap marker with arrow
     const markerWrapper = document.getElementsByClassName('mapboxgl-marker')[0];
-    markerWrapper.style.marginTop = "65px";
+    markerWrapper.style.marginTop = "40px";
     markerWrapper.innerHTML = `
     <?xml version="1.0" encoding="iso-8859-1"?>
         <!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
@@ -269,10 +270,10 @@ function displayMap(map)
     });
 
     // Initalize the minimap with starting values
-    var minimap = new mapboxgl.Map({
+    minimap = new mapboxgl.Map({
         container: 'minimap', 
         center: [10.008, 53.541], 
-        zoom: 11
+        zoom: 14
     });
 
     const marker = new mapboxgl.Marker({ color: 'black', rotation: 0 })
@@ -282,7 +283,7 @@ function displayMap(map)
     // on map move, update the minimap
     map.on('move', function() {
         minimap.setCenter(map.getCenter());
-        minimap.setZoom(16);
+        minimap.setZoom(14);
         minimap.setBearing(map.getBearing());
         minimap.setPitch(10);
         marker.setLngLat(map.getCenter());
