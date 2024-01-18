@@ -49,7 +49,14 @@ window.onload = (event) => {
         }
     ));
 
+
     displayMap(map,minimap);
+
+    const camera = map.getFreeCameraOptions();
+    const cameraPosition = camera._position.toLngLat();
+    const coords = [cameraPosition.lng, cameraPosition.lat];
+    loadCycleModel(map, coords, map.getBearing());
+
 
     const signalLayerIdPrefix = 'custom-threebox-signal-';
     signalColor = signalColors[currentSignalColorIndex];
@@ -71,7 +78,7 @@ window.onload = (event) => {
 
     // replace minimap marker with arrow
     const markerWrapper = document.getElementsByClassName('mapboxgl-marker')[0];
-    markerWrapper.style.marginTop = "65px";
+    markerWrapper.style.marginTop = "40px";
     markerWrapper.innerHTML = `
     <?xml version="1.0" encoding="iso-8859-1"?>
         <!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
@@ -285,7 +292,7 @@ function displayMap(map,minimap)
 
     // lade GL 3 Standard Style
     map.on('style.load', () => {
-      map.setConfigProperty('basemap', 'lightPreset', 'dusk');
+      map.setConfigProperty('basemap', 'lightPreset', 'day');
 
     //   map.addLayer({
     //     id: 'custom-threebox-model1',
@@ -328,7 +335,9 @@ function displayMap(map,minimap)
     map.on('move', function() {
         const camera = map.getFreeCameraOptions();
         const cameraPosition = camera._position.toLngLat();
-
+        const cameraBearing = map.getBearing();
+        const coords = [cameraPosition.lng, cameraPosition.lat];
+        moveCycleModel(coords,cameraBearing);
         document.getElementById('info2').innerHTML =
             'Kameraposition:\t' +
             cameraPosition +
@@ -343,8 +352,8 @@ function displayMap(map,minimap)
             '<br />aktueller Kameragradzahl: ' +
             map.getBearing() +
             '<br />Differenz CamPos Fokuspunkt:\t' +
-            calculateDistance(testRoute2[nextPosition]["center"][1], testRoute2[nextPosition]["center"][0],cameraPosition["lat"], cameraPosition["lng"])
-        ;
+            calculateDistance(testRoute2[nextPosition]["center"][1], testRoute2[nextPosition]["center"][0],cameraPosition["lat"], cameraPosition["lng"]);
+
     });
 
 
@@ -355,7 +364,7 @@ function displayMap(map,minimap)
     // on map move, update the minimap
     map.on('move', function() {
         minimap.setCenter(map.getCenter());
-        minimap.setZoom(16);
+        minimap.setZoom(14);
         minimap.setBearing(map.getBearing());
         minimap.setPitch(10);
         marker.setLngLat(map.getCenter());
