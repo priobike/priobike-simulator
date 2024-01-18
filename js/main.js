@@ -33,6 +33,14 @@ window.onload = (event) => {
         // antialising für custom layers; sehr performancelastig
         // antialias: true
     });
+
+    // Initalize the minimap with starting values
+    minimap = new mapboxgl.Map({
+        container: 'minimap', 
+        center: [10.008, 53.541], 
+        zoom: 11
+    });
+
     tb = (window.tb = new Threebox(
         map,
         map.getCanvas().getContext('webgl'),
@@ -41,11 +49,14 @@ window.onload = (event) => {
         }
     ));
 
-    displayMap(map);
+
+    displayMap(map,minimap);
+
     const camera = map.getFreeCameraOptions();
     const cameraPosition = camera._position.toLngLat();
     const coords = [cameraPosition.lng, cameraPosition.lat];
     loadCycleModel(map, coords, map.getBearing());
+
 
     const signalLayerIdPrefix = 'custom-threebox-signal-';
     signalColor = signalColors[currentSignalColorIndex];
@@ -82,7 +93,7 @@ window.onload = (event) => {
     </svg>`;
 };
 
-function displayMap(map)
+function displayMap(map,minimap)
 {
     // Add 1st 3D Building On Button Click
     const button = document.getElementById('building1');
@@ -149,34 +160,110 @@ function displayMap(map)
                 }
         });
     });
-
-    // Füge eine leere Linie zur Karte hinzu
     map.on('load', function() {
+        // Füge eine leere Linie zur Karte hinzu als Kontrastlinie
+        map.addSource('contrast_line', {
+            type: 'geojson',
+            data: {
+                type: 'Feature',
+                geometry: {
+                type: 'LineString',
+                coordinates: []
+                }
+            }
+            });
+        map.addLayer({
+            id: 'contrast_line',
+            type: 'line',
+            source: 'contrast_line',
+            layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+            },
+            paint: {
+                'line-color': '#000000',
+                'line-width': 7
+            }
+        });
+
+    
+        // Füge eine leere Linie zur Karte hinzu
         map.addSource('line', {
-          type: 'geojson',
-          data: {
+            type: 'geojson',
+            data: {
             type: 'Feature',
             geometry: {
-              type: 'LineString',
-              coordinates: []
+                type: 'LineString',
+                coordinates: []
             }
-          }
+            }
         });
         map.addLayer({
-          id: 'line',
-          type: 'line',
-          source: 'line',
-          layout: {
+            id: 'line',
+            type: 'line',
+            source: 'line',
+            layout: {
             'line-join': 'round',
             'line-cap': 'round'
-          },
-          paint: {
-            'line-color': '#888',
-            'line-width': 8
-          }
+            },
+            paint: {
+            'line-color': '#6495ED',
+            'line-width': 6
+            }
         });
-      });
+    });
 
+    minimap.on('load', function() {
+        // Füge eine leere Linie zur Minimap hinzu als Kontrastlinie (muss vor der kleineren Linie initailisiert werden)
+        minimap.addSource('minimap_contrast_line', {
+            type: 'geojson',
+            data: {
+            type: 'Feature',
+            geometry: {
+                type: 'LineString',
+                coordinates: []
+            }
+            }
+        });
+        minimap.addLayer({
+            id: 'minimap_contrast_line',
+            type: 'line',
+            source: 'minimap_contrast_line',
+            layout: {
+            'line-join': 'round',
+            'line-cap': 'round'
+            },
+            paint: {
+            'line-color': '#000000',
+            'line-width': 8
+            }
+        });
+    
+        // Füge eine leere Linie zur Minimap hinzu
+        minimap.addSource('minimap_line', {
+            type: 'geojson',
+            data: {
+                type: 'Feature',
+                geometry: {
+                type: 'LineString',
+                coordinates: []
+                }
+            }
+            });
+            minimap.addLayer({
+            id: 'minimap_line',
+            type: 'line',
+            source: 'minimap_line',
+            layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+            },
+            paint: {
+                'line-color': '#6495ED',  //intensives blau
+                'line-width': 7
+            }
+            });
+    });
 
     // Fly By Clicking Button
     let nextPosition = 1;
@@ -269,12 +356,6 @@ function displayMap(map)
 
     });
 
-    // Initalize the minimap with starting values
-    minimap = new mapboxgl.Map({
-        container: 'minimap', 
-        center: [10.008, 53.541], 
-        zoom: 14
-    });
 
     const marker = new mapboxgl.Marker({ color: 'black', rotation: 0 })
         .setLngLat([10.007901555262777, 53.54071265251261])

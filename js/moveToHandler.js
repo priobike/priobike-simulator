@@ -12,77 +12,92 @@ let target_Point_index = 1;
 function recivedRouteHandler(recivedRouteUnParsed){
   recivedRoute = [];
   // um Route direkt anzuzeigen
-  for (let index = 1; index < 50; index++){
-    new mapboxgl.Marker().setLngLat([recivedRouteUnParsed[index].lon, recivedRouteUnParsed[index].lat]).addTo(map);
-    recivedRoute.push([recivedRouteUnParsed[index].lon, recivedRouteUnParsed[index].lat]);
+  for (let index = 1; index < recivedRouteUnParsed.length; index++){
+    try {
+      new mapboxgl.Marker().setLngLat([recivedRouteUnParsed[index].lon, recivedRouteUnParsed[index].lat]).addTo(map);
+      recivedRoute.push([recivedRouteUnParsed[index].lon, recivedRouteUnParsed[index].lat]);
+    }
+    // Falls das Datenformat einen Fehler hat
+    catch (error) {
+      console.log("Fehler beim parsen der Route"+ error);
+      break;
+    }
   }
-  //coordinates = recivedRoute;
+  
   base_point_index = 1;
   base_point = recivedRoute[base_point_index];
   console.log(recivedRoute);
 
   target_Point_index = 2;
   target_Point = recivedRoute[target_Point_index];
+
+  // zeige die Route im Simulator an
+  // coordinates = recivedRoute.slice();
+  // update_map_lines();
 }
 
 function moveToHandler(coordinate_long, coordinate_lat, bearing_int)
 {
+
   var newCoordinate = [coordinate_long,coordinate_lat];
 
-  // bestimmung des punktes mit geringster distanz zum gps punkt
-  vglDistanzBasePoint = Math.abs(calculateDistance(coordinate_lat,coordinate_long,base_point[1],base_point[0]));
+  // berechne Target Point nur wenn Route gesendet wurde
+  if (recivedRoute.length > 0) {
+    // bestimmung des punktes mit geringster distanz zum gps punkt
+    vglDistanzBasePoint = Math.abs(calculateDistance(coordinate_lat,coordinate_long,base_point[1],base_point[0]));
 
-  var start_index = base_point_index - 2;
-  //check ob base point noch zu klein
-  if (start_index < 1) {
-    start_index = 1;
-  }
-  
-  // TODO 50 
-  for (let index = start_index; index < recivedRoute.length; index++) {
-    dist_for = Math.abs(calculateDistance(coordinate_lat,coordinate_long,recivedRoute[index][1],recivedRoute[index][0]));
-    if (vglDistanzBasePoint > dist_for) {
-      console.log("neuer basepoint: " + index);
-      base_point = recivedRoute[index];
-      base_point_index = index;
-      break;
+    var start_index = base_point_index - 1;
+    //check ob base point noch zu klein
+    if (start_index < 1) {
+      start_index = 1;
     }
-    if (index > base_point_index + 2) {
-      break
+    
+    // suche nach neuem basepoint
+    for (let index = start_index; index < recivedRoute.length; index++) {
+      dist_for = Math.abs(calculateDistance(coordinate_lat,coordinate_long,recivedRoute[index][1],recivedRoute[index][0]));
+      if (vglDistanzBasePoint > dist_for) {
+        console.log("neuer basepoint: " + index);
+        base_point = recivedRoute[index];
+        base_point_index = index;
+        break;
+      }
     }
-    console.log("base_point_index: " + base_point_index + "index: " + index + " dist_for: " + dist_for + " vglDistanzBasePoint: " + vglDistanzBasePoint);
+
+    // bestimmung ob vor oder nach basepoint
+    var bearingNow = calculateBearing(base_point[1],base_point[0],coordinate_lat,coordinate_long);
+    var bearingMinus = calculateBearing(base_point[1],base_point[0],recivedRoute[base_point_index-1][1],recivedRoute[base_point_index-1][0]);
+    var bearingPlus = calculateBearing(base_point[1],base_point[0],recivedRoute[base_point_index+1][1],recivedRoute[base_point_index+1][0]);
+
+    // welches bearing ist näher am aktuellen bearing
+    var bearingDiffMinus = Math.abs(bearingNow - bearingMinus);
+    var bearingDiffPlus = Math.abs(bearingNow - bearingPlus);
+
+    target_Point_index = base_point_index;
+    // check ob nach dem Base Pointer
+    if (bearingDiffMinus > bearingDiffPlus) {
+      console.log("nach dem Base Pointer ----------------");
+      target_Point_index = base_point_index + 1;
+    }
+    target_Point = recivedRoute[target_Point_index];
+
+
+
+    // bearing berechnung
+    var bearing_used = calculateBearing(coordinate_lat,coordinate_long,target_Point[1],target_Point[0]);
+
+    if(calculateDistance(target_Point[1],target_Point[0],coordinate_lat,coordinate_long) < distanzBei30KPH){
+      bearing_used = calculateBearing(coordinate_lat,coordinate_long,recivedRoute[target_Point_index+1][1],recivedRoute[target_Point_index+1][0]);
+    }
+
+    // check if bearing diverges too much from send bearing (indicating not detected point passed)
+    if (Math.abs(bearing_used - bearing_int > 160)) {
+      bearing_used = bearing_int;
+      console.log("Bearing diverges too much from send bearing (indicating not detected point passed) bearing calc: "+ bearing_used + " bearing send: " + bearing_int);
+    }
   }
-
-  // bestimmung ob vor oder nach basepoint
-  var bearingNow = calculateBearing(base_point[1],base_point[0],coordinate_lat,coordinate_long);
-  var bearingMinus = calculateBearing(base_point[1],base_point[0],recivedRoute[base_point_index-1][1],recivedRoute[base_point_index-1][0]);
-  var bearingPlus = calculateBearing(base_point[1],base_point[0],recivedRoute[base_point_index+1][1],recivedRoute[base_point_index+1][0]);
-
-  // welches bearing ist näher am aktuellen bearing
-  var bearingDiffMinus = Math.abs(bearingNow - bearingMinus);
-  var bearingDiffPlus = Math.abs(bearingNow - bearingPlus);
-
-  target_Point_index = base_point_index;
-  // check ob nach dem Base Pointer
-  if (bearingDiffMinus > bearingDiffPlus) {
-    console.log("nach dem Base Pointer ----------------");
-    target_Point_index = base_point_index + 1;
-  }
-  target_Point = recivedRoute[target_Point_index];
-
-
-
-  // bearing berechnung
-  var bearing_used = calculateBearing(coordinate_lat,coordinate_long,target_Point[1],target_Point[0]);
-
-  if(calculateDistance(target_Point[1],target_Point[0],coordinate_lat,coordinate_long) < distanzBei30KPH){
-    bearing_used = calculateBearing(coordinate_lat,coordinate_long,recivedRoute[target_Point_index+1][1],recivedRoute[target_Point_index+1][0]);
-  }
-
-  // check if bearing diverges too much from send bearing (indicating not detected point passed)
-  if (Math.abs(bearing_used - bearing_int > 160)) {
-    bearing_used = bearing_int;
-    console.log("Bearing diverges too much from send bearing (indicating not detected point passed) bearing calc: "+ bearing_used + " bearing send: " + bearing_int);
+  else {
+    console.log("ACHTUNG keine Route gesendet -> nur gesendetes Bearing wird verwendet");
+    var bearing_used = bearing_int;
   }
 
   // Eigentliche Fokuspunkt berechung ab hier
@@ -97,19 +112,11 @@ function moveToHandler(coordinate_long, coordinate_lat, bearing_int)
   newDirectionVektor = getFinalLatLong(coordinate_lat,coordinate_long,0.002615522014283345,bearing_used,6371);
   var newDirectionCoordinate = [newDirectionVektor[1],newDirectionVektor[0]];
   
-  // UNCOMMENT for line on Map! (Füge die neuen Koordinaten hinzu)
+  // UNCOMMENT FOR DEBUGGING adds Line with Direction to Map
   coordinates.push(newCoordinate);
   coordinates.push(newDirectionCoordinate);
   coordinates.push(newCoordinate);
-
-  // Aktualisiere die Linie
-  map.getSource('line').setData({
-    type: 'Feature',
-    geometry: {
-      type: 'LineString',
-      coordinates: coordinates
-    }
-  });
+  update_map_lines();
 
   console.log("Aktueller Target Point: " + target_Point_index + " " + target_Point);
   map.easeTo({
@@ -119,6 +126,39 @@ function moveToHandler(coordinate_long, coordinate_lat, bearing_int)
       duration: 1500,
       easing: t => t,
       essential: true
+  });
+}
+
+function update_map_lines() {
+  // Aktualisiere die Linie
+  map.getSource('line').setData({
+    type: 'Feature',
+    geometry: {
+      type: 'LineString',
+      coordinates: coordinates
+    }
+  });
+  // Aktualisiere die Kontrast Linie
+  map.getSource('contrast_line').setData({
+    type: 'Feature',
+    geometry: {
+      type: 'LineString',
+      coordinates: coordinates
+    }
+  });
+  minimap.getSource('minimap_line').setData({
+    type: 'Feature',
+    geometry: {
+      type: 'LineString',
+      coordinates: coordinates
+    }
+  });
+  minimap.getSource('minimap_contrast_line').setData({
+    type: 'Feature',
+    geometry: {
+      type: 'LineString',
+      coordinates: coordinates
+    }
   });
 }
 
