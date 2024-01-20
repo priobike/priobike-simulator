@@ -44,7 +44,7 @@ function loadCycleModel(map, coords, bearing) {
     });
 }
 function moveCycleModel(coords, bearing){
-    console.log("update Cycle Model, coords + bearing:", coords, bearing);
+    //console.log("update Cycle Model, coords + bearing:", coords, bearing);
     sportscycleModel.setCoords(coords);
     sportscycleModel.setRotation({ x: 0, y: 0 , z: -bearing});
 }

@@ -9,13 +9,23 @@ let base_point_index = 1;
 let target_Point = [10.008684549052646,53.5387102609356] // [lng,lat]
 let target_Point_index = 1;
 
+var last_index = 0;
+
+var distanceToLineMin = 100;
+
 function recivedRouteHandler(recivedRouteUnParsed){
+  console.log("Route empfangen");
+  console.log(recivedRouteUnParsed);
   recivedRoute = [];
+  lastPoint = [0,0];
   // um Route direkt anzuzeigen
-  for (let index = 1; index < recivedRouteUnParsed.length; index++){
+  for (let index = 0; index < recivedRouteUnParsed.length; index++){
     try {
-      new mapboxgl.Marker().setLngLat([recivedRouteUnParsed[index].lon, recivedRouteUnParsed[index].lat]).addTo(map);
-      recivedRoute.push([recivedRouteUnParsed[index].lon, recivedRouteUnParsed[index].lat]);
+      if(lastPoint[0] != recivedRouteUnParsed[index].lon || lastPoint[1] != recivedRouteUnParsed[index].lat){
+        new mapboxgl.Marker().setLngLat([recivedRouteUnParsed[index].lon, recivedRouteUnParsed[index].lat]).addTo(map);
+        recivedRoute.push([recivedRouteUnParsed[index].lon, recivedRouteUnParsed[index].lat]);
+        lastPoint = [recivedRouteUnParsed[index].lon, recivedRouteUnParsed[index].lat];
+      }
     }
     // Falls das Datenformat einen Fehler hat
     catch (error) {
@@ -43,57 +53,43 @@ function moveToHandler(coordinate_long, coordinate_lat, bearing_int)
 
   // berechne Target Point nur wenn Route gesendet wurde
   if (recivedRoute.length > 0) {
-    // bestimmung des punktes mit geringster distanz zum gps punkt
-    vglDistanzBasePoint = Math.abs(calculateDistance(coordinate_lat,coordinate_long,base_point[1],base_point[0]));
+    distanceToLineMin = 100;
+    // suche nach Routenstück mit geringster Distanz (geht alle durch, da sonst Probleme in Haarnadelkurven und bei Punkthaufen an Routenzielen auftreten können)
+    for (let index = base_point_index; index < recivedRoute.length-1; index++) {
+      var distanceToLineVgl = distanceToLine(coordinate_lat,coordinate_long,recivedRoute[index][1],recivedRoute[index][0],recivedRoute[index+1][1],recivedRoute[index+1][0]);
 
-    var start_index = base_point_index - 1;
-    //check ob base point noch zu klein
-    if (start_index < 1) {
-      start_index = 1;
-    }
-    
-    // suche nach neuem basepoint
-    for (let index = start_index; index < recivedRoute.length; index++) {
-      dist_for = Math.abs(calculateDistance(coordinate_lat,coordinate_long,recivedRoute[index][1],recivedRoute[index][0]));
-      if (vglDistanzBasePoint > dist_for) {
-        console.log("neuer basepoint: " + index);
-        base_point = recivedRoute[index];
+      if(distanceToLineVgl <= distanceToLineMin){
+        distanceToLineMin = distanceToLineVgl;
         base_point_index = index;
-        break;
+        if (last_index == 10 && index == 9) {
+          console.log("Last9");
+        }
       }
     }
+    last_index = base_point_index;
 
-    // bestimmung ob vor oder nach basepoint
-    var bearingNow = calculateBearing(base_point[1],base_point[0],coordinate_lat,coordinate_long);
-    var bearingMinus = calculateBearing(base_point[1],base_point[0],recivedRoute[base_point_index-1][1],recivedRoute[base_point_index-1][0]);
-    var bearingPlus = calculateBearing(base_point[1],base_point[0],recivedRoute[base_point_index+1][1],recivedRoute[base_point_index+1][0]);
+    target_Point_index = base_point_index + 1;
 
-    // welches bearing ist näher am aktuellen bearing
-    var bearingDiffMinus = Math.abs(bearingNow - bearingMinus);
-    var bearingDiffPlus = Math.abs(bearingNow - bearingPlus);
-
-    target_Point_index = base_point_index;
-    // check ob nach dem Base Pointer
-    if (bearingDiffMinus > bearingDiffPlus) {
-      console.log("nach dem Base Pointer ----------------");
-      target_Point_index = base_point_index + 1;
-    }
+    base_point = recivedRoute[base_point_index];
     target_Point = recivedRoute[target_Point_index];
-
-
 
     // bearing berechnung
     var bearing_used = calculateBearing(coordinate_lat,coordinate_long,target_Point[1],target_Point[0]);
 
-    if(calculateDistance(target_Point[1],target_Point[0],coordinate_lat,coordinate_long) < distanzBei30KPH){
+    var dist_for_check_close_or_on = Math.abs(calculateDistance(target_Point[1],target_Point[0],coordinate_lat,coordinate_long))
+
+    // if on point use bearing of next target point
+    if (dist_for_check_close_or_on < 0.000000001 && target_Point_index < recivedRoute.length-1) {
       bearing_used = calculateBearing(coordinate_lat,coordinate_long,recivedRoute[target_Point_index+1][1],recivedRoute[target_Point_index+1][0]);
+      console.log("Point is close to target point, use bearing of next target point");
+    }
+    // if point is close to target point and direction matches, use bearing of next target point
+    else if(dist_for_check_close_or_on < Math.abs(distanzBei30KPH && target_Point_index < recivedRoute.length-1)){
+      bearing_used = 0.6*calculateBearing(coordinate_lat,coordinate_long,recivedRoute[target_Point_index+1][1],recivedRoute[target_Point_index+1][0])+0.4*calculateBearing(coordinate_lat,coordinate_long,recivedRoute[target_Point_index][1],recivedRoute[target_Point_index][0]);
+      console.log("Point is close Next: "+ calculateBearing(coordinate_lat,coordinate_long,recivedRoute[target_Point_index+1][1],recivedRoute[target_Point_index+1][0]) + " Current: " + calculateBearing(coordinate_lat,coordinate_long,recivedRoute[target_Point_index][1],recivedRoute[target_Point_index][0]));
     }
 
-    // check if bearing diverges too much from send bearing (indicating not detected point passed)
-    if (Math.abs(bearing_used - bearing_int > 160)) {
-      bearing_used = bearing_int;
-      console.log("Bearing diverges too much from send bearing (indicating not detected point passed) bearing calc: "+ bearing_used + " bearing send: " + bearing_int);
-    }
+    
   }
   else {
     console.log("ACHTUNG keine Route gesendet -> nur gesendetes Bearing wird verwendet");
@@ -106,9 +102,7 @@ function moveToHandler(coordinate_long, coordinate_lat, bearing_int)
   const target = {center: [newLngLat[1],newLngLat[0]],
                   bearing: bearing_used};
 
-  //target = {center: [coordinate_x,coordinate_y],bearing: bearing_int}
-
-  // Füge der line, die Direction hinzu
+  // TODO just for DEBUGGING Füge der line, die Direction hinzu
   newDirectionVektor = getFinalLatLong(coordinate_lat,coordinate_long,0.002615522014283345,bearing_used,6371);
   var newDirectionCoordinate = [newDirectionVektor[1],newDirectionVektor[0]];
   
@@ -229,6 +223,7 @@ function getFinalLatLong(lat1, long1, distance, angle, radius) {
   return [rad2deg(theta2), rad2deg(phi2)];
 }
 
+//haversine formula
 function calculateDistance(lat1, lon1, lat2, lon2) {
     const earthRadiusKm = 6371;
 
@@ -260,3 +255,42 @@ function calculateBearing(startLat, startLng, destLat, destLng){
   return (brng);
 }
 
+
+function distanceToLine(lat0, lon0, lat1, lon1, lat2, lon2) {
+  // Calculate the great-circle distances between the point and the two line endpoints
+  const distanceToStart = calculateDistance(lat0, lon0, lat1, lon1);
+  const distanceToEnd = calculateDistance(lat0, lon0, lat2, lon2);
+
+  // Länge der Strecke berechnen
+  const lineLength = calculateDistance(lat1, lon1, lat2, lon2);
+
+  // Check if the line segment has zero length
+  if (lineLength == 0) {
+    console.log("Line between Points has zero length");
+      // Die Strecke hat eine Länge von 0, also ist die Distanz der Punkt zu einem der beiden Endpunkte
+      return Math.min(distanceToStart, distanceToEnd);
+  }
+
+  // Use Heron's formula to calculate the area of the triangle formed by the point and the line segment
+  const s = (distanceToStart + distanceToEnd + lineLength) / 2;
+  const area = Math.sqrt(s * (s - distanceToStart) * (s - distanceToEnd) * (s - lineLength));
+
+  // Check if the area is zero (indicating the point is on the line)
+  if (area == 0) {
+    // Checke ob Punkt auf Linie liegt, indem der Winkel zwischen den beiden Linienenden und dem Punkt berechnet wird
+    if ((calculateBearing(lat0, lon0, lat1, lon1) + calculateBearing(lat0, lon0, lat2, lon2))> 1) {
+      console.log("Point is on the line");
+      return 0;
+    }
+    // Alle Drei Punkte liegen auf einer Line, doch der Punkt liegt nicht auf der Strecke zwischen den beiden geg. Punkten
+    else{
+      console.log("Point is not on the line!!!!!!!");
+      return Math.min(distanceToStart, distanceToEnd);
+    }
+  }
+
+  // Calculate the perpendicular distance from the point to the line
+  const distance = (2 * area) / lineLength;
+
+  return distance;
+}
