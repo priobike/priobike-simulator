@@ -337,7 +337,7 @@ function displayMap(map,minimap)
         const cameraPosition = camera._position.toLngLat();
         const cameraBearing = map.getBearing();
         const coords = [cameraPosition.lng, cameraPosition.lat];
-        moveCycleModel(coords,cameraBearing);
+        //moveCycleModel(coords,cameraBearing);
         document.getElementById('info2').innerHTML =
             'Kameraposition:\t' +
             cameraPosition +
