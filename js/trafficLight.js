@@ -1,6 +1,6 @@
 const signalLayerIdPrefix = 'custom-threebox-signal-';
 var trafficLights = {}; //the dictionary stores the tlID and the corresponding layerId and coords.
-let sportscycleModel;
+// let sportscycleModel;
 function addLayer(map, tb, obj, signalLayerId, coords, bearing) {
     const newModelOptions = {
         obj: obj,
@@ -22,9 +22,9 @@ function addLayer(map, tb, obj, signalLayerId, coords, bearing) {
                     { defaultLights: true }
                 );
                 tb.loadObj(newModelOptions, (model) => {
-                    if(obj == `../3dModells/sportscycle.gltf`){
-                        sportscycleModel = model;
-                    }
+                    // if(obj == `../3dModells/sportscycle.gltf`){
+                    //     sportscycleModel = model;
+                    // }
                     model.setCoords(coords);
                     tb.add(model);
                 });
@@ -35,19 +35,19 @@ function addLayer(map, tb, obj, signalLayerId, coords, bearing) {
         });
     }
 }
-function loadCycleModel(map, coords, bearing) {
-    console.log("Load Cycle Model, coords + bearing:", coords, bearing);
-    var obj = `../3dModells/sportscycle.gltf`;
-    var signalLayerId = createLayerID();
-    map.on('style.load', () => {
-        addLayer(map, tb, obj, signalLayerId, coords, bearing);
-    });
-}
-function moveCycleModel(coords, bearing){
-    //console.log("update Cycle Model, coords + bearing:", coords, bearing);
-    sportscycleModel.setCoords(coords);
-    sportscycleModel.setRotation({ x: 0, y: 0 , z: -bearing});
-}
+// function loadCycleModel(map, coords, bearing) {
+//     //console.log("Load Cycle Model, coords + bearing:", coords, bearing);
+//     var obj = `../3dModells/sportscycle.gltf`;
+//     var signalLayerId = createLayerID();
+//     map.on('style.load', () => {
+//         addLayer(map, tb, obj, signalLayerId, coords, bearing);
+//     });
+// }
+// function moveCycleModel(coords, bearing){
+//     //console.log("update Cycle Model, coords + bearing:", coords, bearing);
+//     sportscycleModel.setCoords(coords);
+//     sportscycleModel.setRotation({ x: 0, y: 0 , z: -bearing});
+// }
 
 //A test to see if the traffic lights on the initial page can be loaded.
 function loadTrafficSignalModel(map, signalColor, signalLayerId) {
@@ -103,7 +103,7 @@ function updateTrafficLight(map, tlID, state){
     var coords = oldTrafficLight.coords;
     var bearing = oldTrafficLight.bearing;
     console.log("Change traffic light:", bearing);
-    addLayer(map, tb, state, newSignalLayerId, coords, bearing);
+    addLayer(map, tb, obj, newSignalLayerId, coords, bearing);
     delete trafficLights[tlID]; 
     setTimeout(() => {
         if (oldTrafficLight && map.getLayer(oldTrafficLight.signalLayerId)) {

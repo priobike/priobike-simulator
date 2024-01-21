@@ -52,10 +52,10 @@ window.onload = (event) => {
 
     displayMap(map,minimap);
 
-    const camera = map.getFreeCameraOptions();
-    const cameraPosition = camera._position.toLngLat();
-    const coords = [cameraPosition.lng, cameraPosition.lat];
-    loadCycleModel(map, coords, map.getBearing());
+    // const camera = map.getFreeCameraOptions();
+    // const cameraPosition = camera._position.toLngLat();
+    // const coords = [cameraPosition.lng, cameraPosition.lat];
+    //loadCycleModel(map, coords, map.getBearing());
 
 
     const signalLayerIdPrefix = 'custom-threebox-signal-';
