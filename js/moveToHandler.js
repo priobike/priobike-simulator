@@ -81,19 +81,28 @@ function moveToHandler(coordinate_long, coordinate_lat, bearing_int)
     // if point is close to target point and direction matches, use bearing of next target point
     // use calc180to360 to get the bearing in the range of 0-360 (mapbox can recive both 0-360 and -180-180)
     else if(dist_for_check_close_or_on < distanzBei30KPH && target_Point_index < recivedRoute.length-1){
-      const bearing_to_target_point = calculateBearing(coordinate_lat,coordinate_long,recivedRoute[target_Point_index][1],recivedRoute[target_Point_index][0])
-      const bearing_to_next_point = calculateBearing(coordinate_lat,coordinate_long,recivedRoute[target_Point_index+1][1],recivedRoute[target_Point_index+1][0])
-      if (bearing_to_next_point*bearing_to_target_point < 0) {
-        // wenn übersprung -> 180° addieren und wieder in den Bereich -180 bis 180 bringen
-        bearing_used = (0.5*bearing_to_target_point+ 0.5*bearing_to_next_point + 180);
-        if(bearing_used > 180){
+      const bearing_to_target_point = calculateBearing(coordinate_lat,coordinate_long,recivedRoute[target_Point_index][1],recivedRoute[target_Point_index][0]);
+      const bearing_to_next_point = calculateBearing(coordinate_lat,coordinate_long,recivedRoute[target_Point_index+1][1],recivedRoute[target_Point_index+1][0]);
+      const bearing_to_next_next_point = calculateBearing(coordinate_lat, coordinate_long, recivedRoute[target_Point_index + 2][1], recivedRoute[target_Point_index + 2][0]);
+      // if (bearing_to_next_point*bearing_to_target_point < 0) {
+      //   // wenn übersprung -> 180° addieren und wieder in den Bereich -180 bis 180 bringen
+      //   bearing_used = (0.5*bearing_to_target_point+ 0.5*bearing_to_next_point + 180);
+      //   if(bearing_used > 180){
+      //     bearing_used = bearing_used - 360;
+      //   }
+      // }
+      // else{
+      //   bearing_used = 0.5*bearing_to_target_point+ 0.5*bearing_to_next_point;
+      // }
+      // console.log("Point is close Next: "+ bearing_to_next_point + " Current: " + bearing_to_target_point + " Use: " + bearing_used);
+      if (Math.abs(bearing_to_next_point - bearing_to_next_next_point) < 180) {
+        bearing_used = 0.5 * bearing_to_target_point + 0.5 * bearing_to_next_point;
+      } else {
+        bearing_used = 0.5 * bearing_to_target_point + 0.5 * bearing_to_next_point + 180;
+        if (bearing_used > 180) {
           bearing_used = bearing_used - 360;
         }
       }
-      else{
-        bearing_used = 0.5*bearing_to_target_point+ 0.5*bearing_to_next_point;
-      }
-      // console.log("Point is close Next: "+ bearing_to_next_point + " Current: " + bearing_to_target_point + " Use: " + bearing_used);
     }
 
     
