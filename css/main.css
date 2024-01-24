@@ -60,10 +60,16 @@ body {
     width: 25rem;
 
     background-color: #f6f6f6;
+    opacity: 1;
     border-radius: 10px 0 0 10px;
     padding: 1.4rem;
 
-    transition: background-color 0.3s;
+    transition: background-color 0.3s, opacity 0.6s;
+}
+
+/* if not expanded, messages are slightly transparent */
+.stacked .message, #empty-message {
+    opacity: 0.85;
 }
 
 #messages.stacked .message:not(:first-of-type){
