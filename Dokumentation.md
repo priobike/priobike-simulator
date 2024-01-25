@@ -22,6 +22,24 @@ Die App befindet sich daraufhin wieder im Ausgangszustand und eine neue Simulati
 
 ## Simon
 
-## Tom
+## Simulator MQTT Message Handling (Tom Starke)
+Ich habe die Verarbeitung von MQTT Messages im Simulator implementiert, sowie das HTML- und JS-Grundgerüst angelegt.
+#### Verbindungsaufbau zum MQTT Broker
+Beim Starten des Simulators wird in der Datei `mqttHandler.js` eine Verbindung zum MQTT-Broker und zum Kanal "simulation" aufgebaut. Die Verbindungs-credentials sind dabei unter `main.js` und die Broker-Verbindungsdaten unter `mqttHandler.js` angelegt. <br>
+Nach erfolgreicher Verbindung werden alle im Kanal publizierten Nachrichten entgegengenommen und in der Konsole ausgegeben.
+#### Verarbeitung von Nachrichten
+Eingehende MQTT Nachrichten werden als JSON geparsed und dann je nach "type" in eigenen Funktionen behandelt (`mqttHandler.js`). <br>
+Dabei können mehrere Simulator-Umgebungen gleichzeitig laufen, denn der MQTT-Kanal ist für jeden Simulator der gleiche. Jede empfangene Nachricht wird  vorher auf ihre Device-ID geprüft. Nur Nachrichten, die die Device-ID des aktuell über die App mit dem Simulator verbundenen Geräts haben, werden verarbeitet. Anonsonsten wird eine Nachricht nicht beachtet. <br>
+Solange der Simulator nicht mit der App verbunden ist, werden nur "PairRequest" Nachrichten angezeigt, sodass ein User sich über das Popup am oberen rechten Bildschirmrand mit der App verbinden kann.
+#### Verbindung mit der App
+PairRequest-Nachrichten erzeugen (vorausgesetzt der Simulator ist im Moment nicht mit der App verbunden) eine PopupMessage. Dabei wird dem Bestätigen-Button die Device-ID der App übergeben, die die Verbindungsanfrage gestellt hat. Sobald der User die Verbindung akzeptiert, wird die DeviceID als die aktuell verbundene gespeichert. <br>
+Der Simulator gibt daraufhin eine PairStart-Nachricht an die App zurück um die erfolgreiche Paarung zu signalisieren.<br>
+Zudem wird ein LogoutTimer gestartet. Dieser dient dem Zweck, eine Verbindung zur App nach einer festgelegten Zeit automatisch zu trennen, um den Simulator wieder für andere Nutzer freizugeben, wenn die App keine Nachrichten mehr sendet. Der Timer wird bei jeder eingehenden Nachricht der verbunden App zurückgesetzt, triggert also nur einen Logoff, wenn die verbundene App nichts mehr sendet. <br>
+Beim Abmelden wird eine StopRide-Nachricht an die App gesendet, um der App die Abmeldung mitzuteilen.<br>
+Alternativ kann eine Verbindung auch händisch über das x in der Popup Nachricht beendet werden, die oben rechts nach erfolgreichem Verbindungsaufbau angezeigt wird.
+#### HTML
+Das `index.html` file enthält zunächst CDN Links zu den verwendeten JS-Dateien, sowie zu den Simulator-eigenen.<br>
+Die Infobox enthält Debugging Informationen, wie z.B. aktuelle Lon/Lat Koordinaten, Bearing, Zoomstufe und weitere Parameter. Standardmäßig wird sie über eine CSS-Anweisung ausgeblendet und kann für Debugging-Zwecke eingeblendet werden.<br>
+Zuletzt gibt es noch eine Liste mit den angezeigten Popup Messages in der oberen rechten Bildschirmecke. Diese wird dynamisch mit Nachrichten gefüllt.
 
 ## Yenong
