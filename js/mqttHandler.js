@@ -2,6 +2,7 @@ let client;
 
 function mqttHandler()
 {
+    // verbinde mit mqtt broker 
     client = connectToMQTTBroker(credJSON.mqttUsername, credJSON.mqttPassword);
 
     const topic = "simulation";
@@ -33,6 +34,7 @@ function handleMessage(message)
         return;
     }
 
+    // rufe spezifische Funktion für jeden Nachrichtentyp auf
     if(json.type === "PairRequest") {
         pairRequest(json.deviceID, json.deviceName);
     } else if(json.type === "StopRide") {
@@ -59,12 +61,13 @@ function pairRequest(deviceID, deviceName)
     }
     console.log("PairRequest from: " + deviceName + ", deviceID: " + deviceID);
 
-    // remove the "Zur Zeit ist kein Gerät verbunden" message initially
+    // entferne "Zur Zeit ist kein Gerät verbunden" message
     if(connectionRequestCounter === 0) {
         removeAllMessages();
     }
     connectionRequestCounter++;
 
+    // gib message aus, das ein Gerät eine Anmeldungsanfrage gesendet hat
     const messageID = 'message' + connectionRequestCounter;
     const html = `
         <div class="message-text">

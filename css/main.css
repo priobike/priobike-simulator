@@ -3,10 +3,10 @@ body {
     font-family: Arial, Helvetica, sans-serif;
 }
 
+/* mapbox logos ausblenden */
 .mapboxgl-ctrl-bottom-left {
     display: none;
 }
-
 .mapboxgl-ctrl-bottom-right {
     display: none;
 }
@@ -27,6 +27,7 @@ body {
 }
 
 #infoBox {
+    /* infobox mit display:none ausblenden */
     display: none;
     position: fixed;
     top: 1rem;

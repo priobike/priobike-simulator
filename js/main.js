@@ -30,6 +30,7 @@ window.onload = (event) => {
         pitch: 85,
         bearing: -80,
         profile: 'mapbox/cycling',
+        interactive: false // deaktiviere Maussteuerung
         // antialising für custom layers; sehr performancelastig
         // antialias: true
     });
@@ -38,7 +39,8 @@ window.onload = (event) => {
     minimap = new mapboxgl.Map({
         container: 'minimap', 
         center: [10.008, 53.541], 
-        zoom: 11
+        zoom: 11,
+        interactive: false // deaktiviere Maussteuerung
     });
 
     tb = (window.tb = new Threebox(
