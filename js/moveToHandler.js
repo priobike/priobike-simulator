@@ -11,9 +11,11 @@ let target_Point_index = 1;
 
 var distanceToLineMin = Infinity;
 
+var candidateFound = Infinity;
+
 function recivedRouteHandler(recivedRouteUnParsed){
-  // console.log("Route empfangen");
-  // console.log(recivedRouteUnParsed);
+  console.log("Route empfangen");
+  console.log(recivedRouteUnParsed);
   recivedRoute = [];
   lastPoint = [0,0];
   // um Route direkt anzuzeigen
@@ -21,7 +23,7 @@ function recivedRouteHandler(recivedRouteUnParsed){
     try {
       if(lastPoint[0] != recivedRouteUnParsed[index].lon || lastPoint[1] != recivedRouteUnParsed[index].lat){
         // alle Wegpunkte auf der Karte markieren
-        // new mapboxgl.Marker().setLngLat([recivedRouteUnParsed[index].lon, recivedRouteUnParsed[index].lat]).addTo(map);
+        //   new mapboxgl.Marker().setLngLat([recivedRouteUnParsed[index].lon, recivedRouteUnParsed[index].lat]).addTo(map);
         recivedRoute.push([recivedRouteUnParsed[index].lon, recivedRouteUnParsed[index].lat]);
         lastPoint = [recivedRouteUnParsed[index].lon, recivedRouteUnParsed[index].lat];
       }
@@ -35,7 +37,7 @@ function recivedRouteHandler(recivedRouteUnParsed){
   
   base_point_index = 1;
   base_point = recivedRoute[base_point_index];
-  // console.log(recivedRoute);
+  console.log(recivedRoute);
 
   target_Point_index = 2;
   target_Point = recivedRoute[target_Point_index];
@@ -45,8 +47,7 @@ function recivedRouteHandler(recivedRouteUnParsed){
   update_map_lines();
 }
 
-function moveToHandler(coordinate_long, coordinate_lat, bearing_int)
-{
+function moveToHandler(coordinate_long, coordinate_lat, bearing_int) {
 
   var newCoordinate = [coordinate_long,coordinate_lat];
 
@@ -56,7 +57,6 @@ function moveToHandler(coordinate_long, coordinate_lat, bearing_int)
     // suche nach Routenstück mit geringster Distanz (geht alle durch, da sonst Probleme in Haarnadelkurven und bei Punkthaufen an Routenzielen auftreten können)
     for (let index = 0; index < recivedRoute.length-1; index++) {
       var distanceToLineVgl = distanceToLine(coordinate_lat,coordinate_long,recivedRoute[index][1],recivedRoute[index][0],recivedRoute[index+1][1],recivedRoute[index+1][0],index);
-
       if(distanceToLineVgl <= distanceToLineMin){
         distanceToLineMin = distanceToLineVgl;
         base_point_index = index;
@@ -76,35 +76,16 @@ function moveToHandler(coordinate_long, coordinate_lat, bearing_int)
     // if on point use bearing of next target point
     if (dist_for_check_close_or_on < 0.000000001 && target_Point_index < recivedRoute.length-1) {
       bearing_used = calculateBearing(coordinate_lat,coordinate_long,recivedRoute[target_Point_index+1][1],recivedRoute[target_Point_index+1][0]);
-      // console.log("Point is close to target point, use bearing of next target point");
+      console.log("Point is close to target point, use bearing of next target point");
     }
     // if point is close to target point and direction matches, use bearing of next target point
-    // use calc180to360 to get the bearing in the range of 0-360 (mapbox can recive both 0-360 and -180-180)
+    // use calc180to360 to get the bearing in the range of 0-360 
     else if(dist_for_check_close_or_on < distanzBei30KPH && target_Point_index < recivedRoute.length-1){
-      const bearing_to_target_point = calculateBearing(coordinate_lat,coordinate_long,recivedRoute[target_Point_index][1],recivedRoute[target_Point_index][0]);
-      const bearing_to_next_point = calculateBearing(coordinate_lat,coordinate_long,recivedRoute[target_Point_index+1][1],recivedRoute[target_Point_index+1][0]);
-      const bearing_to_next_next_point = calculateBearing(coordinate_lat, coordinate_long, recivedRoute[target_Point_index + 2][1], recivedRoute[target_Point_index + 2][0]);
-      // if (bearing_to_next_point*bearing_to_target_point < 0) {
-      //   // wenn übersprung -> 180° addieren und wieder in den Bereich -180 bis 180 bringen
-      //   bearing_used = (0.5*bearing_to_target_point+ 0.5*bearing_to_next_point + 180);
-      //   if(bearing_used > 180){
-      //     bearing_used = bearing_used - 360;
-      //   }
-      // }
-      // else{
-      //   bearing_used = 0.5*bearing_to_target_point+ 0.5*bearing_to_next_point;
-      // }
-      // console.log("Point is close Next: "+ bearing_to_next_point + " Current: " + bearing_to_target_point + " Use: " + bearing_used);
-      if (Math.abs(bearing_to_next_point - bearing_to_next_next_point) < 180) {
-        bearing_used = 0.5 * bearing_to_target_point + 0.5 * bearing_to_next_point;
-      } else {
-        bearing_used = 0.5 * bearing_to_target_point + 0.5 * bearing_to_next_point + 180;
-        if (bearing_used > 180) {
-          bearing_used = bearing_used - 360;
-        }
-      }
+      const bearing_to_target_point = bearing180to360(calculateBearing(coordinate_lat,coordinate_long,recivedRoute[target_Point_index][1],recivedRoute[target_Point_index][0]));
+      const bearing_to_next_point = bearing180to360(calculateBearing(coordinate_lat,coordinate_long,recivedRoute[target_Point_index+1][1],recivedRoute[target_Point_index+1][0]));
+      
+      bearing_used = bearing360to180(findBearingMiddleValue360(bearing_to_target_point, bearing_to_next_point));
     }
-
     
   }
   else {
@@ -128,7 +109,7 @@ function moveToHandler(coordinate_long, coordinate_lat, bearing_int)
   // coordinates.push(newCoordinate);
   // update_map_lines();
 
-  // console.log("Aktueller Target Point: " + target_Point_index + " " + target_Point);
+  //   console.log("Aktueller Target Point: " + target_Point_index + " " + target_Point); // DEBUGGING
   map.easeTo({
       ...target, // Fly to the selected target
       zoom: 21,
@@ -245,9 +226,21 @@ function calculateBearing(startLat, startLng, destLat, destLng){
 
 
 function distanceToLine(lat0, lon0, lat1, lon1, lat2, lon2,index) {
+
+  // Calculate the bearing between the point and the two line endpoints
+  const bearing_1 = calculateBearing(lat0, lon0, lat1, lon1) 
+  const bearing_2 = calculateBearing(lat0, lon0, lat2, lon2)
+
   // Calculate the great-circle distances between the point and the two line endpoints
   const distanceToStart = Math.abs(calculateDistance(lat0, lon0, lat1, lon1));
   const distanceToEnd = Math.abs(calculateDistance(lat0, lon0, lat2, lon2));
+
+  // prüft ob die beiden Bearings gegenüberliegend sind (180° Differenz)
+  if (Math.abs(bearing_1 - bearing_2) < 90 && distanceToEnd > 0.01 && distanceToStart > 0.01) {
+    return Infinity;
+  }
+  
+  
 
   // Länge der Strecke berechnen
   const lineLength = Math.abs(calculateDistance(lat1, lon1, lat2, lon2));
@@ -263,31 +256,46 @@ function distanceToLine(lat0, lon0, lat1, lon1, lat2, lon2,index) {
   const s = (distanceToStart + distanceToEnd + lineLength) / 2;
   const area = Math.sqrt(Math.abs(s * (s - distanceToStart) * (s - distanceToEnd) * (s - lineLength)));
 
-  // Prüfe ob die Fläche = 0 ist, da der Punkt dann auf der Geraden liegt (entweder innerhalb der Strecke oder außerhalb)
-  if (area === 0) {
-    // Checke ob Punkt auf Linie liegt, indem der Winkel zwischen den beiden Linienenden und dem Punkt berechnet wird
-    const bearing_1 = calculateBearing(lat0, lon0, lat1, lon1) 
-    const bearing_2 = calculateBearing(lat0, lon0, lat2, lon2)
-    // das "oder/||" fängt den Fall ab, wenn die Bearings 0 und 180 sind, da diese ebenfalls entgegen gesetzt sind
-    if (Math.abs(bearing_1 - bearing_2) < 0.000000001 || Math.abs(bearing_1 + bearing_2) == 180) {
-      // console.log("Point is on the line: "+ index);
-      return 0.0;
-    }
-    // Alle Drei Punkte liegen auf einer Line, doch der Punkt liegt nicht auf der Strecke zwischen den beiden geg. Punkten
-    else{
-      console.log("Point is not on the line!!!!!!!: "+ index+" Dist1: "+ (calculateBearing(lat0, lon0, lat1, lon1) +" Dist2: "+ calculateBearing(lat0, lon0, lat2, lon2))+ " DistanceToStart: " + distanceToStart + " DistanceToEnd: " + distanceToEnd + " lineLength: " + lineLength + " area: " + area + " s: " + s);
-      return Math.min(distanceToStart, distanceToEnd);
-    }
-  }
-
   // Calculate the perpendicular distance from the point to the line
   const distance = (2 * area) / lineLength;
 
-  // console.log("Distance to Line: " + distance + " Index: " + index);
+  //   console.log("Distance to Line: " + distance + " Index: " + index);
   // kann eigentlich nicht passieren, da die Strecke nicht 0 ist (Fall wird abgefangen) und Fläche != NaN, da unter der Wurzel eigentlich nur positive Zahlen sein können. Doch bei JS/floats bin ich mir nie sicher
   if(isNaN(distance)){
-    // console.log("Distanz = NaN: "+ index+ " distanceToStart: " + distanceToStart + " distanceToEnd: " + distanceToEnd + " lineLength: " + lineLength + " area: " + area + " s: " + s);
+    console.log("Distanz = NaN: "+ index+ " distanceToStart: " + distanceToStart + " distanceToEnd: " + distanceToEnd + " lineLength: " + lineLength + " area: " + area + " s: " + s);
     return Math.min(distanceToStart, distanceToEnd);
   }
   return distance;
+}
+
+function bearing180to360(bearing) {
+  if (bearing < 0) {
+    bearing = bearing + 360;
+  }
+  return bearing;
+}
+
+function bearing360to180(bearing) {
+  if (bearing > 180) {
+    bearing = bearing - 360;
+  }
+  return bearing;
+}
+
+function findBearingMiddleValue360(bearing1, bearing2) {
+  let middleValue = (bearing1 + bearing2) / 2;
+  let inverseBearing = (middleValue + 180) % 360;
+
+  const diff1 = Math.abs(bearing1 - middleValue);
+  const diff2 = Math.abs(bearing1 - inverseBearing);
+  const diff3 = Math.abs(bearing2 - middleValue);
+  const diff4 = Math.abs(bearing2 - inverseBearing);
+
+  const values = [diff1, diff2, diff3, diff4];
+  const lowestValue = Math.min(...values);
+  const indexOfLowest = values.indexOf(lowestValue);
+  if(indexOfLowest %2 == 0){
+      return middleValue
+  }
+  return inverseBearing;
 }
