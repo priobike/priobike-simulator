@@ -98,7 +98,12 @@ function updateTrafficLight(map, tlID, state){
     console.log("Updating traffic light:", tlID, state);
     var oldTrafficLight = trafficLights[tlID];
     var newSignalLayerId = createLayerID();
-    var obj = `../3dModells/trafficlight_${state}.gltf`;
+    if(state == "green" || state == "red"){
+        var obj = `../3dModells/trafficlight_${state}.gltf`;
+    }
+    else{
+        var obj = `../3dModells/trafficlight_${yellow}.gltf`;
+    }
     
     var coords = oldTrafficLight.coords;
     var bearing = oldTrafficLight.bearing;
