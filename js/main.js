@@ -184,7 +184,7 @@ function displayMap(map,minimap)
             },
             paint: {
                 'line-color': '#000000',
-                'line-width': 7
+                'line-width': 18
             }
         });
 
@@ -210,7 +210,7 @@ function displayMap(map,minimap)
             },
             paint: {
             'line-color': '#6495ED',
-            'line-width': 6
+            'line-width': 15
             }
         });
     });

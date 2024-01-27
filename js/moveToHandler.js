@@ -85,7 +85,7 @@ function moveToHandler(coordinate_long, coordinate_lat, bearing_int) {
       const bearing_to_next_point = bearing180to360(calculateBearing(coordinate_lat,coordinate_long,recivedRoute[target_Point_index+1][1],recivedRoute[target_Point_index+1][0]));
       
       bearing_used = bearing360to180(findBearingMiddleValue360(bearing_to_target_point, bearing_to_next_point));
-    }
+          }
     
   }
   else {
@@ -236,7 +236,7 @@ function distanceToLine(lat0, lon0, lat1, lon1, lat2, lon2,index) {
   const distanceToEnd = Math.abs(calculateDistance(lat0, lon0, lat2, lon2));
 
   // prüft ob die beiden Bearings gegenüberliegend sind (180° Differenz)
-  if (Math.abs(bearing_1 - bearing_2) < 90 && distanceToEnd > 0.01 && distanceToStart > 0.01) {
+  if (Math.abs(bearing_1 - bearing_2) < 90) {
     return Infinity;
   }
   
@@ -294,7 +294,7 @@ function findBearingMiddleValue360(bearing1, bearing2) {
   const values = [diff1, diff2, diff3, diff4];
   const lowestValue = Math.min(...values);
   const indexOfLowest = values.indexOf(lowestValue);
-  if(indexOfLowest %2 == 0){
+    if(indexOfLowest %2 == 0){
       return middleValue
   }
   return inverseBearing;
