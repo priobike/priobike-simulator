@@ -20,7 +20,35 @@ Die App befindet sich daraufhin wieder im Ausgangszustand und eine neue Simulati
 
 ## Lyn
 
-## Simon
+## Simulator: Bewegung und Route (Simon)
+Meine Aufgabe war es, den Simulator den empfangenen GPS-Koordinaten folgen zu lassen. Die gesamte Route wurde erst später in der Entwicklung übermittelt und wird nun im Simulator sowie auf der Minimap angezeigt.
+#### Grundidee hinter Bewegung des Simulators
+Während der Fahrt werden in etwa einsekündigen Abständen neue GPS-Koordinaten übermittelt, zu denen der Simulator mithilfe der Mapbox-Funktion map.easeTo(...) bewegt wird. Dabei werden als Parameter ein hoher Zoom und ein Pitch übergeben, um die Kamera knapp über dem Boden zu positionieren. <br>
+
+Eine Herausforderung bestand darin, dass die Kameraposition nicht direkt festgelegt wird, sondern anhand des Fokuspunkts (ungefähr in der Bildmitte) und weiterer Parameter bestimmt wird. Die Funktion getFinalLatLong() berechnet daher einen Punkt auf der Erde basierend auf dem gegebenen Bearing (Blickrichtung/Winkel) und einer festgelegten Distanz. <br>
+
+Ein weiteres Problem ist die nur sekündlich erfolgende Aktualisierung der Position, wodurch der Simulator eine Latenz von mindestens 1-2 Sekunden hat. Für den Fahrer sollte jedoch nur die 1-sekündige Latenz spürbar sein, da die Geschwindigkeitsänderung erst zu diesem Zeitpunkt dargestellt wird. Dass die Position erst eine weitere Sekunde später korrekt ist, sollte für den Fahrer aufgrund fehlender Orientierungspunkte im Simulator nicht erkennbar sein. <br>
+
+#### Einbezug der gegebenen Route zur Blickrichtungsbestimmung
+Die Vorgabe die Positionsänderung anhand der GPS-Updates der App vorzunehmen, ergab das Problem, mit welcher Blickrichtung die Kamerafahrt abgeschlossen werden soll. Die App übergibt ein Bearing, welches entweder grob der Richtung zum nächsten Punkt entspricht oder das Bearing ist welches die Karte verwendet. Das von der Karte verwendete Bearing richtiet sich auf Ampeln aus und ist teilweise seltsam in Kurven. Deshalb ist es nicht gut geeignet für den Simulator. Das Bearing zum nächsten Punkt hingegen hat bei scharfen Kurven das Problem, dass die Fahrt sehr ruckelt. <br>
+
+Deshalb berechnet die funktion moveToHandler() ein eigenes Bearing. <br>
+
+Dafür wird für alle Routensegmente der Abstand zum GPS-Punkt berechnet. Die Grundlegende Formel dafür ist die Heron Formel, die die Fläche des Aufgespannten Dreiecks der Segmentendpunkte und des GPS-Punktes zur Berechnung des Abstandes verwendet. Dabei wird vor der Berechnung überprüft, ob die Routenendpunkte am GPS-Punkt einen größeren Winkelabstand als 90 Grad haben. In diesem Fall wird das Routensegment nicht betrachtet. Dies ist notwendig falls der GPS-Punkt auf der verlängerten Line der Endpunkte liegt, da die Fläche in diesem Fall ebenfalls sehr klein werden kann. <br>
+
+Wenn der GPS-Punkt kurz vor dem nächsten Routenpunkt angelangt ist, wird als Bearing ein Mittelwert aus dem Bearing zum nächsten und übernächsten Routenpunkt verwendet. Der Mittelwert wird in der Funktion findBearingMiddleValue360() berechnet. Dabei ist wichtig zu beachten, dass bei einem Überlauf in der Berechnung der invertierte Winkel berechnet werden kann. Deshalb wird der Winkel von einem Format (-180 bis 180 Grad) in das Format mit 0-360 Grad umgerechnet, da dort nur ein Überlauf bei 0 Grad beachtet werden muss. Die Funktion findBearingMiddleValue360() wählt entsprechend den Winkel mit dem kleineren Abstand zu den ursprünglich gegebenen Winkeln. <br>
+
+
+#### Verwendung des Codes
+Die moveToHandler() Funktion ruft alle weiteren Funktionen im Zusammenhang mit der Bewegung im Simulator von sich aus auf. Für die eigene Bearing Berechnung muss dafür zuvor die recivedRouteHandler() Funktion aufgerufen werden und die zu fahrende Route übergeben werden. Falls dies nicht möglich ist, wird das an moveToHandler übergebene Bearing verwendet. <br>
+
+#### Anzeigen der Route
+Es gibt sowohl die Route der Minimap als auch die Route auf der Straße. Zu beiden Routen gehört auch eine schwarze Konturlinie, die etwas größer unter der Hauptlinie liegt. Initialisiert werden die Linien in der `main.js`. Verändert wird die Route mit update_map_lines(), die die in der coordinates Liste liegenden Punkte als Polygonzug verbindet. Zu Debugging zwecken gibt es einen Code Abschnitt, der die Route immer bei Erhalt eines neuen GPS-Punktes nachzieht zsm. mit dem genutzten Bearing. Mit new mapboxgl.Marker() können alle Routenpunkte mit Markern angezeigt werden.
+
+#### Bekannte Bugs
+Da auf der Route größere Punkthaufen existieren können, die durch das Routing der App entstehen können, kann es vorkommen, dass bel. viele Punkte im Laufe der Route übersprungen werden. Deshalb werden immer alle Abstände zu allen Strecken berechnet, da bei einer Lokalen Suche es sonst zu einer Rückwärtsfahrt kommen kann. Dadurch entsteht das Problem, dass an Schnittpunkten der Route die Entfernung des GPS-Punktes zu dem falschen Routenabschnitt kürzer sein könnte. Dies geschieht jedoch nur sehr selten und hat ein einmaliges Ausbrechen der Kamera zur Folge. <br>
+Die mathematische Komplexität des Codes verbunden mit leichten Ungenauigkeiten durch float Berechnungen könnten jedoch weitere Bugs schwer zu finden machen. Auch musste ich meinen Code bereits mehrfach stark überarbeiten. Es ist wie immer gut möglich, dass es weiterhin unvorhergesehene Bugs geben könnte.  
+ 
 
 ## Simulator MQTT Message Handling (Tom Starke)
 Ich habe die Verarbeitung von MQTT Messages im Simulator implementiert, sowie das HTML- und JS-Grundgerüst angelegt.

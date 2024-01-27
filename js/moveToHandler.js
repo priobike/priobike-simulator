@@ -3,7 +3,7 @@ var coordinates = [];
 var recivedRoute = [];
 distanzBei30KPH = 0.008321900879120575
 
-let base_point = [10.008684549052646,53.5387102609356] // [lng,lat]
+let base_point = [10.008684549052646,53.5387102609356] // [lng,lat] initalisiert auf Startpunkt des Simulators bei Routenstart werden alle Punkte dirket überschrieben
 let base_point_index = 1;
 
 let target_Point = [10.008684549052646,53.5387102609356] // [lng,lat]
@@ -73,13 +73,13 @@ function moveToHandler(coordinate_long, coordinate_lat, bearing_int) {
     var bearing_used = calculateBearing(coordinate_lat,coordinate_long,target_Point[1],target_Point[0]);
 
     var dist_for_check_close_or_on = Math.abs(calculateDistance(target_Point[1],target_Point[0],coordinate_lat,coordinate_long))
-    // if on point use bearing of next target point
+    // falls fast auf dem Punkt -> nehme nur bearing des nächsten Punktes
     if (dist_for_check_close_or_on < 0.000000001 && target_Point_index < recivedRoute.length-1) {
       bearing_used = calculateBearing(coordinate_lat,coordinate_long,recivedRoute[target_Point_index+1][1],recivedRoute[target_Point_index+1][0]);
       console.log("Point is close to target point, use bearing of next target point");
     }
-    // if point is close to target point and direction matches, use bearing of next target point
-    // use calc180to360 to get the bearing in the range of 0-360 
+    // wenn der Punkt nah ist und der nächste Punkt nicht der letzte ist -> nehme bearing zwischen den nächsten beiden Punkten
+    // umrechnung von 180° zu 360° und umgekehrt, da die Berechnung mit 360° nur einen Überlauf hat
     else if(dist_for_check_close_or_on < distanzBei30KPH && target_Point_index < recivedRoute.length-1){
       const bearing_to_target_point = bearing180to360(calculateBearing(coordinate_lat,coordinate_long,recivedRoute[target_Point_index][1],recivedRoute[target_Point_index][0]));
       const bearing_to_next_point = bearing180to360(calculateBearing(coordinate_lat,coordinate_long,recivedRoute[target_Point_index+1][1],recivedRoute[target_Point_index+1][0]));
@@ -111,7 +111,7 @@ function moveToHandler(coordinate_long, coordinate_lat, bearing_int) {
 
   //   console.log("Aktueller Target Point: " + target_Point_index + " " + target_Point); // DEBUGGING
   map.easeTo({
-      ...target, // Fly to the selected target
+      ...target, // Fokuspunkt und Bearing als Ziel
       zoom: 21,
       pitch: 85,
       duration: 1500, // höhere Werte -> langsamer (potentiell smoother)
@@ -192,7 +192,7 @@ function getFinalLatLong(lat1, long1, distance, angle, radius) {
   return [rad2deg(theta2), rad2deg(phi2)];
 }
 
-//haversine formula to calculate distance between two points on a sphere
+//haversine formula um die Distanz zwischen zwei Punkten auf der Erdkugel zu berechnen
 function calculateDistance(lat1, lon1, lat2, lon2) {
     const earthRadiusKm = 6371;
 
@@ -205,7 +205,7 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
         Math.sin(dLon / 2) * Math.sin(dLon / 2);
 
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const distance = earthRadiusKm * c; // Distance in kilometers
+    const distance = earthRadiusKm * c; // Distanz in Kilometern
 
     return distance;
 }
@@ -227,11 +227,11 @@ function calculateBearing(startLat, startLng, destLat, destLng){
 
 function distanceToLine(lat0, lon0, lat1, lon1, lat2, lon2,index) {
 
-  // Calculate the bearing between the point and the two line endpoints
+  // Berechnet den Winkel zwischen dem Punkt und den beiden Endpunkten der Strecke
   const bearing_1 = calculateBearing(lat0, lon0, lat1, lon1) 
   const bearing_2 = calculateBearing(lat0, lon0, lat2, lon2)
 
-  // Calculate the great-circle distances between the point and the two line endpoints
+  // Berechnet die Distanz zwischen dem Punkt und den beiden Endpunkten der Strecke
   const distanceToStart = Math.abs(calculateDistance(lat0, lon0, lat1, lon1));
   const distanceToEnd = Math.abs(calculateDistance(lat0, lon0, lat2, lon2));
 
@@ -240,27 +240,26 @@ function distanceToLine(lat0, lon0, lat1, lon1, lat2, lon2,index) {
     return Infinity;
   }
   
-  
 
   // Länge der Strecke berechnen
   const lineLength = Math.abs(calculateDistance(lat1, lon1, lat2, lon2));
 
-  // Check if the line segment has zero length
+  // Prüft ob die Strecke eine Länge hat
   if (lineLength< 0.000000001) {
     console.log("Line between Points has zero length");
       // Die Strecke hat eine Länge von 0, also ist die Distanz der Punkt zu einem der beiden Endpunkte
       return Math.min(distanceToStart, distanceToEnd);
   }
 
-  // Use Heron's formula to calculate the area of the triangle formed by the point and the line segment
+  // Nutze Herons Formel um über die Fläche des Dreiecks, welches durch den Punkt und die Strecke gebildet wird, die Distanz zur Strecke zu berechnen
   const s = (distanceToStart + distanceToEnd + lineLength) / 2;
   const area = Math.sqrt(Math.abs(s * (s - distanceToStart) * (s - distanceToEnd) * (s - lineLength)));
 
-  // Calculate the perpendicular distance from the point to the line
+  // Berechnet die Distanz zum Punkt auf der Strecke
   const distance = (2 * area) / lineLength;
 
   //   console.log("Distance to Line: " + distance + " Index: " + index);
-  // kann eigentlich nicht passieren, da die Strecke nicht 0 ist (Fall wird abgefangen) und Fläche != NaN, da unter der Wurzel eigentlich nur positive Zahlen sein können. Doch bei JS/floats bin ich mir nie sicher
+  // kann eigentlich nicht passieren, da die Strecke nicht 0 ist (Fall wird abgefangen) und Fläche != NaN, da unter der Wurzel eigentlich nur positive Zahlen sein können. Doch bei JS und floats bin ich mir nie sicher
   if(isNaN(distance)){
     console.log("Distanz = NaN: "+ index+ " distanceToStart: " + distanceToStart + " distanceToEnd: " + distanceToEnd + " lineLength: " + lineLength + " area: " + area + " s: " + s);
     return Math.min(distanceToStart, distanceToEnd);
@@ -268,6 +267,7 @@ function distanceToLine(lat0, lon0, lat1, lon1, lat2, lon2,index) {
   return distance;
 }
 
+// selbst erklärrende Funktionen die das Bearing von 180° zu 360° und umgekehrt umrechnen
 function bearing180to360(bearing) {
   if (bearing < 0) {
     bearing = bearing + 360;
@@ -282,15 +282,20 @@ function bearing360to180(bearing) {
   return bearing;
 }
 
+// Berechnet den Mittelwert zwischen zwei Bearings und beachtet den möglichen Überlauf von 360° zu 0°
 function findBearingMiddleValue360(bearing1, bearing2) {
   let middleValue = (bearing1 + bearing2) / 2;
+
+  // engegengestzter Winkel
   let inverseBearing = (middleValue + 180) % 360;
 
+  // Berechnet die Differenz zwischen den Bearings und den beiden möglichen mittel Winkeln
   const diff1 = Math.abs(bearing1 - middleValue);
   const diff2 = Math.abs(bearing1 - inverseBearing);
   const diff3 = Math.abs(bearing2 - middleValue);
   const diff4 = Math.abs(bearing2 - inverseBearing);
 
+  // Ermittelt den kleinsten Winkel zw den beiden Bearings und den beiden möglichen mittel Winkeln
   const values = [diff1, diff2, diff3, diff4];
   const lowestValue = Math.min(...values);
   const indexOfLowest = values.indexOf(lowestValue);
