@@ -135,7 +135,6 @@ function stopRide(deviceID)
     }
 
     connected = false;
-    connectedDeviceID = '';
     connectedDeviceName = '';
     disconnectTimer = 0;
     console.log("Connection Closed");
@@ -143,6 +142,7 @@ function stopRide(deviceID)
     // gib Rückmeldung an App das Verbindung getrennt wurde
     client.publish("simulation", '{"type":"StopRide", "deviceID":"' + connectedDeviceID + '"}');
 
+    connectedDeviceID = '';
     removeAllMessages();
 
     // gib "Getrennt" Statusmeldung
