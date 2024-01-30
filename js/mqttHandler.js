@@ -37,7 +37,7 @@ function handleMessage(message)
     // rufe spezifische Funktion für jeden Nachrichtentyp auf
     if(json.type === "PairRequest") {
         pairRequest(json.deviceID, json.deviceName);
-    } else if(json.type === "StopRide" && !connected) {
+    } else if(json.type === "StopRide") {
         stopRide(json.deviceID);
     } else if(json.type === "NextCoordinate") {
         nextCoordinate(json.deviceID, json.longitude, json.latitude, json.bearing);
