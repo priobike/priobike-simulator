@@ -38,6 +38,7 @@ function removeAllMessages() {
     }
 
     document.getElementById("empty-message").style.display = "flex";
+    document.getElementById("messages").classList.add("stacked");
 }
 
 // expand the message stack (by toggling the ".stacked" css-class)
