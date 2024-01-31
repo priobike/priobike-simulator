@@ -1,8 +1,5 @@
 # Dokumentation
 
-## Adrian
-
-## Charly
 ## Anbindung in der App (Charles Krüger)
 Ich habe das Interface implementiert, um den Server mit der App zu verbinden und die Kommunikation von der App-Seite aus via dem MQTT-Protokoll zu ermöglichen sowie auf Nachrichten des Servers u.a. beim Bestätigen der Verbindung zu reagieren. <br>
 Um das umzusetzen, habe ich zuerst eine Einstellungen in den "Internal Features" der PrioBike-App hinzugefügt, sodass der Simulator erstmal grundsätzlich aktiviert werden kann, da die Nutzung des Simulators nur für einen kleinen Bruchteil aller PrioBike-Nutzer von Relevanz ist. Wir hatten uns im Verlauf des Komplex-Praktikums darauf geeinigt, dass wir den Simulator erstmal nur als internes Feature implementieren, wobei auch die Möglichkeit besteht, dieses Feature in der Zukunft öffentlich bereitszustellen, wenn dies Sinn ergibt.<br>
@@ -71,3 +68,6 @@ Die Infobox enthält Debugging Informationen, wie z.B. aktuelle Lon/Lat Koordina
 Zuletzt gibt es noch eine Liste mit den angezeigten Popup Messages in der oberen rechten Bildschirmecke. Diese wird dynamisch mit Nachrichten gefüllt.
 
 ## Yenong
+
+## Adrian
+
