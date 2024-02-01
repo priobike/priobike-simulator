@@ -47,7 +47,7 @@ Ebenso muss die Zeitdifferenz **t_diff** (in Sekunden) zwischen beiden Datenerha
     t_diff = t - t_alt <br>
     r_diff = b - b_alt <br>
     V = r_diff/t_diff * umfang_rad_in_meter <br>
-Durch Multiplizieren von **V** mit 3,6 erfolgt die Umrechnung von m/s zu km/h.  <b>
+Durch Multiplizieren von **V** mit 3,6 erfolgt die Umrechnung von m/s zu km/h.  <br>
 Da **b** als byte dargestellt ist, ist davon auszugehen, dass es bei Werten größer 255 wieder bei 0 beginnt. Dafür ist der Wert **c** zu betrachten, welcher uns Aufschluss darüber gibt, ob dies passiert ist. In diesem Fall gilt: <br>
     wenn c größer c_alt:
         r_diff += 255 <br>
