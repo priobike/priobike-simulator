@@ -122,7 +122,7 @@ Es soll auch vom Ende der Kommunikation ausgegangen werden, falls keine Nachrich
 #### Sicherheit
 Aktuell wäre es noch möglich, dass jemand die Credentials für MQTT aus der App extrahieren oder mitschneiden könnte, und somit die Kommunikation durch gefälschte Nachrichten stören könnte. Ich habe überlegt, wie man die Kommunikation besser absichern könnte. Da keine sensiblen Daten übermittelt werden, erschien mir weniger relevant, dass niemand mitlesen kann. Jedoch wäre es nützlich, den Absender der Nachrichten verifizieren zu können.
 
-Meine Idee war, dass Simulator und App jeweils ein 
+Meine Idee war, dass Simulator und App jeweils ein Key-Pair erzeugen. Sämtliche Nachrichten werden signiert und bei der jeweils ersten Nachricht (PairRequest/PairConfirm) wird der public key mitgesendet. So ließe sich sicherstellen, dass niemand anderes gefälschte Nachrichten sendet (bzw. würden diese wegen der inkorrekten Signatur verworfen werden). Allerdings hätte das vermutlich den Rahmen des Komplexpraktikums überstiegen und hätte einigen zusätzlichen Aufwand erfordert, weshalb wir die Idee nicht weiter verfolgt haben.
 
 ## Simulator: Bewegung und Route (Simon)
 Meine Aufgabe war es, den Simulator den empfangenen GPS-Koordinaten folgen zu lassen. Die gesamte Route wurde erst später in der Entwicklung übermittelt und wird nun im Simulator sowie auf der Minimap angezeigt.
