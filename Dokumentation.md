@@ -66,6 +66,11 @@ Da die vom Sensor erhaltenen Werte nicht immer korrekt waren, ist ebenso eine Be
 Um die Glättung angenehmer für den Nutzer zu gestalten, erschien mir die Verwendung einer exponentiellen Glättung angebrachter, als die simplerere lineare, da die exponentielle Glättung neue Werte mit höherer Gewichtung einbringt. Die Implementation der Behandlung fehlerhafter Daten sowie der Glättung geschah durch Lyn.
 
 ### Fehlerbehandlung, Glättung (Lyn)
+Uns ist aufgefallen, dass die Umdrehungszahl und somit die berechnete Geschwindigkeit manchmal kurz auf 0 springt. Es stellte sich heraus, dass der Sensor ab und zu die letzten Messwerte exakt wiederholt. Diesen Fall konnte ich behandeln, indem genau duplizierte Messwerte einmalig ignoriert werden. Da auch wenn der Sensor zum Stillstand gebracht wird mehrfach die gleichen Messwerte auftreten, führt dies leider zu einer *Verzögerung beim Anhalten*. Man könnte noch versuchen, anhand des Winkel-Änderungs-Messwerts eine Fallunterscheidung zu machen, ob der Sensor still steht oder tatsächlich den letzten Wert in Bewegung fälschlicherweise wiederholt hat. 
+
+Da die Messwerte auch bei konstanter Geschwindigkeit fluktuieren, habe ich eine lineare Glättung der Drehzahl anhand der letzten 5 Werte implementiert. Eine exponentielle Glättung erschien aber doch sinnvoller, und hat sich dann auch im Test als besser herausgestellt. Momentan verwenden wir einen eher hohen Glättungsfaktor von 0.7, was dafür sorgt dass der neueste Messwert mit hohem Gewicht in den geglätteten Wert eingeht und somit Geschwindigkeitsänderungen trotz der Glättung relativ schnell umgesetzt werden. Ein Nebeneffekt war, dass sich der berechnete Wert nach dem Anhalten langsam immer mehr an 0 angenähert hat, bis der kleinstmögliche Wert des verwendeten Datentyps erreicht war. Deswegen habe ich noch einen Cutoff eingebaut, sodass wir schneller zum vollständigen Stillstand kommen.
+
+Zuletzt habe ich den Arbeitsstand zum Geschwindigkeitssensor (branch `feature/speed_sensor_integration`) noch mit dem zur Simulator-Integration zusammengeführt (branch `feature/stimulator_speedsensor_merged`). Nun konnten wir endlich die Funktionalität insgesamt testen.
 
 ## Kommunikation zwischen App und Simulator (Lyn)
 Meine primäre Aufgabe war es, ein Konzept für die Kommunikation zwischen App und Simulator zu entwickeln und die Infrastruktur dafür aufzusetzen. Außerdem habe ich noch bei der Sensor-Einbindung in die Priobike App mitgearbeitet und ein Dockerfile für den Simulator erstellt.
@@ -113,6 +118,11 @@ Weiterhin sendet die App regelmäßig Updates der Position und Ampelzustände:
 
 Es ist von beiden Seiten aus möglich, die Kommunikation zu beenden: `{"type":"StopRide", "deviceID":"..."}`  
 Es soll auch vom Ende der Kommunikation ausgegangen werden, falls keine Nachrichten von der App mehr ankommen.
+
+#### Sicherheit
+Aktuell wäre es noch möglich, dass jemand die Credentials für MQTT aus der App extrahieren oder mitschneiden könnte, und somit die Kommunikation durch gefälschte Nachrichten stören könnte. Ich habe überlegt, wie man die Kommunikation besser absichern könnte. Da keine sensiblen Daten übermittelt werden, erschien mir weniger relevant, dass niemand mitlesen kann. Jedoch wäre es nützlich, den Absender der Nachrichten verifizieren zu können.
+
+Meine Idee war, dass Simulator und App jeweils ein 
 
 ## Simulator: Bewegung und Route (Simon)
 Meine Aufgabe war es, den Simulator den empfangenen GPS-Koordinaten folgen zu lassen. Die gesamte Route wurde erst später in der Entwicklung übermittelt und wird nun im Simulator sowie auf der Minimap angezeigt.
