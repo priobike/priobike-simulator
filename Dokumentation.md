@@ -19,7 +19,41 @@ So wird ein Mal pro Sekunde die eigene Position mit Latitude, Longitude und Blic
 Sobald man die Fahrt über die App beendet oder der Server die Simulation stoppt, wird ein `StopRide` gesendet. Je nachdem wer von beiden diese Nachricht sendet, wird beim jeweils anderen die Fahrt beendet.<br>
 Die App befindet sich daraufhin wieder im Ausgangszustand und eine neue Simulation kann gestartet werden.
 
-## Katharina
+## Speedsensor (Katharina)
+### Ausgangslage
+Der für das Praktikum bereitgestellte "Garmin SpeedSensor2" war unbenutzt, daher war von einer vollen Funktionalität auszugehen. Vonseiten des Herstellers gab es über die Bedienungsanleitung hinaus keine weitere Dokumentation des Sensors. Weder das Datenformat, noch andere Parameter waren klar ersichtlich. 
+### Erste Schritte
+Ursprünglich war eine Nutzung des Ant+ Protokolls angedacht. Daher ging es zunächst auf die Suche nach einem geeigneten Flutter-Plugin, welches dieses Protokoll unterstützt. Die gefundenen Plugins waren entweder für das sehr gleichnamige Ant-Media oder aber schlecht maintained. <br>
+Daher weitete ich die Suche nach Bluetooth-Low-Energy-Plugins aus. Das so gefundene "Flutter-Blue-Plus"-Plugin erschien geeignet.
+### Integration - Testapp
+Vor Integration in die Priobike-App erschien es sinnvoll, zunächst eine zusätzliche Flutter-App zu erstellen, die sich mit dem Sensor verbinden & die empfangenen Daten auswerten kann. Das Flutter-Blue-Plus-Plugin stellt eine Beispiel-App bereit, welche ich dafür zunächst verwendet habe. Mithilfe dieser konnte ich mich mit dem Speedsensor verbinden und anschließend alle angebotenen Bluetooth-Services sowieso deren Charakteristiken auslesen. <br>
+**Wichtig: Die verwendete Version des Flutter-Blue-Plus-Plugins ist 1.20.4 - eine Nutzung der neuesten Version ist (Stand 01.02.2024) nicht möglich.**<br>
+Nach Auslesen aller Charakteristiken ergab sich, dass der für die Geschwindigkeitsermittlung relevante Service die UUID _00001816-0000-1000-8000-00805F9B34FB_ hat. Die benötigte Charakteristik innerhalb dieses Services hat die UUID _00002A5B-0000-1000-8000-00805F9B34FB_. Unter Nutzung der neuesten Plugin-Version sind diese leider nicht mehr vorzufinden. <br>
+Das Verbinden mit dem Sensor sowie das Subscriben auf die benötigte Charakteristik soll fortan auch automatisch passieren. Dafür wurde die Testapp um den entsprechenden Code erweitert. 
+#### Datenformat
+Das vorgefundene Datenformat besteht aus 7 byte. Durch Aufnehmen mehrerer Messreihen mit unterschiedlichen Drehungsverhalten konnte ich folgende Bedeutungen der vorgefundenen Daten herleiten:<br>
+[a, b, c, d, e, f, g]<br>
+  a= [constantly 1] -> probably status byte<br>
+  b= current number of rotations<br>
+  c= increased by one, if b would have been higher than 255<br>
+  -> c++, if new_b % 255 < previous_b % 255<br>
+  f= current angle<br>
+  g= difference between current f and previously sent f<br>
+  d= [constantly 0]<br>
+  e= [constantly 0]
+#### Geschwindigkeitsberechnung
+Nachdem die Datenlage klar war, ging es weiter mit der ersten Implementation der Geschwindigkeitsberechnung. Dies geschah ebenfalls noch in der Testapp. Der dafür relevante Wert **b** muss dafür betrachtet werden. Um die Rotationsdifferenz **r_diff** zwischen dem aktuellen Wert **b** und dem vorherigen zu erhalten, muss der in der vorherigen Iteration erhaltene Wert **b** (b_alt) vom aktuellen Wert **b** substrahiert werden. <br>
+Ebenso muss die Zeitdifferenz **t_diff** (in Sekunden) zwischen beiden Datenerhalten gemessen werden. Aus diesen beiden Werten lässt sich anschließend die Geschwindigkeit **V** wie folgt berechnen: <br>
+    t_diff = t - t_alt <br>
+    r_diff = b - b_alt <br>
+    V = r_diff/t_diff * umfang_rad_in_meter <br>
+Durch Multiplizieren von **V** mit 3,6 erfolgt die Umrechnung von m/s zu km/h.  <b>
+Da **b** als byte dargestellt ist, ist davon auszugehen, dass es bei Werten größer 255 wieder bei 0 beginnt. Dafür ist der Wert **c** zu betrachten, welcher uns Aufschluss darüber gibt, ob dies passiert ist. In diesem Fall gilt: <br>
+    wenn c größer c_alt:
+        r_diff += 255 <br>
+Logischerweise hat dies vor der Berechnung von **V** zu passieren. 
+### Integration - Priobike
+N
 
 ## Lyn
 
