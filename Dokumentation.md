@@ -27,7 +27,7 @@ Ursprünglich war eine Nutzung des Ant+ Protokolls angedacht. Daher ging es zun�
 Daher weitete ich die Suche nach Bluetooth-Low-Energy-Plugins aus. Das so gefundene "Flutter-Blue-Plus"-Plugin erschien geeignet.
 ### Integration - Testapp
 Vor Integration in die Priobike-App erschien es sinnvoll, zunächst eine zusätzliche Flutter-App zu erstellen, die sich mit dem Sensor verbinden & die empfangenen Daten auswerten kann. Das Flutter-Blue-Plus-Plugin stellt eine Beispiel-App bereit, welche ich dafür zunächst verwendet habe. Mithilfe dieser konnte ich mich mit dem Speedsensor verbinden und anschließend alle angebotenen Bluetooth-Services sowieso deren Charakteristiken auslesen. <br>
-**Wichtig: Die verwendete Version des Flutter-Blue-Plus-Plugins ist 1.20.4 - eine Nutzung der neuesten Version ist (Stand 01.02.2024) nicht möglich.**<br>
+**Wichtig: Die verwendete Version des Flutter-Blue-Plus-Plugins ist 1.20.8 - eine Nutzung der neuesten Version ist (Stand 01.02.2024) nicht möglich.**<br>
 Nach Auslesen aller Charakteristiken ergab sich, dass der für die Geschwindigkeitsermittlung relevante Service die UUID _00001816-0000-1000-8000-00805F9B34FB_ hat. Die benötigte Charakteristik innerhalb dieses Services hat die UUID _00002A5B-0000-1000-8000-00805F9B34FB_. Unter Nutzung der neuesten Plugin-Version sind diese leider nicht mehr vorzufinden. <br>
 Das Verbinden mit dem Sensor sowie das Subscriben auf die benötigte Charakteristik soll fortan auch automatisch passieren. Dafür wurde die Testapp um den entsprechenden Code erweitert. 
 #### Datenformat
@@ -49,11 +49,23 @@ Ebenso muss die Zeitdifferenz **t_diff** (in Sekunden) zwischen beiden Datenerha
     V = r_diff/t_diff * umfang_rad_in_meter <br>
 Durch Multiplizieren von **V** mit 3,6 erfolgt die Umrechnung von m/s zu km/h.  <br>
 Da **b** als byte dargestellt ist, ist davon auszugehen, dass es bei Werten größer 255 wieder bei 0 beginnt. Dafür ist der Wert **c** zu betrachten, welcher uns Aufschluss darüber gibt, ob dies passiert ist. In diesem Fall gilt: <br>
-    wenn c größer c_alt:
+        wenn c > c_alt: <br>
         r_diff += 255 <br>
 Logischerweise hat dies vor der Berechnung von **V** zu passieren. 
+**Hinweis: Ein modifizierter leicht rechenintensiverer Ansatz ist nötig, wenn sich c zwischen dem Datenerhalt um mehr als 1 erhöhen kann. Bei 28" Radgröße wäre dies bei ca 390km/h der Fall. Die Modifizierung wäre folgende:** <br>
+  r_diff += 255 * (c-c_alt) <br>
+Da der Geschwindigkeits-Weltrekord mit dem Fahrrad bei 296km/h liegt, wurde dieser Fall jedoch vernachlässigt. 
 ### Integration - Priobike
-N
+Nachdem in der Testapp das Verbinden & anschließende Auslesen des Sensors funktionierte, ging es an die Integration in die Zielapp - Priobike. Hier galt es zunächst, die bisherige Struktur der Anwendung zu verstehen & eine günstige Stelle für die Integration des Sensors zu finden. Da das Ziel die Geschwindigkeitsermittlung mithilfe des gegebenen Sensors ist, bietet sich der RideView der App an. Das dort bereits befindliche "Speedometer" dient bereits der Geschwindigkeitsanzeige. Um den Code aufgeräumter zu halten, habe ich mich zunächst für die Einführung einer neuen Klasse "GarminSpeedSensor" entschieden. Diese sollte im Speedometer (--> view.dart) lediglich aufgerufen werden und die entsprechenden Daten liefern. <br>
+Dies verhinderte jedoch die Nutzung der in Flutter verbreiteten "setState()"-Aufrufe. Eine Implementation ohne diese erbrachte nicht die gewünschten Effekte. Das Flutter-Blue-Plus-Plugin zeigte keinerlei Funktionalität mehr & die Verbindung mit dem Sensor war dementsprechend ebenso nicht möglich. Hier vermutete ich zunächst ein dependency-Problem, weshalb ich die Version des Flutter-Blue-Plus-Plugins auf die aktuellste Version anglich. Dies brachte keine Veränderungen. <br>
+Da die Implementation als normale Klasse nicht möglich war, erfolgte eine Änderung dieser hin zum Stateful-Widget. Damit sind "setState()"-Aufrufe nun möglich. Dies brachte einen Teilerfolg - die Funktionalität des genutzten Plugins war wiederhergestellt & die Verbindung zum Sensor war nun auch mit Priobike möglich. Das Erhalten der benötigten Services inklusive der Charakteristiken ging allerdings noch immer nicht. Nach einem intensiven Abgleich mit dem Code der Testapp blieb als einzige Lösung das Downgrade der Plugin-Version. Welche den erhofften Erfolg brachte. <br>
+ Die zwischenzeitliche Vermutung eines Defekts des Sensors stellte sich als Fehlschluss heraus. <br>
+Damit die Nutzung des Sensors optional bleibt, wurde gleichzeitig im Optionsmenü der App eine entsprechende Option hinzugefügt. Bei jedem Fahrtbeginn wird so zunächst geprüft, ob die Option aktiviert wurde. Ist dies der Fall, beginnt der Verbindungsprozess automatisch. Ansonsten ist weiterhin die Auswahl per Tippen auf das Speedometer aktiv. Ebenso die mittig angezeigte Geschwindigkeit wird nun vom Sensor-Widget geliefert. Dieses returned ein Text-Widget, welches die aktuelle Geschwindigkeit als Text enthält. <br>
+Damit die Geschwindigkeit auch app-intern weiterverwendet werden kann, wird dem Sensor-Widget das "Positioning" als Parameter mitgegeben. Dieses berechnet u.a. aus der aktuellen Geschwindigkeit die neue Position. Nach jedem Erhalt neuer Daten, wird nun auch vom Sensor-Widget selbst, das Positioning geupdated. <br>
+Da die vom Sensor erhaltenen Werte nicht immer korrekt waren, ist ebenso eine Behandlung fehlerhafter Werte vonnöten. Ebenso erscheint eine Glättung der erhaltenen Geschwindigkeitswerte für angebracht, um das Fahrgefühl zu verbessern. <br>
+Um die Glättung angenehmer für den Nutzer zu gestalten, erschien mir die Verwendung einer exponentiellen Glättung angebrachter, als die simplerere lineare, da die exponentielle Glättung neue Werte mit höherer Gewichtung einbringt. Die Implementation der Behandlung fehlerhafter Daten sowie der Glättung geschah durch Lyn.
+
+### Fehlerbehandlung, Glättung (Lyn)
 
 ## Kommunikation zwischen App und Simulator (Lyn)
 Meine primäre Aufgabe war es, ein Konzept für die Kommunikation zwischen App und Simulator zu entwickeln und die Infrastruktur dafür aufzusetzen. Außerdem habe ich noch bei der Sensor-Einbindung in die Priobike App mitgearbeitet und ein Dockerfile für den Simulator erstellt.
