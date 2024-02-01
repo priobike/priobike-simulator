@@ -55,7 +55,30 @@ Logischerweise hat dies vor der Berechnung von **V** zu passieren.
 ### Integration - Priobike
 N
 
-## Lyn
+## Kommunikation zwischen App und Simulator (Lyn)
+Meine primäre Aufgabe war es, ein Konzept für die Kommunikation zwischen App und Simultor zu entwickeln und die Infrastruktur dafür aufzusetzen. Außerdem habe ich noch bei der Sensor-Einbindung in die Priobike App mitgearbeitet.
+
+### Kommunikation zwischen App und Simulator
+#### Grundlegende Überlegungen
+Ich habe zunächst gesammelt, welche Anforderungen wir haben, welche Möglichkeiten es für die Kommunikation gäbe und was deren Vor- und Nachteile für uns wären.
+
+Folgende Kriterien hielten wir für wichtig:
+- möglichst niedrige Latenz zwischen dem Treten in die Pedale und der Simulation
+- möglichst unkompliziertes Setup und einfache Nutzbarkeit
+- parallele Nutzbarkeit von potenziell mehreren Simulatoren, sowie Pairing des Simulators mit einem Smartphone
+- Authentisierung der Verbindung
+
+Eine grundlegende Frage war, ob wir eine direkte Verbindung zwischen App und dem Simulator benutzen wollen, oder den Umweg über einen Server nehmen. Letzteres hat zwar den Nachteil leicht höherer Latenz, ist aber dafür wesentlich einfacher: Man kann auf einem beliebigen Rechner den Simulator im Browser aufrufen, und braucht keine weitere Software und muss keine Ports freigeben. Die Verbindung kann so auch einfach übers Internet laufen, anstatt dass man im gleichen lokalen Netzwerk sein muss. Wir haben uns daher schnell dazu entschieden, einen Server zu verwenden.
+
+Als nächstes war zu klären, ob wir MQTT oder ein eigenes kleines Backend (mit Kommunikation über WebSockets) nutzen wollen. Ein eigens entwickeltes Backend würde die Flexibilität bieten, exakt unsere Anforderungen umzusetzen, aber bedeutet natürlich auch mehr Arbeit für uns sowie Maintenance Burden. Ich vermutete aber, dass MQTT für unseren Anwendungsfall gut geeignet wäre, und nach Absprache mit der Gruppe haben wir uns auch dafür entschieden.
+
+#### MQTT Broker
+Die Entscheidung ist auf den populären Broker Mosquitto gefallen, der konfigurierbare Authentisierung sowie die Möglichkeit bietet, alternativ zu MQTT über WebSockets eine Verbindung aufzubauen, was wichtig für die Verwendung im Browser ist. Ich habe erst bei mir lokal probiert, eine Mosquitto-Instanz mit Docker-Compose aufzusetzen, und habe dann [eine PR](https://github.com/priobike/priobike-deployment-docker/pull/21) im priobike-deployment-docker Repo erstellt. Hier konnte ich mich an bereits bestehenden Mosquitto-Deployments von Priobike orientieren. Ich habe je einen User mit Passwort für die App und den Simulator angelegt und vorerst eingestellt, dass die App lesen und schreiben darf, und der Simulator nur lesen.
+
+Es haben sich leider Probleme bei der Verbindung via WebSockets ergeben, deren Ursache wir nicht finden konnten. Deswegen wurde für uns eine HiveMQ-Instanz als Ersatz aufgesetzt. Damit funktionierte dann alles problemlos. Nur die Authentisierung musste noch konfiguriert werden, was sich als etwas komplizierter als bei Mosquitto herausgestellt hat. Ich musste dafür ein Dockerfile schreiben, was dem HiveMQ-Image ein Plugin für die Authentisierung hinzufügt. Auch dafür habe ich [eine PR](https://github.com/priobike/priobike-deployment-docker/pull/29) erstellt.
+
+#### Protokoll
+
 
 ## Simulator: Bewegung und Route (Simon)
 Meine Aufgabe war es, den Simulator den empfangenen GPS-Koordinaten folgen zu lassen. Die gesamte Route wurde erst später in der Entwicklung übermittelt und wird nun im Simulator sowie auf der Minimap angezeigt.
