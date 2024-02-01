@@ -56,7 +56,7 @@ Logischerweise hat dies vor der Berechnung von **V** zu passieren.
 N
 
 ## Kommunikation zwischen App und Simulator (Lyn)
-Meine primäre Aufgabe war es, ein Konzept für die Kommunikation zwischen App und Simultor zu entwickeln und die Infrastruktur dafür aufzusetzen. Außerdem habe ich noch bei der Sensor-Einbindung in die Priobike App mitgearbeitet.
+Meine primäre Aufgabe war es, ein Konzept für die Kommunikation zwischen App und Simulator zu entwickeln und die Infrastruktur dafür aufzusetzen. Außerdem habe ich noch bei der Sensor-Einbindung in die Priobike App mitgearbeitet und ein Dockerfile für den Simulator erstellt.
 
 ### Kommunikation zwischen App und Simulator
 #### Grundlegende Überlegungen
@@ -78,7 +78,29 @@ Die Entscheidung ist auf den populären Broker Mosquitto gefallen, der konfiguri
 Es haben sich leider Probleme bei der Verbindung via WebSockets ergeben, deren Ursache wir nicht finden konnten. Deswegen wurde für uns eine HiveMQ-Instanz als Ersatz aufgesetzt. Damit funktionierte dann alles problemlos. Nur die Authentisierung musste noch konfiguriert werden, was sich als etwas komplizierter als bei Mosquitto herausgestellt hat. Ich musste dafür ein Dockerfile schreiben, was dem HiveMQ-Image ein Plugin für die Authentisierung hinzufügt. Auch dafür habe ich [eine PR](https://github.com/priobike/priobike-deployment-docker/pull/29) erstellt.
 
 #### Protokoll
+App und Simulator kommunizieren über MQTT in Form von JSON-Nachrichten.
 
+Um das Pairing von einer App mit einem Simulator durchzuführen, findet ein kurzer Handshake statt. Mit diesem Verfahren kann sichergestellt werden, dass sich die richtige App mit dem Simulator verbindet.
+
+Die App meldet sich als bereit zum Verbinden, indem sie eine PairRequest-Nachricht sendet:  
+`{"type":"PairRequest", "deviceID":"<unique id>", "deviceName":"<name>"}`  
+Die deviceID kann eine UUID des Gerätes sein oder alternativ von der App zufällig generiert werden, und soll das Gerät eindeutig identifizieren. Sie wird für jegliche weitere Kommunikation zwischen Simulator und App als Identifikation verwendet. Der deviceName kann im Simulator genutzt werden, um die Verbindungsanfragen leichter zu unterscheiden.
+
+Der Simulator antwortet auf eine vom User ausgewählte Anfrage mit einer PairStart-Nachricht: `{"type":"PairStart", "deviceID":"..."}`
+
+Letzlich muss die App noch eine Bestätigung in Form einer PairConfirm-Nachricht senden, sodass beide Seiten wissen, dass die Verbindung geklappt hat: `{"type":"PairConfirm", "deviceID":"..."}`
+
+Nun kann die eigentliche Kommunikation beginnen. Die App sendet nun die Startkoordinaten und -ausrichtung, die IDs und Positionen der Ampeln, sowie die Wegpunkte der Route:  
+`{"type":"FirstCoordinate", "deviceID":"...", "longitude":"10.01", "latitude":"2.2", "bearing":"0"}`  
+`{"type":"TrafficLight", "deviceID":"...", "tlID":"<unique id>", "longitude":"11.1", "latitude":"22.2", "bearing":"20"}`  
+`[{"type":"RouteDataStart", "deviceID":"..."}, {"lon":"5.55", "lat":"6.66"}, ..., {"lon":"3.33", "lat":"4.44"}]`
+
+Weiterhin sendet die App regelmäßig Updates der Position und Ampelzustände:  
+`{"type":"NextCoordinate", "deviceID":"...", "longitude":"10.10", "latitude":"10.11", "bearing":"40"}`  
+`{"type":"TrafficLightChange", "deviceID":"...", "tlID":"...", "state":"green"}`
+
+Es ist von beiden Seiten aus möglich, die Kommunikation zu beenden: `{"type":"StopRide", "deviceID":"..."}`  
+Es soll auch vom Ende der Kommunikation ausgegangen werden, falls keine Nachrichten von der App mehr ankommen.
 
 ## Simulator: Bewegung und Route (Simon)
 Meine Aufgabe war es, den Simulator den empfangenen GPS-Koordinaten folgen zu lassen. Die gesamte Route wurde erst später in der Entwicklung übermittelt und wird nun im Simulator sowie auf der Minimap angezeigt.
