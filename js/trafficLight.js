@@ -35,19 +35,6 @@ function addLayer(map, tb, obj, signalLayerId, coords, bearing) {
         });
     }
 }
-// function loadCycleModel(map, coords, bearing) {
-//     //console.log("Load Cycle Model, coords + bearing:", coords, bearing);
-//     var obj = `../3dModells/sportscycle.gltf`;
-//     var signalLayerId = createLayerID();
-//     map.on('style.load', () => {
-//         addLayer(map, tb, obj, signalLayerId, coords, bearing);
-//     });
-// }
-// function moveCycleModel(coords, bearing){
-//     //console.log("update Cycle Model, coords + bearing:", coords, bearing);
-//     sportscycleModel.setCoords(coords);
-//     sportscycleModel.setRotation({ x: 0, y: 0 , z: -bearing});
-// }
 
 //A test to see if the traffic lights on the initial page can be loaded.
 function loadTrafficSignalModel(map, signalColor, signalLayerId) {

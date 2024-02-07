@@ -1,7 +1,4 @@
-let client;
-
-function mqttHandler()
-{
+function mqttHandler() {
     // verbinde mit mqtt broker 
     client = connectToMQTTBroker(credJSON.mqttUsername, credJSON.mqttPassword);
 
@@ -24,8 +21,7 @@ function mqttHandler()
     });
 }
 
-function handleMessage(message)
-{
+function handleMessage(message) {
     let json = {};
     try {
         json = JSON.parse(message.toString());
@@ -40,15 +36,22 @@ function handleMessage(message)
     } else if(json.type === "StopRide") {
         stopRide(json.deviceID);
     } else if(json.type === "NextCoordinate") {
-        nextCoordinate(json.deviceID, json.longitude, json.latitude, json.bearing);
+        moveToHandler(json.longitude, json.latitude)
     } else if(json.type === "TrafficLight") {
-        trafficLight(json.deviceID, json.tlID, json.longitude, json.latitude, json.bearing);
+        createTrafficLight(map, json.tlID, json.longitude, json.latitude, json.bearing)
     } else if(json.type === "TrafficLightChange") {
-        trafficLightChange(json.deviceID, json.tlID, json.state);
+        updateTrafficLight(map, json.tlID, json.state)
     } else if(json.type === "FirstCoordinate") {
-        firstCoordinate(json.deviceID, json.longitude, json.latitude, json.bearing);
+        map.flyTo({
+            center: [json.longitude, json.latitude],
+            bearing: json.bearing,
+            zoom: 21,
+            pitch: 0,
+            duration: 5000,
+            essential: true
+        });
     } else if(Array.isArray(json) && json[0].type === "RouteDataStart") {
-        routeDataStart(json[0].deviceID, json.slice(1));
+        recivedRouteHandler(json.slice(1));
     } else {
         console.log("Invalid Message");
     }
@@ -111,25 +114,9 @@ function pair(deviceID, deviceName)
             </button>
         </div>`;
     createPopupMessage(messageID, html);
-
-    startLogoutTimer(deviceID);
 }
 
-// melde automatisch nach 90s ab wenn User keine Nachricht geschickt hat
-function startLogoutTimer(deviceID) {
-    disconnectTimer = setTimeout(function() {
-      console.log('Automatic Logoff');
-      stopRide(deviceID);
-    }, 90000);
-}
-
-function resetLogoutTimer(deviceID) {
-    clearTimeout(disconnectTimer);
-    startLogoutTimer(deviceID);
-}
-
-function stopRide(deviceID)
-{
+function stopRide(deviceID) {
     if(!connected || connectedDeviceID !== deviceID) {
         return;
     }
@@ -150,68 +137,4 @@ function stopRide(deviceID)
 
     // gib Rückmeldung an App das Verbindung getrennt wurde
     client.publish("simulation", '{"type":"StopRide", "deviceID":"' + tmpDeviceID + '"}');
-}
-
-function checkConnectionStatusAndResetTimer(deviceID)
-{
-    if(!connected || connectedDeviceID !== deviceID) {
-        return false;
-    }
-
-    // setze timer zurück da nun wieder Aktivität
-    resetLogoutTimer(deviceID);
-    return true;
-}
-
-function nextCoordinate(deviceID, longitude, latitude, bearing)
-{
-    if(!checkConnectionStatusAndResetTimer(deviceID)) {
-        return;
-    }
-
-    moveToHandler(longitude, latitude, bearing);
-}
-
-function trafficLight(deviceID, tlID, longitude, latitude, bearing)
-{
-    if(!checkConnectionStatusAndResetTimer(deviceID)) {
-        return;
-    }
-
-    createTrafficLight(map, tlID, longitude, latitude, bearing);
-}
-
-function trafficLightChange(deviceID, tlID, state)
-{
-    if(!checkConnectionStatusAndResetTimer(deviceID)) {
-        return;
-    }
-
-    updateTrafficLight(map, tlID, state);
-}
-
-// erste Koordinate die geschickt wird soll über smoothe flyTo-Funktion erfolgen
-function firstCoordinate(deviceID, longitude, latitude, bearing)
-{
-    if(!checkConnectionStatusAndResetTimer(deviceID)) {
-        return;
-    }
-
-    map.flyTo({
-        center: [longitude, latitude],
-        bearing: bearing,
-        zoom: 21,
-        pitch: 85,
-        duration: 5000,
-        essential: true
-    });
-}
-
-function routeDataStart(deviceID, route)
-{
-    if(!checkConnectionStatusAndResetTimer(deviceID)) {
-        return;
-    }
-
-    recivedRouteHandler(route);
 }

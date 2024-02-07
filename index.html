@@ -10,14 +10,13 @@
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
         <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
         <script src="https://cdn.jsdelivr.net/gh/jscastro76/threebox@v.2.2.2/dist/threebox.min.js" type="text/javascript"></script>
+        <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
 
-        <script src="./js/connect.js"></script>
-        <script src="./js/testRoute.js"></script>
         <script src="./js/trafficLight.js"></script>
         <script src="./js/mqttHandler.js"></script>
         <script src="./js/messages.js"></script>
         <script src="./js/moveToHandler.js"></script>
-        <script src="./js/testRoute2.js"></script>
+        <script src="./js/interpolate.js"></script>
 
         <!-- Main Entry -->
         <script src="./js/main.js"></script>
@@ -26,20 +25,9 @@
     <body>
         <div id="map-container" style="position: relative;">
             <div id="map"></div>
-            <div id="minimap"></div>
-        </div>
-        <!-- Infobox mit aktuellen Koordinaten; kann mit CSS eingeblendet werden -->
-        <div id="infoBox">
-            <pre id="info1"></pre>
-            <pre id="info2"></pre>
-            <pre id="info3"></pre>
-            <div>
-                <button id="fly">Testkoordinate weiter</button>
-                <button id="building1">Building1 rendern</button>
-                <button id="building2">Building2 rendern</button>
-                <p id="animationDuration"></p>
+            <div id="minimap">
+                <img id="marker" src="img/position-light.svg" height="86">
             </div>
-            <div><button id="changeLight">Ampelfarben</button></div>
         </div>
         <ul id="messages" class="stacked">
             <li id="empty-message">
