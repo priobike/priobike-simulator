@@ -1,15 +1,22 @@
-function mqttHandler() {
-    // verbinde mit mqtt broker 
-    client = connectToMQTTBroker(credJSON.mqttUsername, credJSON.mqttPassword);
+let client;
+let connected = false;
+let connectedDeviceID = '';
+let connectedDeviceName = '';
+let disconnectTimer;
+let connectionRequestCounter = 0;
+let currentRouteCoordinates = [];
 
-    const topic = "simulation";
+function connectToMqtt(){
+    client = mqtt.connect('ws://priobike.vkw.tu-dresden.de:20037/mqtt', {
+        clientId: Math.floor(Math.random() * 10000),
+        username: "simulator",
+        password: "Qe6irlBho9JJXbWHQQ1PB6qxHjtAHEJ9"
+    });
 
     client.on('connect', () => {
         console.log('Connected to MQTT broker');
-        client.subscribe(topic, (err) => {
-            if (!err) {
-                console.log(`Subscribed to topic: ${topic}`);
-            } else {
+        client.subscribe("simulation", (err) => {
+            if (err) {
                 console.error("Could not subscribe to topic");
             }
         });
@@ -38,9 +45,9 @@ function handleMessage(message) {
     } else if(json.type === "NextCoordinate") {
         moveToHandler(json.longitude, json.latitude)
     } else if(json.type === "TrafficLight") {
-        createTrafficLight(map, json.tlID, json.longitude, json.latitude, json.bearing)
+        createTrafficLight(json.tlID, json.longitude, json.latitude, json.bearing)
     } else if(json.type === "TrafficLightChange") {
-        updateTrafficLight(map, json.tlID, json.state)
+        updateTrafficLight(json.tlID, json.state)
     } else if(json.type === "FirstCoordinate") {
         map.flyTo({
             center: [json.longitude, json.latitude],
@@ -51,7 +58,8 @@ function handleMessage(message) {
             essential: true
         });
     } else if(Array.isArray(json) && json[0].type === "RouteDataStart") {
-        recivedRouteHandler(json.slice(1));
+        currentRouteCoordinates = interpolate(json.slice(1), 100, 50).map((p) => [p.lon, p.lat]);
+        updateRouteLine(currentRouteCoordinates);
     } else {
         console.log("Invalid Message");
     }

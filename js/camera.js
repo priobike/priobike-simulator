@@ -1,19 +1,10 @@
-var coordinates = [];
-
-function recivedRouteHandler(route){
-  console.log("Route empfangen");
-  coordinates = interpolate(route, 100, 50).map((p) => [p.lon, p.lat]);
-  
-  const lineData = { type: 'Feature', geometry: { type: 'LineString', coordinates: coordinates} };
-  map.getSource('line').setData(lineData);
-  map.getSource('contrast_line').setData(lineData);
-  minimap.getSource('minimap_line').setData(lineData);
-  minimap.getSource('minimap_contrast_line').setData(lineData);
-}
-
 function moveToHandler(coordinate_long, coordinate_lat) {
+  if (currentRouteCoordinates.length === 0) {
+    console.log("Keine Route empfangen");
+    return;
+  }
   // Calc nearest point on interpolated route
-  const line = turf.lineString(coordinates);
+  const line = turf.lineString(currentRouteCoordinates);
   const point = turf.point([coordinate_long, coordinate_lat]);
   const snapped = turf.nearestPointOnLine(line, point);
   const nearestPoint = snapped.geometry.coordinates;
@@ -21,11 +12,11 @@ function moveToHandler(coordinate_long, coordinate_lat) {
   // Calc bearing based on the current route segment
   const index = snapped.properties.index;
   // Check if last segment
-  if (index === coordinates.length - 1) {
+  if (index === currentRouteCoordinates.length - 1) {
     console.log("Ende der Route erreicht");
     return;
   }
-  const segment = [coordinates[index], coordinates[index + 1]];
+  const segment = [currentRouteCoordinates[index], currentRouteCoordinates[index + 1]];
   const routeBearing = turf.bearing(turf.point(segment[0]), turf.point(segment[1]));
 
   // Using turf, calculate a point in 100m distance from the target point
