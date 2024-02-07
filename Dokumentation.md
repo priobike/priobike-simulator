@@ -181,14 +181,18 @@ Ich war für die Darstellung von Ampeln und Lichtfarbwechseln im Simulator veran
 Die Modellierung wurde mit Blender durchgeführt. Ich habe vier Texturen für die Ampeln definiert, die den vier Ampelzuständen entsprechen. Wenn der Simulator keine Nachricht von der App über die Farbe der Ampel erhalten hat, ist die Ampel grau. Wenn die App dem Simulator eine Nachricht über eine Änderung der Ampelfarbe sendet, ist die Ampel je nach Farbe rot, grün oder gelb. Ich habe diese Modelle "trafficlight_"+colour genannt. Für die Darstellung in Mapbox werden diese Modelle im gltf-Format exportiert. Dieses Format erleichtert die Präsentation und den Austausch von 3D-Modellen im Web.
 ### Darstellung von 3D-Ampeln
 Um 3D-Modelle auf Mapbox-Karten anzuzeigen, habe ich Threebox eingeführt, eine JavaScript-Bibliothek zum Hinzufügen von 3D-Inhalten zu Mapbox GL. Sie basiert auf Three.js und wird in unserem Code zum Speichern und Laden von 3D-Rendering-Verarbeitungsobjekten verwendet.
+
 Ich habe eine addLayer-Funktion definiert, um der Karte einen neuen Layer hinzuzufügen, auf der das angegebene 3D-Modell angezeigt wird. Wenn man einen neuen Layer hinzufügt, muss man das Mapobjekt, das 3D-Rendering-Verarbeitungsobjekt, den Pfad zur 3D-Modelldatei, die Layer-ID sowie die Positionskoordinaten und den Drehwinkel des Modells angeben. 
+
 Theoretisch ist die Drehrichtung eines 3D-Modells ein 3D-Vektor, aber die Drehrichtung eines Ampels(bearing) wirkt sich nur auf die Drehung des Modells um die y-Achse aus. Daher ist der Drehwinkel, den ich an addLayer übergebe, nur ein Float.
+
 In Mapbox wird ein Layer zum Organisieren und Gestalten von geografischen Daten auf einer Karte verwendet. Jeder Layer hat seine eigene eindeutige ID. In unserem Code wird vor der Erstellung jeder neuen Layer der Timestamp verwendet, um eine neue Layer-ID zu erstellen.
 Die Positionskoordinaten des Modells ist ein Array mit longitude und latitude.
 ### Laden von Ampeln-Modelle
 Nachdem die App und der Simulator verbunden sind und eine Route gestartet wurde, sendet die App zu Beginn alle Ampeln auf dieser Route an den Simulator. Die Informationen, die der Simulator erhält, umfassen die Ampel-ID, den longitude, den latitude und den bearing.
+
 Nach Erhalt dieser Nachrichten ruft mqttHandler.js eine Funktion namens createTrafficLight auf. Diese Funktion wurde geschrieben, um diese Ampeln im Anfangszustand zu erzeugen. Da der Simulator zu diesem Zeitpunkt noch keine Informationen über die Farbe der Ampeln erhalten hat, wird das graue Ampelmodell einheitlich in diese Layers geladen. Ich speichere die Informationen über die Ampel in einem Objektliteral, so dass ich die richtige Ampellayer anhand ihrer ID finden kann, wenn ich später die Farbe der Ampel umschalte.
-###Aktualisieren des Ampelstatus
+### Aktualisieren des Ampelstatus
 Während der Fahrt sendet die App dem Simulator Informationen über den Wechsel der Lichtfarbe an der nächstgelegenen Ampel auf dieser Strecke. In den meisten Fällen ist der Zustand der Ampel in der Nachricht red oder green, gelegentlich auch amber oder redAmber, was bedeutet, dass die Farbe der Ampel in diesem Moment gelb ist. Ich suche zunächst den Layer des Ampelmodells, der zuvor dort platziert war, anhand seiner ID und erstelle dann an seiner Stelle einen neuen Layer, um das Ampelmodell der aktuellen Farbe zu platzieren. Um zu verhindern, dass das Modell zwischen den Modellwechseln kurzzeitig verschwindet, setze ich ein Timeout, um die alte Ampel-Ebene danach zu löschen.
 
 ## Adrian
