@@ -295,6 +295,7 @@ function displayMap(map,minimap)
     // lade GL 3 Standard Style
     map.on('style.load', () => {
       map.setConfigProperty('basemap', 'lightPreset', 'day');
+      map.setFog({ color: '#a0c6e8', 'horizon-blend': 1 });
 
     //   map.addLayer({
     //     id: 'custom-threebox-model1',
