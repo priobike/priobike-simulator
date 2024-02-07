@@ -6,7 +6,7 @@ let disconnectTimer;
 let connectionRequestCounter = 0;
 let currentRouteCoordinates = [];
 
-function connectToMqtt(){
+function connectToMqtt() {
     client = mqtt.connect('ws://priobike.vkw.tu-dresden.de:20037/mqtt', {
         clientId: Math.floor(Math.random() * 10000),
         username: "simulator",
@@ -43,11 +43,12 @@ function handleMessage(message) {
     } else if(json.type === "StopRide") {
         stopRide(json.deviceID);
     } else if(json.type === "NextCoordinate") {
-        moveToHandler(json.longitude, json.latitude)
+        moveToHandler(json.longitude, json.latitude);
+        speedChange(json.speed);
     } else if(json.type === "TrafficLight") {
-        createTrafficLight(json.tlID, json.longitude, json.latitude, json.bearing)
+        createTrafficLight(json.tlID, json.longitude, json.latitude, json.bearing);
     } else if(json.type === "TrafficLightChange") {
-        updateTrafficLight(json.tlID, json.state)
+        updateTrafficLight(json.tlID, json.state);
     } else if(json.type === "FirstCoordinate") {
         map.flyTo({
             center: [json.longitude, json.latitude],

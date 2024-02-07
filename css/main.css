@@ -3,6 +3,19 @@ body {
     font-family: Arial, Helvetica, sans-serif;
 }
 
+#canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    background-color: transparent;
+    /* Animate the canvas alpha */
+    transition: opacity 2s;
+    opacity: 0;
+    /* Don't capture clicks */
+    pointer-events: none;
+}
+
 #marker {
     position: absolute;
     top: 50%;
