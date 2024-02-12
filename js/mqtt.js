@@ -6,6 +6,8 @@ let disconnectTimer;
 let connectionRequestCounter = 0;
 let currentRouteCoordinates = [];
 
+
+
 function connectToMqtt() {
     client = mqtt.connect('ws://priobike.vkw.tu-dresden.de:20037/mqtt', {
         clientId: Math.floor(Math.random() * 10000),
@@ -15,7 +17,7 @@ function connectToMqtt() {
 
     client.on('connect', () => {
         console.log('Connected to MQTT broker');
-        client.subscribe("simulation", (err) => {
+        client.subscribe("app", (err) => {
             if (err) {
                 console.error("Could not subscribe to topic");
             }
@@ -99,7 +101,7 @@ function pair(deviceID, deviceName)
     console.log("Connected to " + deviceName + ", deviceID: " + deviceID);
 
     // gib Rückmeldung an App das verbunden wurde
-    client.publish("simulation", '{"type":"PairStart", "deviceID":"' + connectedDeviceID + '"}');
+    client.publish("simulator", '{"type":"PairAck", "deviceID":"' + connectedDeviceID + '"}');
 
     removeAllMessages();
     connectionRequestCounter = 0;
@@ -163,7 +165,7 @@ function sendUnpair(deviceID)
     createPopupMessage(messageID, html);
 
     // Send upair request 
-    client.publish("simulation", '{"type":"Unpair", "deviceID":"' + tmpDeviceID + '"}');
+    client.publish("simulator", '{"type":"Unpair", "deviceID":"' + tmpDeviceID + '"}');
 }
 
 function stopRide(deviceID) {
@@ -178,6 +180,12 @@ function stopRide(deviceID) {
     updateRouteLine([]);
 
     // TODO Display info board.
+    const infoContainer = document.getElementById("drive-info")
+
+    const html = ""
+
+    infoContainer.innerHTML = html
+
 
 
     // Zoom out to start position.
