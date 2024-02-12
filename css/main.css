@@ -55,11 +55,28 @@ body {
     justify-content: center;
     align-items: center;
     text-align: center;
-    height: 33%;
-    width: 50%;
+    height: 25%;
+    width: 33%;
     background-color: #f6f6f6;
     opacity: 0.85;
     border-radius: 23px;
+    padding: 2rem;
+}
+
+#simulator-info {
+    position: fixed;
+    bottom: 3%;
+    right: 0%;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    width: 5rem;
+    background-color: #f6f6f6;
+    opacity: 0.85;
+    border-radius: 23px 0 0 23px;
+    padding: 1rem;
+    text-align: center;
+    vertical-align: middle;
 }
 
 #messages {
@@ -160,6 +177,17 @@ body {
 
 .stacked #minimizeMessages {
     display: none;
+}
+
+.info-text .header {
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    font-size: large;
+}
+
+.info-text .content {
+    color: #7c7c7c;
+    font-weight: 400;
 }
 
 .message-text span {
