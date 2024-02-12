@@ -65,9 +65,9 @@ function handleMessage(message) {
         createTrafficLight(json.tlID, json.longitude, json.latitude, json.bearing);
     } else if(json.type === "TrafficLightChange") {
         updateTrafficLight(json.tlID, json.state);
-    } else if(Array.isArray(json) && json[0].type === "RouteDataStart") {
+    } else if(json.type === "RouteDataStart") {
         /// TODO update with new data format.
-        currentRouteCoordinates = interpolate(json.slice(1), 100, 50).map((p) => [p.lon, p.lat]);
+        currentRouteCoordinates = interpolate(json.routeData).map((p) => [p.lon, p.lat]);
         updateRouteLine(currentRouteCoordinates);
     } else {
         console.log("Invalid Message");
