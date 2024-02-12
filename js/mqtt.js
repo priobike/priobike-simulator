@@ -46,15 +46,16 @@ function handleMessage(message) {
     if(json.type === "PairRequest") {
         pairRequest(json.appID, json.deviceName);
         return;
-    } 
+    } else if(json.type == "PairAppAck") {
+        connect(json.appID);
+        return;
+    }
     
     if(!connected || connectedDeviceID !== json.appID || json.simulatorID !== simulatorID) {
         return;
     }
     
-    if (json.type == "PairAppAck") {
-        connect(json.appID);
-    } else if(json.type === "StopRide") {
+    if(json.type === "StopRide") {
         stopRide(json.appID);
     } else if(json.type === "Unpair") {
         unpair(json.appID);
