@@ -5,8 +5,7 @@ let connectedDeviceName = '';
 let disconnectTimer;
 let connectionRequestCounter = 0;
 let currentRouteCoordinates = [];
-
-
+let simulatorID = Math.random(999);
 
 function connectToMqtt() {
     client = mqtt.connect('ws://priobike.vkw.tu-dresden.de:20037/mqtt', {
@@ -42,7 +41,13 @@ function handleMessage(message) {
     // rufe spezifische Funktion für jeden Nachrichtentyp auf
     if(json.type === "PairRequest") {
         pairRequest(json.deviceID, json.deviceName);
-    } else if(json.type === "StopRide") {
+    } 
+    
+    if(!connected || connectedDeviceID !== deviceID) {
+        return;
+    }
+    
+    if(json.type === "StopRide") {
         stopRide(json.deviceID);
     } else if(json.type === "Unpair") {
         unpair(json.deviceID);
@@ -101,7 +106,7 @@ function pair(deviceID, deviceName)
     console.log("Connected to " + deviceName + ", deviceID: " + deviceID);
 
     // gib Rückmeldung an App das verbunden wurde
-    client.publish("simulator", '{"type":"PairAck", "deviceID":"' + connectedDeviceID + '"}');
+    client.publish("simulator", '{"type":"PairSimulatorAck", "deviceID":"' + connectedDeviceID + ', "simulatorID": ' + simulatorID + '}');
 
     removeAllMessages();
     connectionRequestCounter = 0;
@@ -144,12 +149,8 @@ function unpair(deviceID)
 }
 
 /// Unpairs the simulator from the connected device.
-function sendUnpair(deviceID)
+function sendUnpair()
 {
-    if(!connected || connectedDeviceID !== deviceID) {
-        return;
-    }
-
     const tmpDeviceID = connectedDeviceID;
 
     connected = false;
@@ -165,14 +166,10 @@ function sendUnpair(deviceID)
     createPopupMessage(messageID, html);
 
     // Send upair request 
-    client.publish("simulator", '{"type":"Unpair", "deviceID":"' + tmpDeviceID + '"}');
+    client.publish("simulator", '{"type":"Unpair", "deviceID":"' + tmpDeviceID + ', "simulatorID": ' + simulatorID + '"}');
 }
 
-function stopRide(deviceID) {
-    if(!connected || connectedDeviceID !== deviceID) {
-        return;
-    }
-
+function stopRide() {
     // Remove the traffic lights and map data.
     map.removeLayer('traffic_light');
     map.removeLayer('traffic_light_triangle');
