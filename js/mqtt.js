@@ -111,7 +111,7 @@ function pair(deviceID, deviceName)
     console.log("Device Candidate " + deviceName + ", deviceID: " + deviceID);
 
     // gib Rückmeldung an App das verbunden wurde
-    client.publish("simulator", '{"type":"PairSimulatorAck", "appID":"' + connectedDeviceID + '", "simulatorID": "' + simulatorID + '"}');
+    client.publish("simulator", '{"type":"PairSimulatorAck", "appID":"' + deviceID + '", "simulatorID": "' + simulatorID + '"}');
 
     removeAllMessages();
     connectionRequestCounter = 0;
