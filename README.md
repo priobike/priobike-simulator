@@ -13,25 +13,31 @@ Username: simulatorb
 Password: Qe6irlBho9JJXbWHQQ1PB6qxHjtAHEJ9  
 
 ## Example requests
-App:  
-`{"type":"PairRequest", "deviceID":"123", "deviceName":"abc"}`
--> im Simulator anzeigen, auswählen  
+App(s):  
+`{"type":"PairRequest", "deviceID": "123", "deviceName":"abc"}`
+-> displayed in the simulator (choose device from multiple requests)
 
 Simulator:  
-`{"type":"PairStart", "deviceID":"123"}`
--> in App bestätigen  
+`{"type":"PairStart", "deviceID": "123"}`
+-> needs to be confirmed
 
 App:  
-`{"type":"PairConfirm", "deviceID":"123"}`
+`{"type":"PairConfirm", "deviceID": "123"}`
+
+App:
+`{"type": "RouteDataStart", "deviceID": "123", routeData: [{lon: 9.993682, lat: 53.551086}, {lon: 9.993686, lat: 53.551085}, {lon: 9.993792, lat: 53.551195}, ...]}` -> sends route information
 
 App:  
-`{"type":"NextCoordinate", "deviceID":"123", "longitude":"10.12345", "latitude":"50.12345", "bearing":"-80"}`
+`{"type":"NextCoordinate", "deviceID": "123", "longitude":"10.12345", "latitude":"50.12345", "bearing":"-80"}` -> updates the simulator about the next coordinate
 
 App:  
-`{"type":"TrafficLight", "deviceID":"123", "tlID":"456", "longitude":"10.12345", "latitude":"50.12345", "bearing":"-80", "state":"red"}`
+`{"type":"TrafficLight", "deviceID": "123", "tlID":"456", "longitude":"10.12345", "latitude":"50.12345", "bearing":"-80", "state":"red"}` -> updates the simulator about traffic light information
 
 App:  
-`{"type":"TrafficLightChange", "deviceID":"123", "tlID":"456", "state":"yellow", "timestamp":"..."}`
+`{"type":"TrafficLightChange", "deviceID": "123", "tlID":"456", "state":"yellow", "timestamp":"..."}` -> updates the simulator about traffic light changes
+
+App:  
+`{"type":"StopRide", "deviceID": "123"}` -> updates the simulator about the ride stop
 
 App/Simulator:  
-`{"type":"StopRide", "deviceID":"123"}`
+`{"type":"Unpair", "deviceID": "123"}` -> updates the counterpart about unpairing
