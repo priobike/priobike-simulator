@@ -137,7 +137,7 @@ function connect(deviceID)
     connectedDeviceID = deviceID;
     connectedDeviceName = deviceNameCandidate
     deviceNameCandidate = ''
-    console.log("Connected to " + deviceName + ", deviceID: " + deviceID);
+    console.log("Connected to " + connectedDeviceName + ", deviceID: " + deviceID);
 
     // gib Rückmeldung an App das verbunden wurde
     client.publish("simulator", '{"type":"PairSimulatorAck", "appID":"' + connectedDeviceID + '", "simulatorID": "' + simulatorID + '"}');
@@ -149,7 +149,7 @@ function connect(deviceID)
     const messageID = 'connected';
     const html = `
         <div class="message-text">
-            <span class="header">` + deviceName + `</span>
+            <span class="header">` + connectedDeviceName + `</span>
             <span class="subtext">Verbunden</span>
         </div>
         <div class="pair-buttons">
