@@ -53,7 +53,7 @@ function handleMessage(message) {
     }
     
     if (json.type == "PairAppAck") {
-        connect(json.appID, json.deviceName);
+        connect(json.appID);
     } else if(json.type === "StopRide") {
         stopRide(json.appID);
     } else if(json.type === "Unpair") {
