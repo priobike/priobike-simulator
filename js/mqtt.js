@@ -1,6 +1,7 @@
 let client;
 let connected = false;
 let connectedDeviceID = '';
+let deviceNameCandidate = '';
 let connectedDeviceName = '';
 let disconnectTimer;
 let connectionRequestCounter = 0;
@@ -51,7 +52,9 @@ function handleMessage(message) {
         return;
     }
     
-    if(json.type === "StopRide") {
+    if (json.type == "PairAppAck") {
+        connect(json.appID, json.deviceName);
+    } else if(json.type === "StopRide") {
         stopRide(json.appID);
     } else if(json.type === "Unpair") {
         unpair(json.appID);
@@ -104,9 +107,36 @@ function pairRequest(deviceID, deviceName)
 
 function pair(deviceID, deviceName)
 {
+    deviceNameCandidate = deviceName;
+    console.log("Device Candidate " + deviceName + ", deviceID: " + deviceID);
+
+    // gib Rückmeldung an App das verbunden wurde
+    client.publish("simulator", '{"type":"PairSimulatorAck", "appID":"' + connectedDeviceID + '", "simulatorID": "' + simulatorID + '"}');
+
+    removeAllMessages();
+    connectionRequestCounter = 0;
+
+    // gib "Verbunden" Statusmeldung
+    const messageID = 'connected';
+    const html = `
+        <div class="message-text">
+            <span class="header">` + deviceName + `</span>
+            <span class="subtext">Warten auf Bestätigung</span>
+        </div>
+        <div class="pair-buttons">
+            <button onclick="sendUnpair('` + deviceID + `')" aria-label="Close connection">
+                <span class="material-symbols-outlined md-28">close</span>
+            </button>
+        </div>`;
+    createPopupMessage(messageID, html);
+}
+
+function connect(deviceID)
+{
     connected = true;
     connectedDeviceID = deviceID;
-    connectedDeviceName = deviceName;
+    connectedDeviceName = deviceNameCandidate
+    deviceNameCandidate = ''
     console.log("Connected to " + deviceName + ", deviceID: " + deviceID);
 
     // gib Rückmeldung an App das verbunden wurde
