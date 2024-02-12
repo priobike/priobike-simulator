@@ -29,10 +29,7 @@ function connectToMqtt() {
     });
 
     // Set the simulator id.
-    
-
-
-
+    document.getElementById("simulator-info").innerText = "SimulatorID " + simulatorID
 }
 
 function handleMessage(message) {
@@ -46,17 +43,17 @@ function handleMessage(message) {
 
     // rufe spezifische Funktion für jeden Nachrichtentyp auf
     if(json.type === "PairRequest") {
-        pairRequest(json.deviceID, json.deviceName);
+        pairRequest(json.appID, json.deviceName);
     } 
     
-    if(!connected || connectedDeviceID !== deviceID || json.simulatorID !== simulatorID) {
+    if(!connected || connectedDeviceID !== json.appID || json.simulatorID !== simulatorID) {
         return;
     }
     
     if(json.type === "StopRide") {
-        stopRide(json.deviceID);
+        stopRide(json.appID);
     } else if(json.type === "Unpair") {
-        unpair(json.deviceID);
+        unpair(json.appID);
     } else if(json.type === "NextCoordinate") {
         moveToHandler(json.longitude, json.latitude);
         speedChange(json.speed);
