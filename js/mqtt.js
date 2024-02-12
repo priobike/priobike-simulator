@@ -5,7 +5,7 @@ let connectedDeviceName = '';
 let disconnectTimer;
 let connectionRequestCounter = 0;
 let currentRouteCoordinates = [];
-let simulatorID = Math.floor(Math.random() * 999).toString()
+let simulatorID = Math.floor(Math.random() * 999)
 
 function connectToMqtt() {
     client = mqtt.connect('ws://priobike.vkw.tu-dresden.de:20037/mqtt', {
@@ -110,7 +110,7 @@ function pair(deviceID, deviceName)
     console.log("Connected to " + deviceName + ", deviceID: " + deviceID);
 
     // gib Rückmeldung an App das verbunden wurde
-    client.publish("simulator", '{"type":"PairSimulatorAck", "appID":"' + connectedDeviceID + '", "simulatorID": ' + simulatorID + '}');
+    client.publish("simulator", '{"type":"PairSimulatorAck", "appID":"' + connectedDeviceID + '", "simulatorID": "' + simulatorID + '"}');
 
     removeAllMessages();
     connectionRequestCounter = 0;
