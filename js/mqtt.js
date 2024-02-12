@@ -43,7 +43,7 @@ function handleMessage(message) {
         pairRequest(json.deviceID, json.deviceName);
     } 
     
-    if(!connected || connectedDeviceID !== deviceID) {
+    if(!connected || connectedDeviceID !== deviceID || json.simulatorID !== simulatorID) {
         return;
     }
     
@@ -132,8 +132,6 @@ function unpair(deviceID)
     if(!connected || connectedDeviceID !== deviceID) {
         return;
     }
-
-    const tmpDeviceID = connectedDeviceID;
 
     connected = false;
     connectedDeviceID = '';
