@@ -37,7 +37,7 @@ App:
 `{"type":"TrafficLightChange", "deviceID": "123", "tlID":"456", "state":"yellow", "timestamp":"..."}` -> updates the simulator about traffic light changes
 
 App:  
-`{"type":"StopRide", "deviceID": "123"}` -> updates the simulator about the ride stop
+`{"type":"StopRide", "deviceID": "123", "stats" : "TODO"}` -> updates the simulator about the ride stop
 
 App/Simulator:  
 `{"type":"Unpair", "deviceID": "123"}` -> updates the counterpart about unpairing
