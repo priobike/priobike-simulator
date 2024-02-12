@@ -42,6 +42,8 @@ function handleMessage(message) {
         pairRequest(json.deviceID, json.deviceName);
     } else if(json.type === "StopRide") {
         stopRide(json.deviceID);
+    } else if(json.type === "Unpair") {
+        unpair(json.deviceID);
     } else if(json.type === "NextCoordinate") {
         moveToHandler(json.longitude, json.latitude);
         speedChange(json.speed);
@@ -49,16 +51,8 @@ function handleMessage(message) {
         createTrafficLight(json.tlID, json.longitude, json.latitude, json.bearing);
     } else if(json.type === "TrafficLightChange") {
         updateTrafficLight(json.tlID, json.state);
-    } else if(json.type === "FirstCoordinate") {
-        map.flyTo({
-            center: [json.longitude, json.latitude],
-            bearing: json.bearing,
-            zoom: 21,
-            pitch: 0,
-            duration: 5000,
-            essential: true
-        });
     } else if(Array.isArray(json) && json[0].type === "RouteDataStart") {
+        /// TODO update with new data format.
         currentRouteCoordinates = interpolate(json.slice(1), 100, 50).map((p) => [p.lon, p.lat]);
         updateRouteLine(currentRouteCoordinates);
     } else {
@@ -118,14 +112,38 @@ function pair(deviceID, deviceName)
             <span class="subtext">Verbunden</span>
         </div>
         <div class="pair-buttons">
-            <button onclick="stopRide('` + deviceID + `')" aria-label="Close connection">
+            <button onclick="sendUnpair('` + deviceID + `')" aria-label="Close connection">
                 <span class="material-symbols-outlined md-28">close</span>
             </button>
         </div>`;
     createPopupMessage(messageID, html);
 }
 
-function stopRide(deviceID) {
+/// Unpairs the simulator from the connected device.
+function unpair(deviceID)
+{
+    if(!connected || connectedDeviceID !== deviceID) {
+        return;
+    }
+
+    const tmpDeviceID = connectedDeviceID;
+
+    connected = false;
+    connectedDeviceID = '';
+    connectedDeviceName = '';
+    disconnectTimer = 0;
+    console.log("Connection Closed");
+
+    removeAllMessages();
+    // gib "Getrennt" Statusmeldung
+    const messageID = 'disconnected';
+    const html = '<h3>Verbindung getrennt</h3>';
+    createPopupMessage(messageID, html);
+}
+
+/// Unpairs the simulator from the connected device.
+function sendUnpair(deviceID)
+{
     if(!connected || connectedDeviceID !== deviceID) {
         return;
     }
@@ -144,6 +162,31 @@ function stopRide(deviceID) {
     const html = '<h3>Verbindung getrennt</h3>';
     createPopupMessage(messageID, html);
 
-    // gib Rückmeldung an App das Verbindung getrennt wurde
-    client.publish("simulation", '{"type":"StopRide", "deviceID":"' + tmpDeviceID + '"}');
+    // Send upair request 
+    client.publish("simulation", '{"type":"Unpair", "deviceID":"' + tmpDeviceID + '"}');
+}
+
+function stopRide(deviceID) {
+    if(!connected || connectedDeviceID !== deviceID) {
+        return;
+    }
+
+    // Remove the traffic lights and map data.
+    map.removeLayer('traffic_light');
+    map.removeLayer('traffic_light_triangle');
+    map.removeSource('traffic_light');
+    updateRouteLine([]);
+
+    // TODO Display info board.
+
+
+    // Zoom out to start position.
+    map.flyTo({
+        center: [10.007901555262777, 53.54071265251261],
+        zoom: 12,
+        pitch: 50,
+        bearing: 0,
+        duration: 5000,
+        essential: true
+    });
 }
