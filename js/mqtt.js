@@ -5,7 +5,7 @@ let connectedDeviceName = '';
 let disconnectTimer;
 let connectionRequestCounter = 0;
 let currentRouteCoordinates = [];
-let simulatorID = Math.floor(Math.random() * 999)
+let simulatorID = Math.floor(Math.random() * 999).toString()
 
 function connectToMqtt() {
     client = mqtt.connect('ws://priobike.vkw.tu-dresden.de:20037/mqtt', {
@@ -44,6 +44,7 @@ function handleMessage(message) {
     // rufe spezifische Funktion für jeden Nachrichtentyp auf
     if(json.type === "PairRequest") {
         pairRequest(json.appID, json.deviceName);
+        return;
     } 
     
     if(!connected || connectedDeviceID !== json.appID || json.simulatorID !== simulatorID) {
