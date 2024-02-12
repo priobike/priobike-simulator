@@ -109,7 +109,7 @@ function pair(deviceID, deviceName)
     console.log("Connected to " + deviceName + ", deviceID: " + deviceID);
 
     // gib Rückmeldung an App das verbunden wurde
-    client.publish("simulator", '{"type":"PairSimulatorAck", "deviceID":"' + connectedDeviceID + '", "simulatorID": ' + simulatorID + '}');
+    client.publish("simulator", '{"type":"PairSimulatorAck", "appID":"' + connectedDeviceID + '", "simulatorID": ' + simulatorID + '}');
 
     removeAllMessages();
     connectionRequestCounter = 0;
@@ -167,7 +167,7 @@ function sendUnpair()
     createPopupMessage(messageID, html);
 
     // Send upair request 
-    client.publish("simulator", '{"type":"Unpair", "deviceID":"' + tmpDeviceID + ', "simulatorID": ' + simulatorID + '"}');
+    client.publish("simulator", '{"type":"Unpair", "appID":"' + tmpDeviceID + ', "simulatorID": ' + simulatorID + '"}');
 }
 
 function stopRide() {
