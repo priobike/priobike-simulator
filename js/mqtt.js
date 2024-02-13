@@ -46,16 +46,15 @@ function handleMessage(message) {
     if(json.type === "PairRequest") {
         pairRequest(json.appID, json.deviceName);
         return;
-    } else if(json.type == "PairAppAck") {
-        connect(json.appID);
-        return;
     }
     
     if(!connected || connectedDeviceID !== json.appID || json.simulatorID !== simulatorID) {
         return;
     }
     
-    if(json.type === "StopRide") {
+    if(json.type == "PairAppAck") {
+        connect(json.appID);
+    } else if(json.type === "StopRide") {
         stopRide(json.appID);
     } else if(json.type === "Unpair") {
         unpair(json.appID);
@@ -142,9 +141,6 @@ function connect(deviceID)
     deviceNameCandidate = ''
     console.log("Connected to " + connectedDeviceName + ", deviceID: " + deviceID);
 
-    // gib Rückmeldung an App das verbunden wurde
-    client.publish("simulator", '{"type":"PairSimulatorAck", "appID":"' + connectedDeviceID + '", "simulatorID": "' + simulatorID + '"}');
-
     removeAllMessages();
     connectionRequestCounter = 0;
 
@@ -179,7 +175,12 @@ function unpair(deviceID)
     removeAllMessages();
     // gib "Getrennt" Statusmeldung
     const messageID = 'disconnected';
-    const html = '<h3>Verbindung getrennt</h3>';
+    const html = `
+        <div class="message-text">
+            <span class="header">Verbindung getrennt</span>
+            <span class="subtext">Warten auf Anfragen</span>
+        </div>
+       `;
     createPopupMessage(messageID, html);
 }
 
@@ -208,7 +209,12 @@ function sendUnpair()
 
     // gib "Getrennt" Statusmeldung
     const messageID = 'disconnected';
-    const html = '<h3>Verbindung getrennt</h3>';
+    const html = `
+        <div class="message-text">
+            <span class="header">Verbindung getrennt</span>
+            <span class="subtext">Warten auf Anfragen</span>
+        </div>
+       `;
     createPopupMessage(messageID, html);
 
     // Send upair request 
