@@ -48,13 +48,20 @@ function handleMessage(message) {
         return;
     }
     
-    if(!connected || connectedDeviceID !== json.appID || json.simulatorID !== simulatorID) {
+    if(json.simulatorID !== simulatorID) {
         return;
     }
     
     if(json.type == "PairAppAck") {
         connect(json.appID);
-    } else if(json.type === "StopRide") {
+        return;
+    } 
+    
+    if(!connected || connectedDeviceID !== json.appID) {
+        return;
+    }
+
+    if(json.type === "StopRide") {
         stopRide(json.appID);
     } else if(json.type === "Unpair") {
         unpair(json.appID);
