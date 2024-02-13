@@ -195,13 +195,24 @@ function sendUnpair()
     console.log("Connection Closed");
 
     removeAllMessages();
+
+    // Reset to init position since this can be called any time.
+    map.flyTo({
+        center: [10.007901555262777, 53.54071265251261],
+        zoom: 12,
+        pitch: 50,
+        bearing: 0,
+        duration: 5000,
+        essential: true
+    });
+
     // gib "Getrennt" Statusmeldung
     const messageID = 'disconnected';
     const html = '<h3>Verbindung getrennt</h3>';
     createPopupMessage(messageID, html);
 
     // Send upair request 
-    client.publish("simulator", '{"type":"Unpair", "appID":"' + tmpDeviceID + ', "simulatorID": ' + simulatorID + '"}');
+    client.publish("simulator", '{"type":"Unpair", "appID":"' + tmpDeviceID + '", "simulatorID": "' + simulatorID + '"}');
 }
 
 function stopRide() {
