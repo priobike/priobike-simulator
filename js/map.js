@@ -19,10 +19,10 @@ function loadMap() {
         zoom: 12,
         pitch: 50,
         bearing: 0,
-        profile: 'mapbox/cycling',
         interactive: true,
         antialias: true,
-    });
+        style: 'mapbox://styles/paulpickhardt/clskczfvv00cz01qugsppg91b',
+        });
 
     // Initalize the minimap with starting values
     minimap = new mapboxgl.Map({

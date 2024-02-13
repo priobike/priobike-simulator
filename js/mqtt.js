@@ -192,10 +192,8 @@ function unpair(deviceID)
 }
 
 /// Unpairs the simulator from the connected device.
-function sendUnpair()
+function sendUnpair(deviceID)
 {
-    const tmpDeviceID = connectedDeviceID;
-
     connected = false;
     connectedDeviceID = '';
     connectedDeviceName = '';
@@ -225,7 +223,7 @@ function sendUnpair()
     createPopupMessage(messageID, html);
 
     // Send upair request 
-    client.publish("simulator", '{"type":"Unpair", "appID":"' + tmpDeviceID + '", "simulatorID": "' + simulatorID + '"}');
+    client.publish("simulator", '{"type":"Unpair", "appID":"' + deviceID + '", "simulatorID": "' + simulatorID + '"}');
 }
 
 function stopRide() {
