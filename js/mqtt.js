@@ -69,6 +69,9 @@ function handleMessage(message) {
     } else if(json.type === "RouteDataStart") {
         currentRouteCoordinates = interpolate(json.routeData.slice(0), 100, 50).map((p) => [p.lon, p.lat]);
         updateRouteLine(currentRouteCoordinates);
+        unsetDriveInfo();
+    } else if(json.type === "RideSummary") {
+        displayRideSummary(json.rideSummary);
     } else {
         console.log("Invalid Message");
     }
@@ -121,7 +124,7 @@ function pair(deviceID, deviceName)
     const html = `
         <div class="message-text">
             <span class="header">` + deviceName + `</span>
-            <span class="subtext">Warten auf Bestätigung</span>
+            <span class="subtext">Warten auf Best&auml;tigung</span>
         </div>
         <div class="pair-buttons">
             <button onclick="sendUnpair('` + deviceID + `')" aria-label="Close connection">
@@ -203,19 +206,15 @@ function sendUnpair()
 
 function stopRide() {
     // Remove the traffic lights and map data.
-    map.removeLayer('traffic_light');
-    map.removeLayer('traffic_light_triangle');
-    map.removeSource('traffic_light');
+    // check if route layer exists
+    if(map.getLayer('traffic_light')) {
+        map.removeLayer('traffic_light');
+    }
+    if(map.getLayer('traffic_light_triangle')) {
+        map.removeLayer('traffic_light_triangle');
+    }
+
     updateRouteLine([]);
-
-    // TODO Display info board.
-    const infoContainer = document.getElementById("drive-info")
-
-    const html = ""
-
-    infoContainer.innerHTML = html
-
-
 
     // Zoom out to start position.
     map.flyTo({
@@ -226,4 +225,38 @@ function stopRide() {
         duration: 5000,
         essential: true
     });
+}
+
+function displayRideSummary(rideSummary) {
+    // Format strings and display them in the info dialog.
+    let distanceText = rideSummary.distanceKilometers + ' km';
+    let speedText = rideSummary.averageSpeed + ' km/h';
+    let savedCo2inGText = rideSummary.savedCo2inG + " g"
+    
+    // Display info board.
+    const infoContainer = document.getElementById("drive-info")
+
+    const html = `
+            <div class="drive-info">
+                <div class="info-text">
+                    <span class="header">Fahrt beendet!</span>
+                </div>
+                <div class="ride-summary">
+                    <div class="content"><span>Zeit </span><span>` + rideSummary.formattedTime + `</span></div>
+                    <div class="content"><span>Distanz </span><span>` + distanceText + `</span></div>
+                    <div class="content"><span>Durchschnittsgeschwindigkeit</span><span>` + speedText + `</span></div>
+                    <div class="content"><span>CO2 gespart</span><span>` + savedCo2inGText + `</span></div>
+                </div>
+                <div class="info-text" style="padding-top: 1rem;">
+                    <span class="header">Starte die n&auml;chste Fahrt oder trenne die Verbindung &uuml;ber die App.</span>
+                </div>
+            </div>
+        `
+
+    infoContainer.innerHTML = html
+}
+
+function unsetDriveInfo() {
+    const infoContainer = document.getElementById("drive-info")
+    infoContainer.innerHTML = ""
 }

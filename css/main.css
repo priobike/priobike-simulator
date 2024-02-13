@@ -47,7 +47,7 @@ body {
     box-shadow: 0 20px 100px 10px rgba(0, 0, 0, 0.1);
 }
 
-#drive-info {
+.drive-info {
     position: fixed;
     top: 50%;
     left: 50%;
@@ -179,15 +179,28 @@ body {
     display: none;
 }
 
-.info-text .header {
+.info-text {
     margin-bottom: 0.5rem;
     font-weight: 600;
     font-size: large;
+    margin-bottom: 2rem;
 }
 
 .info-text .content {
-    color: #7c7c7c;
     font-weight: 400;
+    align-content: start;
+}
+
+.ride-summary {
+    display: grid;
+    align-content: start;
+    text-align: start;
+}
+
+.ride-summary .content{
+    display: flex;
+    justify-content: space-between;
+    text-align: start;
 }
 
 .message-text span {
