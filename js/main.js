@@ -1,4 +1,4 @@
 window.onload = (event) => {
-    loadMap();
-    connectToMqtt();  
+  loadMap();
+  connectToMqtt();
 };

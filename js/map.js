@@ -13,20 +13,17 @@ const emptyFeatureCollection = {
 };
 
 function loadMap() {
-    mapboxgl.accessToken = "pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA";
-    map = new mapboxgl.Map({
-        container: 'map',
-        center: [10.007901555262777, 53.54071265251261],
-        zoom: 12,
-        pitch: 50,
-        bearing: 0,
-        interactive: true,
-        antialias: true,
-        style: 'mapbox://styles/paulpickhardt/clskczfvv00cz01qugsppg91b',
-        });
-
-  tb = window.tb = new Threebox(map, map.getCanvas().getContext("webgl"), {
-    defaultLights: true,
+  mapboxgl.accessToken =
+    "pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA";
+  map = new mapboxgl.Map({
+    container: "map",
+    center: [10.007901555262777, 53.54071265251261],
+    zoom: 12,
+    pitch: 50,
+    bearing: 0,
+    interactive: true,
+    antialias: true,
+    style: "mapbox://styles/paulpickhardt/clskczfvv00cz01qugsppg91b",
   });
 
   // Initalize the minimap with starting values
@@ -42,6 +39,7 @@ function loadMap() {
   map.on("load", function () {
     addRouteSourcesAndLayers(map, 30);
     addTrafficLightSourcesAndLayers(map, 1);
+    add3DLayer(map);
   });
   map.on("style.load", () => {
     map.setConfigProperty("basemap", "lightPreset", "day");
@@ -121,8 +119,52 @@ function addTrafficLightSourcesAndLayers(map, size) {
   }
 }
 
-var trafficLights = {};
+function add3DLayer(map) {
+  tb = window.tb = new Threebox(map, map.getCanvas().getContext("webgl"), {
+    defaultLights: true,
+  });
+
+  map.addLayer({
+    id: "custom_layer",
+    type: "custom",
+    renderingMode: "3d",
+    onAdd: function () {},
+
+    render: function () {
+      tb.update();
+    },
+  });
+}
+
 var trafficLights3D = {};
+var trafficLights = {};
+
+// Expexts a list of objects with the following structure:
+// [{
+//   "tlID": "1",
+//   "longitude": 10.007901555262777,
+//   "latitude": 53.54071265251261,
+//   "bearing": 0
+// }]
+function setTrafficLights(newTrafficLights) {
+  cleanUpTrafficLights();
+  for (let i = 0; i < newTrafficLights.length; i++) {
+    let tl = newTrafficLights[i];
+    createTrafficLight3D(tl.tlID, tl.longitude, tl.latitude, tl.bearing);
+    createTrafficLight(tl.tlID, tl.longitude, tl.latitude, tl.bearing);
+  }
+}
+
+function cleanUpTrafficLights() {
+  minimap.getSource("traffic_light").setData(emptyFeatureCollection);
+  for (let i = 0; i < trafficLights3D.length; i++) {
+    if ("model" in trafficLights3D[i]) {
+      tb.remove(trafficLights3D[i]["model"]);
+    }
+  }
+  trafficLights3D = {};
+  trafficLights = {};
+}
 
 function createTrafficLight3D(tlID, longitude, latitude, bearing) {
   if (tlID in trafficLights3D) {
@@ -130,41 +172,29 @@ function createTrafficLight3D(tlID, longitude, latitude, bearing) {
     return;
   }
 
-  let newId = `${tlID}_grey`;
-
-  map.addLayer({
-    id: newId,
-    type: "custom",
-    renderingMode: "3d",
-    onAdd: function () {
-      const scale = 0.5;
-      const options = {
-        obj: "../3dModells/trafficlight_grey.gltf",
-        type: "gltf",
-        scale: { x: scale, y: scale, z: scale },
-        units: "meters",
-        rotation: { x: 90, y: 0, z: 0 },
-      };
-
-      bearing = (360 - bearing + 180) % 360;
-
-      tb.loadObj(options, (model) => {
-        model.setCoords([longitude, latitude]);
-        model.setRotation({ x: 0, y: 0, z: bearing });
-        tb.add(model);
-      });
-    },
-
-    render: function () {
-      tb.update();
-    },
-  });
+  bearing = (360 - bearing + 180) % 360;
 
   trafficLights3D[tlID] = {
     getCoords: () => [longitude, latitude],
     getRotation: () => ({ z: bearing }),
-    id: newId,
   };
+
+  const scale = 0.5;
+
+  const options = {
+    obj: `../3dModells/trafficlight_grey.gltf`,
+    type: "gltf",
+    scale: { x: scale, y: scale, z: scale },
+    units: "meters",
+    rotation: { x: 90, y: 0, z: 0 },
+  };
+
+  tb.loadObj(options, function (model) {
+    model.setCoords([longitude, latitude]);
+    model.setRotation({ x: 0, y: 0, z: bearing });
+    tb.add(model);
+    trafficLights3D[tlID]["model"] = model;
+  });
 }
 
 function updateTrafficLight3D(tlID, state) {
@@ -174,45 +204,29 @@ function updateTrafficLight3D(tlID, state) {
     return;
   }
 
-  let oldLayer = trafficLights3D[tlID];
-  let longitude = oldLayer.getCoords()[0];
-  let latitude = oldLayer.getCoords()[1];
-  let bearing = oldLayer.getRotation().z;
-  let newId = `${tlID}_${state}`;
-  console.log(`Creating new layer with id ${newId}`);
-  map.addLayer({
-    id: newId,
-    type: "custom",
-    renderingMode: "3d",
-    onAdd: function () {
-      const scale = 0.5;
-      const options = {
-        obj: `../3dModells/trafficlight_${state}.gltf`,
-        type: "gltf",
-        scale: { x: scale, y: scale, z: scale },
-        units: "meters",
-        rotation: { x: 90, y: 0, z: 0 },
-      };
+  let longitude = trafficLights3D[tlID].getCoords()[0];
+  let latitude = trafficLights3D[tlID].getCoords()[1];
+  let bearing = trafficLights3D[tlID].getRotation().z;
 
-      tb.loadObj(options, (model) => {
-        model.setCoords([longitude, latitude]);
-        model.setRotation({ x: 0, y: 0, z: bearing });
-        tb.add(model);
-      });
-    },
+  let oldModel = trafficLights3D[tlID]["model"];
 
-    render: function () {
-      tb.update();
-    },
-  });
+  const scale = 0.5;
 
-  console.log(`Removing old layer with id ${oldLayer.id}`);
-  map.removeLayer(oldLayer.id);
-  trafficLights3D[tlID] = {
-    getCoords: () => [longitude, latitude],
-    getRotation: () => ({ z: bearing }),
-    id: newId,
+  const options = {
+    obj: `../3dModells/trafficlight_${state}.gltf`,
+    type: "gltf",
+    scale: { x: scale, y: scale, z: scale },
+    units: "meters",
+    rotation: { x: 90, y: 0, z: 0 },
   };
+
+  tb.loadObj(options, function (model) {
+    model.setCoords([longitude, latitude]);
+    model.setRotation({ x: 0, y: 0, z: bearing });
+    tb.add(model);
+    trafficLights3D[tlID]["model"] = model;
+    tb.remove(oldModel);
+  });
 }
 
 function createTrafficLight(tlID, longitude, latitude, bearing) {
@@ -239,9 +253,7 @@ function createTrafficLight(tlID, longitude, latitude, bearing) {
   for (let tlID in trafficLights) {
     features.push(trafficLights[tlID]);
   }
-  map
-    .getSource("traffic_light")
-    .setData({ type: "FeatureCollection", features: features });
+
   minimap
     .getSource("traffic_light")
     .setData({ type: "FeatureCollection", features: features });
@@ -270,9 +282,7 @@ function updateTrafficLight(tlID, state) {
   for (let tlID in trafficLights) {
     features.push(trafficLights[tlID]);
   }
-  map
-    .getSource("traffic_light")
-    .setData({ type: "FeatureCollection", features: features });
+
   minimap
     .getSource("traffic_light")
     .setData({ type: "FeatureCollection", features: features });
