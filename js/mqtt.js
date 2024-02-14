@@ -1,36 +1,39 @@
 let client;
 let connected = false;
-let connectedDeviceID = '';
-let deviceNameCandidate = '';
-let connectedDeviceName = '';
+let connectedDeviceID = "";
+let deviceNameCandidate = "";
+let connectedDeviceName = "";
 let disconnectTimer;
 let connectionRequestCounter = 0;
 let currentRouteCoordinates = [];
-let simulatorID = Math.floor(Math.random() * 999).toString()
+let simulatorID = Math.floor(Math.random() * 999).toString();
 
 function connectToMqtt() {
-    client = mqtt.connect('ws://priobike.vkw.tu-dresden.de:20037/mqtt', {
-        clientId: Math.floor(Math.random() * 10000),
-        username: "simulator",
-        password: "Qe6irlBho9JJXbWHQQ1PB6qxHjtAHEJ9"
-    });
+  client = mqtt.connect("ws://priobike.vkw.tu-dresden.de:20037/mqtt", {
+    clientId: Math.floor(Math.random() * 10000),
+    username: "simulator",
+    password: "Qe6irlBho9JJXbWHQQ1PB6qxHjtAHEJ9",
+  });
 
-    client.on('connect', () => {
-        console.log('Connected to MQTT broker');
-        client.subscribe("app", (err) => {
-            if (err) {
-                console.error("Could not subscribe to topic");
-            }
-        });
+  client.on("connect", () => {
+    console.log("Connected to MQTT broker");
+    client.subscribe("app", (err) => {
+      if (err) {
+        console.error("Could not subscribe to topic");
+      }
     });
+  });
 
-    client.on('message', (receivedTopic, message) => {
-        console.log(`Received message on topic ${receivedTopic}: ${message.toString()}`);
-        handleMessage(message);
-    });
+  client.on("message", (receivedTopic, message) => {
+    console.log(
+      `Received message on topic ${receivedTopic}: ${message.toString()}`
+    );
+    handleMessage(message);
+  });
 
-    // Set the simulator id.
-    document.getElementById("simulator-info").innerText = "SimulatorID " + simulatorID
+  // Set the simulator id.
+  document.getElementById("simulator-info").innerText =
+    "SimulatorID " + simulatorID;
 }
 
 function handleMessage(message) {
@@ -69,9 +72,14 @@ function handleMessage(message) {
         moveToHandler(json.longitude, json.latitude);
         speedChange(json.speed);
     } else if(json.type === "TrafficLight") {
-        createTrafficLight(json.tlID, json.longitude, json.latitude, json.bearing);
+        createTrafficLight3D(
+          json.tlID,
+          json.longitude,
+          json.latitude,
+          json.bearing
+        );
     } else if(json.type === "TrafficLightChange") {
-        updateTrafficLight(json.tlID, json.state);
+        updateTrafficLight3D(json.tlID, json.state);
     } else if(json.type === "RouteDataStart") {
         currentRouteCoordinates = interpolate(json.routeData.slice(0), 100, 50).map((p) => [p.lon, p.lat]);
         updateRouteLine(currentRouteCoordinates);
@@ -83,101 +91,121 @@ function handleMessage(message) {
     }
 }
 
-function pairRequest(deviceID, deviceName)
-{
-    if(connected) {
-        return;
-    }
-    console.log("PairRequest from: " + deviceName + ", deviceID: " + deviceID);
+function pairRequest(deviceID, deviceName) {
+  if (connected) {
+    return;
+  }
+  console.log("PairRequest from: " + deviceName + ", deviceID: " + deviceID);
 
-    // entferne "Zur Zeit ist kein Gerät verbunden" message
-    if(connectionRequestCounter === 0) {
-        removeAllMessages();
-    }
-    connectionRequestCounter++;
+  // entferne "Zur Zeit ist kein Gerät verbunden" message
+  if (connectionRequestCounter === 0) {
+    removeAllMessages();
+  }
+  connectionRequestCounter++;
 
-    // gib message aus, das ein Gerät eine Anmeldungsanfrage gesendet hat
-    const messageID = 'message' + connectionRequestCounter;
-    const html = `
+  // gib message aus, das ein Gerät eine Anmeldungsanfrage gesendet hat
+  const messageID = "message" + connectionRequestCounter;
+  const html =
+    `
         <div class="message-text">
-            <span class="header">` + deviceName + ` (` + deviceID + `)</span>
+            <span class="header">` +
+    deviceName +
+    ` (` +
+    deviceID +
+    `)</span>
             <span class="subtext">Verbindungsanfrage</span>
         </div>
         <div class="pair-buttons">
-            <button onclick="onCloseClick(event)" data-message-id='` + messageID + `' aria-label="Decline pair request" class="btn-secondary">
+            <button onclick="onCloseClick(event)" data-message-id='` +
+    messageID +
+    `' aria-label="Decline pair request" class="btn-secondary">
                 <span class="material-symbols-outlined md-28">close</span>
             </button>
-            <button onclick="pair('` + deviceID + `', '` + deviceName + `', ` + messageID + `)" aria-label="Accept pair request">
+            <button onclick="pair('` +
+    deviceID +
+    `', '` +
+    deviceName +
+    `', ` +
+    messageID +
+    `)" aria-label="Accept pair request">
                 <span class="material-symbols-outlined md-36">check</span>
             </button>
         </div>`;
-    createPopupMessage(messageID, html);
+  createPopupMessage(messageID, html);
 }
 
-function pair(deviceID, deviceName)
-{
-    deviceNameCandidate = deviceName;
-    console.log("Device Candidate " + deviceName + ", deviceID: " + deviceID);
+function pair(deviceID, deviceName) {
+  deviceNameCandidate = deviceName;
+  console.log("Device Candidate " + deviceName + ", deviceID: " + deviceID);
 
-    // gib Rückmeldung an App das verbunden wurde
-    client.publish("simulator", '{"type":"PairSimulatorAck", "appID":"' + deviceID + '", "simulatorID": "' + simulatorID + '"}');
+  // gib Rückmeldung an App das verbunden wurde
+  client.publish(
+    "simulator",
+    '{"type":"PairSimulatorAck", "appID":"' +
+      deviceID +
+      '", "simulatorID": "' +
+      simulatorID +
+      '"}'
+  );
 
-    removeAllMessages();
-    connectionRequestCounter = 0;
+  removeAllMessages();
+  connectionRequestCounter = 0;
 
-    // gib "Verbunden" Statusmeldung
-    const messageID = 'connected';
-    const html = `
+  // gib "Verbunden" Statusmeldung
+  const messageID = "connected";
+  const html =
+    `
         <div class="message-text">
             <span class="header">` + deviceName + `</span>
             <span class="subtext">Warten auf Best&auml;tigung</span>
         </div>
         <div class="pair-buttons">
-            <button onclick="sendUnpair('` + deviceID + `')" aria-label="Close connection">
+            <button onclick="sendUnpair('` +
+    deviceID +
+    `')" aria-label="Close connection">
                 <span class="material-symbols-outlined md-28">close</span>
             </button>
         </div>`;
-    createPopupMessage(messageID, html);
+  createPopupMessage(messageID, html);
 }
 
-function connect(deviceID)
-{
-    connected = true;
-    connectedDeviceID = deviceID;
-    connectedDeviceName = deviceNameCandidate
-    deviceNameCandidate = ''
-    console.log("Connected to " + connectedDeviceName + ", deviceID: " + deviceID);
+function connect(deviceID) {
+  connected = true;
+  connectedDeviceID = deviceID;
+  connectedDeviceName = deviceNameCandidate;
+  deviceNameCandidate = "";
+  console.log(
+    "Connected to " + connectedDeviceName + ", deviceID: " + deviceID
+  );
 
     removeAllMessages();
     connectionRequestCounter = 0;
 
-    // gib "Verbunden" Statusmeldung
-    const messageID = 'connected';
-    const html = `
+  // gib "Verbunden" Statusmeldung
+  const messageID = "connected";
+  const html =
+    `
         <div class="message-text">
-            <span class="header">` + connectedDeviceName + `</span>
+            <span class="header">` +
+    connectedDeviceName +
+    `</span>
             <span class="subtext">Verbunden</span>
         </div>
         <div class="pair-buttons">
-            <button onclick="sendUnpair('` + deviceID + `')" aria-label="Close connection">
+            <button onclick="sendUnpair('` +
+    deviceID +
+    `')" aria-label="Close connection">
                 <span class="material-symbols-outlined md-28">close</span>
             </button>
         </div>`;
-    createPopupMessage(messageID, html);
+  createPopupMessage(messageID, html);
 }
 
 /// Unpairs the simulator from the connected device.
-function unpair(deviceID)
-{
-    if(!connected || connectedDeviceID !== deviceID) {
-        return;
-    }
-
-    connected = false;
-    connectedDeviceID = '';
-    connectedDeviceName = '';
-    disconnectTimer = 0;
-    console.log("Connection Closed");
+function unpair(deviceID) {
+  if (!connected || connectedDeviceID !== deviceID) {
+    return;
+  }
 
     removeAllMessages();
     // gib "Getrennt" Statusmeldung
