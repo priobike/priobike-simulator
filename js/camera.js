@@ -28,8 +28,7 @@ function moveToHandler(coordinate_long, coordinate_lat) {
   const resolutionRatio = (w * h) / (1920 * 1080);
   // Dependend on the resolution, the distance is calculated
   // TODO this needs to be optimized to fit screen sizes.
-  const distance = 33 * resolutionRatio;
-  console.log(distance);
+  const distance = 25 * resolutionRatio;
   const unit = 'meters';
   const options = {units: unit};
   const destination = turf.destination(targetPoint, distance, bearing, options);
