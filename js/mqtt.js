@@ -281,7 +281,6 @@ function displayRideSummary(rideSummary) {
     // Format strings and display them in the info dialog.
     let distanceText = rideSummary.distanceKilometers + ' km';
     let speedText = rideSummary.averageSpeed + ' km/h';
-    let savedCo2inGText = rideSummary.savedCo2inG + " g"
     
     // Display info board.
     const infoContainer = document.getElementById("drive-info")
@@ -295,9 +294,8 @@ function displayRideSummary(rideSummary) {
                     <div class="content"><span>Zeit </span><span>` + rideSummary.formattedTime + `</span></div>
                     <div class="content"><span>Distanz </span><span>` + distanceText + `</span></div>
                     <div class="content"><span>Durchschnittsgeschwindigkeit</span><span>` + speedText + `</span></div>
-                    <div class="content"><span>CO2 gespart</span><span>` + savedCo2inGText + `</span></div>
                 </div>
-                <div class="info-text" style="padding-top: 1rem;">
+                <div class="info-text" style="padding-top: 2rem;">
                     <span class="header">Starte die n&auml;chste Fahrt oder trenne die Verbindung &uuml;ber die App.</span>
                 </div>
             </div>
