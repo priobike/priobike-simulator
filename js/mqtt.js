@@ -66,8 +66,10 @@ function handleMessage(message) {
 
   if (json.type === "StopRide") {
     stopRide(json.appID);
+    cleanUpTrafficLights();
   } else if (json.type === "Unpair") {
     unpair(json.appID);
+    cleanUpTrafficLights();
   } else if (json.type === "NextCoordinate") {
     moveToHandler(json.longitude, json.latitude);
     speedChange(json.speed);
