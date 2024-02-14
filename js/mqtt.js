@@ -78,6 +78,7 @@ function handleMessage(message) {
     );
   } else if (json.type === "TrafficLightChange") {
     // updateTrafficLight(json.tlID, json.state);
+    updateTrafficLight3D(json.tlID, json.state);
   } else if (json.type === "RouteDataStart") {
     currentRouteCoordinates = interpolate(json.routeData.slice(0), 100, 50).map(
       (p) => [p.lon, p.lat]

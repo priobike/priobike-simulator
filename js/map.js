@@ -126,20 +126,21 @@ var trafficLights = {};
 var trafficLights3D = {};
 
 function createTrafficLight3D(tlID, longitude, latitude, bearing) {
-  if (trafficLights3D[tlID]) {
+  if (tlID in trafficLights3D) {
     console.log(`Traffic light (3D) ${tlID} already exists`);
     return;
   }
+
+  let newId = `${tlID}_grey`;
+
   map.addLayer({
-    id: tlID,
+    id: newId,
     type: "custom",
     renderingMode: "3d",
     onAdd: function () {
-      // Creative Commons License attribution:  Metlife Building model by https://sketchfab.com/NanoRay
-      // https://sketchfab.com/3d-models/metlife-building-32d3a4a1810a4d64abb9547bb661f7f3
       const scale = 0.5;
       const options = {
-        obj: "../3dModells/trafficlight_green.gltf",
+        obj: "../3dModells/trafficlight_grey.gltf",
         type: "gltf",
         scale: { x: scale, y: scale, z: scale },
         units: "meters",
@@ -159,6 +160,60 @@ function createTrafficLight3D(tlID, longitude, latitude, bearing) {
       tb.update();
     },
   });
+
+  trafficLights3D[tlID] = {
+    getCoords: () => [longitude, latitude],
+    getRotation: () => ({ z: bearing }),
+    id: newId,
+  };
+}
+
+function updateTrafficLight3D(tlID, state) {
+  console.log(`Updating traffic light (3D) ${tlID} to state ${state}`);
+  if (!(tlID in trafficLights3D)) {
+    console.log(`Traffic light (3D) ${tlID} does not exist`);
+    return;
+  }
+
+  let oldLayer = trafficLights3D[tlID];
+  let longitude = oldLayer.getCoords()[0];
+  let latitude = oldLayer.getCoords()[1];
+  let bearing = oldLayer.getRotation().z;
+  let newId = `${tlID}_${state}`;
+  console.log(`Creating new layer with id ${newId}`);
+  map.addLayer({
+    id: newId,
+    type: "custom",
+    renderingMode: "3d",
+    onAdd: function () {
+      const scale = 0.5;
+      const options = {
+        obj: `../3dModells/trafficlight_${state}.gltf`,
+        type: "gltf",
+        scale: { x: scale, y: scale, z: scale },
+        units: "meters",
+        rotation: { x: 90, y: 0, z: 0 },
+      };
+
+      tb.loadObj(options, (model) => {
+        model.setCoords([longitude, latitude]);
+        model.setRotation({ x: 0, y: 0, z: bearing });
+        tb.add(model);
+      });
+    },
+
+    render: function () {
+      tb.update();
+    },
+  });
+
+  console.log(`Removing old layer with id ${oldLayer.id}`);
+  map.removeLayer(oldLayer.id);
+  trafficLights3D[tlID] = {
+    getCoords: () => [longitude, latitude],
+    getRotation: () => ({ z: bearing }),
+    id: newId,
+  };
 }
 
 function createTrafficLight(tlID, longitude, latitude, bearing) {
