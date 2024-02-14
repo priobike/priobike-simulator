@@ -22,7 +22,13 @@ function moveToHandler(coordinate_long, coordinate_lat) {
   // Using turf, calculate a point in 100m distance from the target point
   const targetPoint = center;
   const bearing = routeBearing;
-  const distance = 42.5;
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+  // Caclulate the resolution ratio.
+  const resolutionRatio = (w * h) / (1920 * 1080);
+  // Dependend on the resolution, the distance is calculated
+  // TODO this needs to be optimized to fit screen sizes.
+  const distance = 25 * resolutionRatio;
   const unit = 'meters';
   const options = {units: unit};
   const destination = turf.destination(targetPoint, distance, bearing, options);

@@ -13,18 +13,17 @@ const emptyFeatureCollection = {
 };
 
 function loadMap() {
-  mapboxgl.accessToken =
-    "pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA";
-  map = new mapboxgl.Map({
-    container: "map",
-    center: [10.007901555262777, 53.54071265251261],
-    zoom: 12,
-    pitch: 50,
-    bearing: 0,
-    profile: "mapbox/cycling",
-    interactive: true,
-    antialias: true,
-  });
+    mapboxgl.accessToken = "pk.eyJ1Ijoic25ybXR0aHMiLCJhIjoiY2w0ZWVlcWt5MDAwZjNjbW5nMHNvN3kwNiJ9.upoSvMqKIFe3V_zPt1KxmA";
+    map = new mapboxgl.Map({
+        container: 'map',
+        center: [10.007901555262777, 53.54071265251261],
+        zoom: 12,
+        pitch: 50,
+        bearing: 0,
+        interactive: true,
+        antialias: true,
+        style: 'mapbox://styles/paulpickhardt/clskczfvv00cz01qugsppg91b',
+        });
 
   tb = window.tb = new Threebox(map, map.getCanvas().getContext("webgl"), {
     defaultLights: true,
