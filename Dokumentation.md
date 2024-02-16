@@ -195,5 +195,40 @@ Nach Erhalt dieser Nachrichten ruft mqttHandler.js eine Funktion namens createTr
 ### Aktualisieren des Ampelstatus
 Während der Fahrt sendet die App dem Simulator Informationen über den Wechsel der Lichtfarbe an der nächstgelegenen Ampel auf dieser Strecke. In den meisten Fällen ist der Zustand der Ampel in der Nachricht red oder green, gelegentlich auch amber oder redAmber, was bedeutet, dass die Farbe der Ampel in diesem Moment gelb ist. Ich suche zunächst den Layer des Ampelmodells, der zuvor dort platziert war, anhand seiner ID und erstelle dann an seiner Stelle einen neuen Layer, um das Ampelmodell der aktuellen Farbe zu platzieren. Um zu verhindern, dass das Modell zwischen den Modellwechseln kurzzeitig verschwindet, setze ich ein Timeout, um die alte Ampel-Ebene danach zu löschen.
 
-## Adrian
+## Konzeption und Simulator Frontend (Adrian)
+Ich habe zu Beginn des Komplexpraktikums ein Konzept bzw. Mockup sowohl für die Anbindung der App (Verbindungsanfrage senden, u.a.), als auch für den Simulator (Grundaufbau, Verbindungsanfragen annehmen, u.a.) entwickelt. Nach Abschluss des Konzepts im späteren Verlauf des Praktikums habe ich beim Simulator mitgearbeitet und war dort in erster Linie für das Frontend zuständig.
+
+### Konzeption und erste Entwürfe
+...  
+
+#### App
+...  
+<img src="https://github.com/priobike/priobike-simulator/assets/33716082/e9ad2d9f-3a3d-44d2-9656-6178ebcbce3f)" alt="settings app" width="200"/>
+<img src="https://github.com/priobike/priobike-simulator/assets/33716082/bee936ef-ca06-4b9a-909f-63c5bdc2c12e)" alt="connections" width="200"/>
+<img src="https://github.com/priobike/priobike-simulator/assets/33716082/ad66ff3c-d2ae-4e7f-8e03-a694a9bcba2d)" alt="connections searching" width="200"/>
+<img src="https://github.com/priobike/priobike-simulator/assets/33716082/6f95de81-3829-4e19-81f9-e125da38deeb)" alt="connections found" width="200"/>
+<img src="https://github.com/priobike/priobike-simulator/assets/33716082/03e2f685-dfab-47c6-8716-c810e863d6e0)" alt="connections connected" width="200"/>
+<img src="https://github.com/priobike/priobike-simulator/assets/33716082/129ed99e-5f7b-4e4d-95fb-b3e24ed70568)" alt="connections error" width="200"/>
+
+<img src="https://github.com/priobike/priobike-simulator/assets/33716082/84faf3a9-fa66-47fa-9f48-782d865148d0)" alt="beta features" width="200"/>
+<img src="https://github.com/priobike/priobike-simulator/assets/33716082/0d74f33b-8478-4103-bc02-ff864b551dc6)" alt="connected" width="200"/>
+<img src="https://github.com/priobike/priobike-simulator/assets/33716082/c1ee2d4f-fc4b-4960-86f0-534870400336)" alt="searching" width="200"/>
+
+#### Simulator
+...  
+<img src="https://github.com/priobike/priobike-simulator/assets/33716082/c6c148a5-1da7-4792-b9cb-1d94c9d862ea)" alt="start" width="500"/>
+<img src="https://github.com/priobike/priobike-simulator/assets/33716082/bf659b82-fea5-47ef-8fdd-7d8612e869de)" alt="con request" width="500"/>
+
+Ampeln:  
+<img src="https://github.com/priobike/priobike-simulator/assets/33716082/868c5930-5b6a-4d91-9e06-4ba5c17ca15e)" alt="traffic light" height="140"/>
+<img src="https://github.com/priobike/priobike-simulator/assets/33716082/e2bd19db-7b40-469f-870f-c763b53108fa)" alt="traffic light" height="140"/>
+<img src="https://github.com/priobike/priobike-simulator/assets/33716082/729c0a8e-eda5-4740-869d-d709cbe63b57)" alt="traffic light" height="140"/>
+<img src="https://github.com/priobike/priobike-simulator/assets/33716082/186a4425-1d89-477a-85fb-dc2d68efa0fc)" alt="traffic light" height="140"/>
+
+<img src="https://github.com/priobike/priobike-simulator/assets/33716082/c0552286-fb39-412f-883e-0e99fa381a35" alt="multiple requests" width="500"/>
+<img src="https://github.com/priobike/priobike-simulator/assets/33716082/07ba6793-78bf-46d9-b9d6-26ff1762634d" alt="requests expanded" width="500"/>
+<img src="https://github.com/priobike/priobike-simulator/assets/33716082/e2cbc6c0-cd64-4043-bb70-03300b2e7a89" alt="no requests" width="500"/>
+
+### Frontend
+...
 
