@@ -199,10 +199,11 @@ Während der Fahrt sendet die App dem Simulator Informationen über den Wechsel 
 Ich habe zu Beginn des Komplexpraktikums ein Konzept bzw. Mockup sowohl für die Anbindung der App (Verbindungsanfrage senden, u.a.), als auch für den Simulator (Grundaufbau, Verbindungsanfragen annehmen, u.a.) entwickelt. Nach Abschluss des Konzepts im späteren Verlauf des Praktikums habe ich beim Simulator mitgearbeitet und war dort in erster Linie für das Frontend zuständig.
 
 ### Konzeption und erste Entwürfe
-...  
-
+Zu Beginn des Praktikums habe ich zuerst einige (zum größten Teil interaktive) Mockups sowohl für die Anbindung des (Geschwindigkeits-)Sensors in der App, die Verbindungsanfragen durch die App und die Oberfläche des Simulators erstellt. Diese bildeten die Grundlagen für die Diskussion rund um die Verbindungsanfragen und den Aufbau des Simulators. Dementsprechend durchliefen Sie auch einige Iterationen und wurden stetig angepasst.
 #### App
-...  
+Bei der App habe ich mich zumeist an bestehenden Mechaniken bzw. UI-Komponenten orientiert und diese für unsere Anwendungszwecke wiederverwendet; so auch bei der Anbindung von Sensoren in der App:  
+Nachdem der Nutzer zum Menüpunkt “Sensoren” navigiert hat, sieht er dort eine Liste mit bereits gekoppelten Sensoren und kann oben rechts auch neue hinzufügen, indem er auf das Plus-Symbol klickt. Anschließend wird dann nach Sensoren in der Nähe gesucht und verfügbare aufgelistet, mit denen er sich durch einen Klick koppeln kann. Werden keine Sensoren gefunden erhält der Nutzer einen Hinweistext und kann ggf. erneut versuchen.  
+
 <img src="https://github.com/priobike/priobike-simulator/assets/33716082/e9ad2d9f-3a3d-44d2-9656-6178ebcbce3f)" alt="settings app" width="200"/>
 <img src="https://github.com/priobike/priobike-simulator/assets/33716082/bee936ef-ca06-4b9a-909f-63c5bdc2c12e)" alt="connections" width="200"/>
 <img src="https://github.com/priobike/priobike-simulator/assets/33716082/ad66ff3c-d2ae-4e7f-8e03-a694a9bcba2d)" alt="connections searching" width="200"/>
@@ -210,25 +211,36 @@ Ich habe zu Beginn des Komplexpraktikums ein Konzept bzw. Mockup sowohl für die
 <img src="https://github.com/priobike/priobike-simulator/assets/33716082/03e2f685-dfab-47c6-8716-c810e863d6e0)" alt="connections connected" width="200"/>
 <img src="https://github.com/priobike/priobike-simulator/assets/33716082/129ed99e-5f7b-4e4d-95fb-b3e24ed70568)" alt="connections error" width="200"/>
 
-<img src="https://github.com/priobike/priobike-simulator/assets/33716082/84faf3a9-fa66-47fa-9f48-782d865148d0)" alt="beta features" width="200"/>
+Um eine Verbindung mit dem Simulator herzustellen navigiert der Nutzer zu den Beta-Features und kann von dort eine Verbindungsanfrage stellen. Ähnlich wie beim Koppeln von Sensoren wird zunächst eine Ladeseite angezeigt, während auf die Annahme der Anfrage gewartet wird. In einem Hinweistext sieht er hier zudem auch nochmal den Namen seines Handys, welcher dann auf der Simulation erscheint. Hier haben wir uns dafür entschieden bei der Verbindungsanfrage nicht nur eine zufällige ID zu nehmen, sondern für eine bessere Benutzerfreundlichkeit auch einen lesbaren Namen, welcher in der App konfiguriert werden kann.
+
+Sobald auf der Simulation die Anfrage angenommen wird erhält er eine Erfolgsmeldung und kann nach einem Tipp auf “Los geht’s” eine Route auswählen und losradeln. Wird die Verbindungsanfrage jedoch abgelehnt (oder über längere Zeit nicht angenommen), erhält der Nutzer eine Fehlermeldung und kann es erneut versuchen. Hier haben wir uns außerdem dafür entschieden einen Timeout einzubauen, um Spam zu vermeiden.  
+
+<img src="https://github.com/priobike/priobike-simulator/assets/33716082/c1ee2d4f-fc4b-4960-86f0-534870400336)" alt="beta features" width="200"/>
+<img src="https://github.com/priobike/priobike-simulator/assets/33716082/84faf3a9-fa66-47fa-9f48-782d865148d0)" alt="searching" width="200"/>
 <img src="https://github.com/priobike/priobike-simulator/assets/33716082/0d74f33b-8478-4103-bc02-ff864b551dc6)" alt="connected" width="200"/>
-<img src="https://github.com/priobike/priobike-simulator/assets/33716082/c1ee2d4f-fc4b-4960-86f0-534870400336)" alt="searching" width="200"/>
 
 #### Simulator
-...  
+Beim Simulator habe ich ebenso versucht, dass Design mit der App einheitlich zu halten und bestehende Komponenten auf ähnliche Weise wiederzuverwenden (z.B. Listenelemente). Ein erster Entwurf von mir sah zunächst eine Art Hauptmenü vor, mit der Möglichkeit Verbindungen zu verwalten und ggf. weitere Einstellungen welche den Simulator betreffen, vorzunehmen. Dies wurde jedoch wieder verworfen, da sich herausstellte, dass es im Grunde nur die Verbindungsanfragen geben muss, welche auch direkt in die Fahrtenumgebung eingeblendet werden können.  
+
 <img src="https://github.com/priobike/priobike-simulator/assets/33716082/c6c148a5-1da7-4792-b9cb-1d94c9d862ea)" alt="start" width="500"/>
 <img src="https://github.com/priobike/priobike-simulator/assets/33716082/bf659b82-fea5-47ef-8fdd-7d8612e869de)" alt="con request" width="500"/>
+  
+  
+Der Initialzustand des Simulators ist demzufolge eine Fahrtenansicht (ohne Route, nur die Umgebung in First-Person-View) mit dem Hinweistext, dass zur Zeit kein Gerät verbunden ist und einer kurzen Anleitung wie eine Verbindungsanfrage gestellt werden kann. Sobald eine Anfrage ankommt, wird diese (ähnlich einer Benachrichtigung auf Handys) oben recht eingeblendet und kann dort angenommen oder abgelehnt werden. Kommen mehrere Anfragen zugleich an, werden die Benachrichtigungen gestapelt und können mit einem Klick auf den Stapel ausgeklappt werden.  
 
-Ampeln:  
+<img src="https://github.com/priobike/priobike-simulator/assets/33716082/e2cbc6c0-cd64-4043-bb70-03300b2e7a89" alt="no requests" width="500"/>
+<img src="https://github.com/priobike/priobike-simulator/assets/33716082/c0552286-fb39-412f-883e-0e99fa381a35" alt="multiple requests" width="500"/>
+<img src="https://github.com/priobike/priobike-simulator/assets/33716082/07ba6793-78bf-46d9-b9d6-26ff1762634d" alt="requests expanded" width="500"/>
+
+  
+Für die Darstellung der Ampeln hatte ich ebenso zwei Entwürfe gemacht; zum einen mit einer vereinfachten 2D-Darstellung mit Distanzangabe und zum anderen als Modell, welches in der Umgebung platziert werden kann. Da sich herausstellte, dass es ohne größeren technischen Aufwand möglich ist 3D-Objekte in der Umgebung zu platzieren, entschieden wir uns letztendlich dafür, diesen Weg zu gehen und Yenong kümmerte sich um die Modellierung und Umsetzung.  
+
 <img src="https://github.com/priobike/priobike-simulator/assets/33716082/868c5930-5b6a-4d91-9e06-4ba5c17ca15e)" alt="traffic light" height="140"/>
 <img src="https://github.com/priobike/priobike-simulator/assets/33716082/e2bd19db-7b40-469f-870f-c763b53108fa)" alt="traffic light" height="140"/>
 <img src="https://github.com/priobike/priobike-simulator/assets/33716082/729c0a8e-eda5-4740-869d-d709cbe63b57)" alt="traffic light" height="140"/>
 <img src="https://github.com/priobike/priobike-simulator/assets/33716082/186a4425-1d89-477a-85fb-dc2d68efa0fc)" alt="traffic light" height="140"/>
 
-<img src="https://github.com/priobike/priobike-simulator/assets/33716082/c0552286-fb39-412f-883e-0e99fa381a35" alt="multiple requests" width="500"/>
-<img src="https://github.com/priobike/priobike-simulator/assets/33716082/07ba6793-78bf-46d9-b9d6-26ff1762634d" alt="requests expanded" width="500"/>
-<img src="https://github.com/priobike/priobike-simulator/assets/33716082/e2cbc6c0-cd64-4043-bb70-03300b2e7a89" alt="no requests" width="500"/>
-
 ### Frontend
-...
+Nachdem das Konzept soweit stand, half ich bei der Entwicklung des Simulators mit und war dort in erster Linie für das Frontend zuständig, was vor allem die Verbindungsanfragen betraf. 
 
+Neue Anfragen (Messages) werden als Listenelement an das `#messages`-Div gehangen. Dieses beinhaltet neben den aktuellen Verbindungsanfragen auch den Hinweistext, dass zur Zeit kein Gerät verbunden ist und einen Button zum Einklappen der Nachrichten. Standardmäßig sind die Messages eingeklappt, können jedoch durch einen Klick geöffnet werden um alle Anfragen anzuzeigen (bzw. nur die aktuellsten drei; Ältere werden verworfen). Bei den Animationen orientierte ich mich an der Art und Weise wie in iOS Benachrichtigungen aus-/eingeklappt werden.
