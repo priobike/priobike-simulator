@@ -218,6 +218,10 @@ Sobald auf der Simulation die Anfrage angenommen wird erhält er eine Erfolgsmel
 <img src="https://github.com/priobike/priobike-simulator/assets/33716082/c1ee2d4f-fc4b-4960-86f0-534870400336)" alt="beta features" width="200"/>
 <img src="https://github.com/priobike/priobike-simulator/assets/33716082/84faf3a9-fa66-47fa-9f48-782d865148d0)" alt="searching" width="200"/>
 <img src="https://github.com/priobike/priobike-simulator/assets/33716082/0d74f33b-8478-4103-bc02-ff864b551dc6)" alt="connected" width="200"/>
+<img src="https://github.com/priobike/priobike-simulator/assets/33716082/e4e91cb3-a25c-4812-a75f-6171de5458cd)" alt="error connecting" width="200"/>
+<img src="https://github.com/priobike/priobike-simulator/assets/33716082/526c41ac-5302-4b7d-bcb9-a21715a7aef4)" alt="wait for next request" width="200"/>
+<img src="https://github.com/priobike/priobike-simulator/assets/33716082/5fdc9d39-494e-4092-a7d5-576da4b4914f)" alt="rename device" width="200"/>
+
 
 #### Simulator
 Beim Simulator habe ich ebenso versucht, dass Design mit der App einheitlich zu halten und bestehende Komponenten auf ähnliche Weise wiederzuverwenden (z.B. Listenelemente). Ein erster Entwurf von mir sah zunächst eine Art Hauptmenü vor, mit der Möglichkeit Verbindungen zu verwalten und ggf. weitere Einstellungen welche den Simulator betreffen, vorzunehmen. Dies wurde jedoch wieder verworfen, da sich herausstellte, dass es im Grunde nur die Verbindungsanfragen geben muss, welche auch direkt in die Fahrtenumgebung eingeblendet werden können.  
@@ -239,6 +243,11 @@ Für die Darstellung der Ampeln hatte ich ebenso zwei Entwürfe gemacht; zum ein
 <img src="https://github.com/priobike/priobike-simulator/assets/33716082/e2bd19db-7b40-469f-870f-c763b53108fa)" alt="traffic light" height="140"/>
 <img src="https://github.com/priobike/priobike-simulator/assets/33716082/729c0a8e-eda5-4740-869d-d709cbe63b57)" alt="traffic light" height="140"/>
 <img src="https://github.com/priobike/priobike-simulator/assets/33716082/186a4425-1d89-477a-85fb-dc2d68efa0fc)" alt="traffic light" height="140"/>
+
+
+#### Konzept-Datei und Link
+[Roh-Datei Figma](/figma.zip)  
+[Link zur Demo](https://www.figma.com/proto/Qt8VCOEA58D5AXQifLPWVs/ANTvanced?page-id=0%3A1&type=design&node-id=1-11&viewport=2379%2C703%2C0.77&t=crefKl1oNwTUlMMl-1&scaling=scale-down&starting-point-node-id=1%3A11&show-proto-sidebar=1&mode=design)
 
 ### Frontend
 Nachdem das Konzept soweit stand, half ich bei der Entwicklung des Simulators mit und war dort in erster Linie für das Frontend zuständig, was vor allem die Verbindungsanfragen betraf. 
