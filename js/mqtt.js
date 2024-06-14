@@ -82,6 +82,28 @@ function handleMessage(message) {
     currentRouteCoordinates = interpolate(json.routeData.slice(0), 100, 50).map(
       (p) => [p.lon, p.lat]
     );
+
+    // Check if route is for dresden
+    if (currentRouteCoordinates.length > 0) {
+      if (
+        (currentRouteCoordinates[0][0] > 12.4 &&
+        currentRouteCoordinates[0][0] < 15.4) &&
+        (currentRouteCoordinates[0][1] > 49.4 &&
+        currentRouteCoordinates[0][1] < 52.4)
+      ) {
+        console.log("Route is in Dresden");
+        // Zoom out to start position.
+        map.flyTo({
+          center: [13.8, 51.0],
+          zoom: 12,
+          pitch: 50,
+          bearing: 0,
+          duration: 5000,
+          essential: true,
+        });
+      }
+    }
+
     updateRouteLine(currentRouteCoordinates);
     unsetDriveInfo();
   } else if (json.type === "RideSummary") {
@@ -266,6 +288,9 @@ function stopRide() {
   }
 
   updateRouteLine([]);
+
+  const element = document.getElementById('canvas');
+  element.style.opacity = 0;
 
   // Zoom out to start position.
   map.flyTo({

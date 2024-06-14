@@ -89,6 +89,7 @@ const element = document.getElementById('canvas');
 function speedChange(speed) {
     if (!speed) return;
     const speedKmh = speed * 3.6;
-    const opacity = Math.min(1, Math.max(0, (speedKmh - 20) / 50));
+    const opacity = Math.min(1, Math.max(0, (speedKmh - 5) / 25));
+    console.log("Speed: " + speedKmh + " km/h, opacity: " + opacity);
     element.style.opacity = opacity;
 }
