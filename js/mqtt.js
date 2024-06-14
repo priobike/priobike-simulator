@@ -151,8 +151,7 @@ function pair(deviceID, deviceName) {
   removeAllMessages();
   connectionRequestCounter = 0;
 
-  // gib "Verbunden" Statusmeldung
-  const messageID = "connected";
+  const messageID = "waitingForConfirmation";
   const html =
     `
         <div class="message-text">
@@ -187,12 +186,6 @@ function connect(deviceID) {
   const messageID = "connected";
   const html =
     `
-        <div class="message-text">
-            <span class="header">` +
-    connectedDeviceName +
-    `</span>
-            <span class="subtext">Verbunden</span>
-        </div>
         <div class="pair-buttons">
             <button onclick="sendUnpair('` +
     deviceID +
