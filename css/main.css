@@ -20,6 +20,23 @@ body {
     padding: 1.4rem;
 }
 
+#connectedHeaderQR {
+    position: fixed;
+    top: 6rem;
+    left: 0;
+    padding: 0;
+    margin: 0;
+
+    background-color: #f6f6f6;
+    opacity: 0.85;
+    border-radius: 0 23px 24px 0;
+    padding: 1.4rem;
+
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+}
+
 #canvas {
     position: fixed;
     top: 0;
