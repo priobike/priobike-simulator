@@ -12,7 +12,7 @@ function connectToMqtt() {
   client = mqtt.connect("ws://priobike.vkw.tu-dresden.de:20037/mqtt", {
     clientId: Math.floor(Math.random() * 10000),
     username: "simulator",
-    password: "Qe6irlBho9JJXbWHQQ1PB6qxHjtAHEJ9",
+    password: env.simulatorMqttPassword,
   });
 
   client.on("connect", () => {
