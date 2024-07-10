@@ -1,12 +1,26 @@
-# Quickstart
+# priobike-simulator
+
+This repo contains code for a bike simulator that can be connected to the priobike app. This enables to show the priobike app inside with a real bike. A speedsensor and a bike trainer is required.
+
+![priobike-simulator-demo](https://github.com/priobike/priobike-simulator/assets/33689888/66d62ac6-2727-4ba7-84d2-78a0d52ba71b)
+Photo made at Output DD 2024 where we presented the priobike app with this simulator.
+
+[Learn more about PrioBike](https://github.com/priobike)
+
+## Quickstart
 
 Start a local server via
-
 ```bash
 SIMULATOR_MQTT_PASSWORD="<password>" python3 run-server.py
 ```
 
-# Requests / Responses
+Open `localhost:8000` in the browser. 
+
+In the priobike app. Navigate to internal settings -> "Simulator nutzen" -> Accept in Simulator -> Confirm in app.
+When using a speedsensor make sure to select "Speed Sensor Daten" in the "Ortung" setting.
+Select a route and start riding.
+
+## API and CLI
 
 App(s):  
 `{"type":"PairRequest", "appID": "123", "deviceName":"abc"}`
@@ -36,3 +50,13 @@ App:
 
 App/Simulator:  
 `{"type":"Unpair", "appID": "123", "simulatorID": "456"}` -> updates the counterpart about unpairing
+
+## Contributing
+
+We highly encourage you to open an issue or a pull request. You can also use our repository freely with the `MIT` license.
+
+Every service runs through testing before it is deployed in our release setup. Read more in our [PrioBike deployment readme](https://github.com/priobike/.github/blob/main/wiki/deployment.md) to understand how specific branches/tags are deployed.
+
+## Anything unclear?
+
+Help us improve this documentation. If you have any problems or unclarities, feel free to open an issue.
