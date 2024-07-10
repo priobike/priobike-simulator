@@ -29,13 +29,13 @@ App(s):
 
 Simulator:  
 `{"type":"PairSimulatorAck", "appID": "123", "simulatorID": "456"}`
--> needs to be confirmed
+-> needs to be confirmed in app
 
 App:  
 `{"type":"PairAppAck", "appID": "123", "simulatorID": "456"}`
 
 App:
-`{"type": "RouteDataStart", "appID": "123", "simulatorID": "456", routeData: [{lon: 9.993682, lat: 53.551086}, {lon: 9.993686, lat: 53.551085}, {lon: 9.993792, lat: 53.551195}, ...]}` -> sends route information
+`{"type": "RouteDataStart", "appID": "123", "simulatorID": "456", routeData: [{lon: 9.993682, lat: 53.551086}, {lon: 9.993686, lat: 53.551085}, {lon: 9.993792, lat: 53.551195}, ...]}` -> sends route information to simulator
 
 App:  
 `{"type":"NextCoordinate", "appID": "123", "simulatorID": "456", "longitude":"10.12345", "latitude":"50.12345", "bearing":"-80"}` -> updates the simulator about the next coordinate
