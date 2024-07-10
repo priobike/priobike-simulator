@@ -3,7 +3,7 @@
 This repo contains code for a bike simulator that can be connected to the priobike app. This enables to show the priobike app inside with a real bike. A speedsensor and a bike trainer is required.
 
 ![priobike-simulator-demo](https://github.com/priobike/priobike-simulator/assets/33689888/66d62ac6-2727-4ba7-84d2-78a0d52ba71b)
-Photo made at Output DD 2024 where we presented the priobike app with this simulator.
+Photo made at [Output DD](https://output-dd.de/blog/project-post/priobike-die-gruene-welle-app-fuer-radfahrende-in-hamburg/) 2024 where we presented the priobike app with this simulator.
 
 [Learn more about PrioBike](https://github.com/priobike)
 
@@ -21,8 +21,9 @@ When using a speedsensor make sure to select "Speed Sensor Daten" in the "Ortung
 Select a route and start riding.
 
 ## API and CLI
+### MQTT messages sent between simulator and app:
 
-App(s):  
+App(s):
 `{"type":"PairRequest", "appID": "123", "deviceName":"abc"}`
 -> displayed in the simulator (choose device from multiple requests)
 
