@@ -16,9 +16,9 @@ SIMULATOR_MQTT_PASSWORD="<password>" python3 run-server.py
 
 Open `localhost:8000` in the browser. 
 
-In the priobike app. Navigate to internal settings -> "Simulator nutzen" -> Accept in Simulator -> Confirm in app.
-When using a speedsensor make sure to select "Speed Sensor Daten" in the "Ortung" setting.
-Select a route and start riding.
+In the priobike app. Navigate to internal settings -> "Simulator nutzen" -> accept in Simulator -> confirm in app settings.
+When using a speedsensor make sure to select "Speed Sensor Daten" in the "Ortung" setting in the internal settings of the app.
+Then simply select a route and start riding. The simulator will start the ride as soon as the first positions arrive from the app.
 
 ## API and CLI
 ### MQTT messages sent between simulator and app:
